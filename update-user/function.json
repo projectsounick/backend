@@ -5,7 +5,7 @@
       "type": "httpTrigger",
       "direction": "in",
       "name": "req",
-      "methods": ["get"]
+      "methods": ["put"]
     },
     {
       "type": "http",
@@ -13,5 +13,5 @@
       "name": "res"
     }
   ],
-  "scriptFile": "../dist/user-otp-verify/index.js"
+  "scriptFile": "../dist/update-user/index.js"
 }

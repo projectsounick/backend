@@ -11,13 +11,9 @@ export async function loginUser(number: string) {
 
     // Check if the user already exists
     let user = await User.findOne({ phoneNumber: number });
-    console.log("went till here");
-    console.log(user);
 
     // Generate a random OTP
     const otp = userUtils.generateOtp(); // e.g., function that returns a 6-digit random number
-    console.log("this is otp");
-    console.log(otp);
 
     if (user) {
       // If user exists, update OTP
@@ -36,18 +32,21 @@ export async function loginUser(number: string) {
 }
 
 //// Function for veryfing the otp of the user -------------------------------------------/
-export async function userOtpVerify(otp: string, userId: string) {
+export async function userOtpVerify(otp: string, phoneNumber: string) {
   try {
     let collectedOtp = Number(otp);
     /// Finding the user --------------------/
     const dbConnection = getInessDb();
     const User = UserModel(dbConnection);
 
-    const userResponse = await User.findById(userId);
+    const userResponse = await User.findOne({ phoneNumber: phoneNumber });
     if (userResponse) {
       if (userResponse.otp === collectedOtp) {
         /// Once otp has been matched we will make the otp in user table as null-/
-        await User.findOneAndUpdate({ _id: userId }, { $set: { otp: null } });
+        await User.findOneAndUpdate(
+          { phoneNumber: phoneNumber },
+          { $set: { otp: null } }
+        );
         return {
           message: "Login successfull",
           success: true,
@@ -62,6 +61,121 @@ export async function userOtpVerify(otp: string, userId: string) {
       return {
         message: "User doesn't exists",
         success: false,
+      };
+    }
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+
+//// Function for updating the user data -----------------------------------------/
+export async function updateUserData(
+  userId: string,
+  data: Record<string, any>
+) {
+  try {
+    console.log(userId);
+    console.log(data);
+
+    const dbConnection = getInessDb();
+    const User = UserModel(dbConnection);
+
+    const updatedUserResponse = await User.findOneAndUpdate(
+      { _id: userId },
+      { $set: data }, // Updates only the fields present in `data`
+      { new: true, upsert: true } // Returns the updated document, creates one if it doesn't exist
+    );
+
+    if (updatedUserResponse) {
+      return {
+        message: "User updated successfully",
+        success: true,
+        user: updatedUserResponse,
+      };
+    } else {
+      return {
+        message: "User not found",
+        success: false,
+      };
+    }
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+
+//// Function for fetching the single user data ------------------------------------------/
+export async function getUserData(userId: string) {
+  try {
+    const dbConnection = getInessDb();
+    const User = UserModel(dbConnection);
+
+    const user = await User.findById(userId);
+
+    if (user) {
+      return {
+        message: "User found",
+        success: true,
+        data: user,
+      };
+    } else {
+      return {
+        message: "User not found",
+        success: false,
+      };
+    }
+  } catch (error) {
+    return {
+      message: error instanceof Error ? error.message : "An error occurred",
+      success: false,
+    };
+  }
+}
+
+///// Function for login in the admin panel with otp verficiation ----------------------------/
+export async function adminPanelOtpVerification(
+  otp: string,
+  phoneNumber: string
+) {
+  try {
+    let collectedOtp = Number(otp);
+    /// Finding the user --------------------/
+    const dbConnection = getInessDb();
+    const User = UserModel(dbConnection);
+
+    const userResponse = await User.findOne({ phoneNumber: phoneNumber });
+
+    if (userResponse) {
+      if (userResponse.otp === collectedOtp && userResponse.role == "admin") {
+        /// Once otp has been matched we will make the otp in user table as null-/
+        let response = await User.findOneAndUpdate(
+          { phoneNumber: phoneNumber },
+          { $set: { otp: null } }
+        );
+        if (response) {
+          return {
+            message: "Login successfull",
+            success: true,
+            data: userResponse,
+          };
+        } else {
+          return {
+            message: "Unable to login",
+            success: false,
+            data: null,
+          };
+        }
+      } else {
+        return {
+          message: "Otp is not matching",
+          success: false,
+          data: null,
+        };
+      }
+    } else {
+      return {
+        message: "User doesn't exists",
+        success: false,
+        data: null,
       };
     }
   } catch (error) {

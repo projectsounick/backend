@@ -182,3 +182,31 @@ export async function adminPanelOtpVerification(
     throw new Error(error);
   }
 }
+
+//// Function for getting all the users ----------------------------------------------------/
+async function getAllUsers(userId: string) {
+  try {
+    /// Finding the user --------------------/
+    const dbConnection = getInessDb();
+    const User = UserModel(dbConnection);
+
+    //// First finding the user who is making this call------/
+    const originalUserWhoIsMakingTheCallData = await User.findById({
+      userId,
+    }).select("role");
+
+    if (originalUserWhoIsMakingTheCallData.role === "admin") {
+      const userResponse = await User.find();
+      if (userResponse) {
+      }
+    } else {
+      return {
+        message: "You are not authorized to use this",
+        success: false,
+        data: [],
+      };
+    }
+  } catch (error) {
+    throw new Error(error);
+  }
+}

@@ -7,23 +7,28 @@ export async function storeUserQuery({
   email,
   phoneNumber,
   message,
+  contactNo,
+  category,
+  goal,
 }): Promise<{ success: boolean; message: string }> {
   try {
     // Create a new user query document
     const newQuery = new UserQueryModel({
       name,
       email,
-      phoneNumber,
+      contactNo,
       message,
+      category,
+      goal,
     });
 
     // Save the query to the database
     await newQuery.save();
-    await sendEmail({
-      email: email,
-      subject: `Query From ${name}`,
-      html: userQueryEmailTemplate(name, message),
-    });
+    // await sendEmail({
+    //   email: email,
+    //   subject: `Query From ${name}`,
+    //   html: userQueryEmailTemplate(name, message),
+    // });
     return {
       success: true,
       message: "Your query has been submitted successfully",

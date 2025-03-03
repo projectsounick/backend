@@ -4,8 +4,10 @@ import mongoose, { Schema, Document } from "mongoose";
 interface IUserQuery extends Document {
   name: string;
   email: string;
-  phoneNumber: string;
+  contactNo: string;
   message: string;
+  goal: string;
+  category: string;
   createdAt: Date;
 }
 
@@ -13,8 +15,10 @@ interface IUserQuery extends Document {
 const UserQuerySchema = new Schema<IUserQuery>({
   name: { type: String, required: true },
   email: { type: String, required: true },
-  phoneNumber: { type: String, required: true },
+  contactNo: { type: String, required: true },
   message: { type: String, required: true },
+  goal: { type: String, required: true },
+  category: { type: String, required: true },
   createdAt: { type: Date, default: Date.now },
 });
 

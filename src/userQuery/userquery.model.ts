@@ -22,7 +22,7 @@ const UserQuerySchema = new Schema<IUserQuery>({
   createdAt: { type: Date, default: Date.now },
 });
 
-// Create the UserQuery model
-const UserQueryModel = mongoose.model<IUserQuery>("UserQuery", UserQuerySchema);
-
-export default UserQueryModel;
+// This method dynamically returns the correct model based on the active DB connection
+export const UserQueryModel = (connection: mongoose.Connection) => {
+  return connection.model<IUserQuery>("UserQuery", UserQuerySchema);
+};

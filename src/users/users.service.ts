@@ -1,26 +1,23 @@
-import { getInessDb } from "../helpers/azure-cosmosdb-mongodb";
-import { UserModel } from "./user.model";
+import UserModel from "./user.model";
 import { userUtils } from "../utils/usersUtils";
 
 ///// Function for the user to login ----------------------------------------------------------/
 export async function loginUser(number: string) {
   try {
     // Get database connection
-    const dbConnection = getInessDb();
-    const User = UserModel(dbConnection);
 
     // Check if the user already exists
-    let user = await User.findOne({ phoneNumber: number });
+    let user = await UserModel.findOne({ phoneNumber: number });
 
     // Generate a random OTP
     const otp = userUtils.generateOtp(); // e.g., function that returns a 6-digit random number
 
     if (user) {
       // If user exists, update OTP
-      await User.updateOne({ phoneNumber: number }, { $set: { otp } });
+      await UserModel.updateOne({ phoneNumber: number }, { $set: { otp } });
     } else {
       // If user doesn't exist, create a new entry with phone number and OTP
-      user = new User({ phoneNumber: number, otp });
+      user = new UserModel({ phoneNumber: number, otp });
       await user.save();
     }
 
@@ -36,14 +33,12 @@ export async function userOtpVerify(otp: string, phoneNumber: string) {
   try {
     let collectedOtp = Number(otp);
     /// Finding the user --------------------/
-    const dbConnection = getInessDb();
-    const User = UserModel(dbConnection);
 
-    const userResponse = await User.findOne({ phoneNumber: phoneNumber });
+    const userResponse = await UserModel.findOne({ phoneNumber: phoneNumber });
     if (userResponse) {
       if (userResponse.otp === collectedOtp) {
         /// Once otp has been matched we will make the otp in user table as null-/
-        await User.findOneAndUpdate(
+        await UserModel.findOneAndUpdate(
           { phoneNumber: phoneNumber },
           { $set: { otp: null } }
         );
@@ -77,10 +72,7 @@ export async function updateUserData(
     console.log(userId);
     console.log(data);
 
-    const dbConnection = getInessDb();
-    const User = UserModel(dbConnection);
-
-    const updatedUserResponse = await User.findOneAndUpdate(
+    const updatedUserResponse = await UserModel.findOneAndUpdate(
       { _id: userId },
       { $set: data }, // Updates only the fields present in `data`
       { new: true, upsert: true } // Returns the updated document, creates one if it doesn't exist
@@ -106,10 +98,7 @@ export async function updateUserData(
 //// Function for fetching the single user data ------------------------------------------/
 export async function getUserData(userId: string) {
   try {
-    const dbConnection = getInessDb();
-    const User = UserModel(dbConnection);
-
-    const user = await User.findById(userId);
+    const user = await UserModel.findById(userId);
 
     if (user) {
       return {
@@ -139,15 +128,13 @@ export async function adminPanelOtpVerification(
   try {
     let collectedOtp = Number(otp);
     /// Finding the user --------------------/
-    const dbConnection = getInessDb();
-    const User = UserModel(dbConnection);
 
-    const userResponse = await User.findOne({ phoneNumber: phoneNumber });
+    const userResponse = await UserModel.findOne({ phoneNumber: phoneNumber });
 
     if (userResponse) {
       if (userResponse.otp === collectedOtp && userResponse.role == "admin") {
         /// Once otp has been matched we will make the otp in user table as null-/
-        let response = await User.findOneAndUpdate(
+        let response = await UserModel.findOneAndUpdate(
           { phoneNumber: phoneNumber },
           { $set: { otp: null } }
         );
@@ -187,16 +174,14 @@ export async function adminPanelOtpVerification(
 async function getAllUsers(userId: string) {
   try {
     /// Finding the user --------------------/
-    const dbConnection = getInessDb();
-    const User = UserModel(dbConnection);
 
     //// First finding the user who is making this call------/
-    const originalUserWhoIsMakingTheCallData = await User.findById({
+    const originalUserWhoIsMakingTheCallData = await UserModel.findById({
       userId,
     }).select("role");
 
     if (originalUserWhoIsMakingTheCallData.role === "admin") {
-      const userResponse = await User.find();
+      const userResponse = await UserModel.find();
       if (userResponse) {
       }
     } else {

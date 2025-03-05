@@ -23,6 +23,7 @@ const UserQuerySchema = new Schema<IUserQuery>({
 });
 
 // This method dynamically returns the correct model based on the active DB connection
-export const UserQueryModel = (connection: mongoose.Connection) => {
-  return connection.model<IUserQuery>("UserQuery", UserQuerySchema);
-};
+export const UserQueryModel = mongoose.model<IUserQuery>(
+  "UserQuery",
+  UserQuerySchema
+);

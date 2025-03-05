@@ -39,6 +39,7 @@ const userSchema: Schema<User> = new Schema<User>({
 });
 
 // This method dynamically returns the correct model based on the active DB connection
-export const UserModel = (connection: mongoose.Connection) => {
-  return connection.model<User>("User", userSchema);
-};
+
+const UserModel = mongoose.model<User>("User", userSchema);
+
+export default UserModel;

@@ -21,6 +21,6 @@ export const init = async (context: Context) => {
       context.log("Database connection successful!"); // Connection success message
     }
   } catch (error) {
-    console.error("Error connecting to database:", error);
+    context.log("Error connecting to database:", error);
   }
 };

@@ -1,4 +1,3 @@
-import { getInessDb } from "../helpers/azure-cosmosdb-mongodb";
 import { UserQueryModel } from "./userquery.model";
 
 //// Function for storing the user query into database -----------------------------------/
@@ -16,12 +15,8 @@ export async function storeUserQuery(
   context
 ): Promise<{ success: boolean; message: string }> {
   try {
-    const dbConnection = getInessDb();
-    context.log(dbConnection);
-    const UserQuery = UserQueryModel(dbConnection);
-
     // Create a new user query document
-    const newQuery = new UserQuery({
+    const newQuery = new UserQueryModel({
       name: name,
       email: email,
       contactNo: contactNo,

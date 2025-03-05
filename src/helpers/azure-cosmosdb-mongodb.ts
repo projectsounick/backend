@@ -1,41 +1,26 @@
-import mongoose, { connect, Connection, createConnection } from "mongoose";
+import { connect } from "mongoose";
 import { Context } from "vm";
 
-let connections: { [key: string]: Connection | null } = {
-  iness: null,
-};
-
+let db = null;
 export const init = async (context: Context) => {
-  context.log("called");
-  context.log(process.env["CosmosDbConnectionStringForiness"]);
+  const connectionString = process.env["CosmosDbConnectionStringForiness"];
+  console.log("Connection String:", connectionString);
+
+  if (!connectionString) {
+    console.error(
+      "CosmosDbConnectionStringForiness is not set in environment variables."
+    );
+    return;
+  }
+
   try {
-    // Connect to iness database if not already connected
-    if (!connections.iness) {
-      context.log("Connecting to iness database...");
-      connections.iness = createConnection(
-        process.env["CosmosDbConnectionStringForiness"]!,
-        {
-          dbName: "iness",
-        }
-      );
-      connections.iness.on("connected", () =>
-        context.log("iness database connected")
-      );
-      connections.iness.on("error", (err) =>
-        console.error("iness database connection error:", err)
-      );
-    } else {
-      context.log("Already connected to iness database");
+    if (!db) {
+      db = await connect(connectionString, {
+        dbName: "iness", // Explicitly mention the database name
+      });
+      console.log("Database connection successful!"); // Connection success message
     }
   } catch (error) {
-    console.error("Error connecting to databases:", error);
-    throw error;
+    console.error("Error connecting to database:", error);
   }
-};
-
-export const getInessDb = (): Connection => {
-  if (!connections.iness) {
-    throw new Error("iness database connection is not initialized.");
-  }
-  return connections.iness;
 };

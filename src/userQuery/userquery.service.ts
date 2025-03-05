@@ -17,6 +17,7 @@ export async function storeUserQuery(
 ): Promise<{ success: boolean; message: string }> {
   try {
     const dbConnection = getInessDb();
+    context.log(dbConnection);
     const UserQuery = UserQueryModel(dbConnection);
 
     // Create a new user query document

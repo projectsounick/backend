@@ -9,7 +9,7 @@ const httpTrigger: AzureFunction = async function (
 ): Promise<void> {
   try {
     /// Building connection with the cosmos database -----------------/
-    await init();
+    await init(context);
     console.log("this is req.body");
     console.log(req.body);
 

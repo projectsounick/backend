@@ -3,15 +3,18 @@ import { UserQueryModel } from "./userquery.model";
 
 //// Function for storing the user query into database -----------------------------------/
 
-export async function storeUserQuery({
-  name,
-  email,
+export async function storeUserQuery(
+  {
+    name,
+    email,
 
-  message,
-  contactNo,
-  category,
-  goal,
-}): Promise<{ success: boolean; message: string }> {
+    message,
+    contactNo,
+    category,
+    goal,
+  },
+  context
+): Promise<{ success: boolean; message: string }> {
   try {
     const dbConnection = getInessDb();
     const UserQuery = UserQueryModel(dbConnection);
@@ -38,7 +41,7 @@ export async function storeUserQuery({
       message: "Your query has been submitted successfully",
     };
   } catch (error) {
-    console.log(error.message);
+    context.log(error.message);
 
     throw new Error(`Error saving user query: ${error}`);
   }

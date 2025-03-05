@@ -4,7 +4,7 @@ import { Context } from "vm";
 let db = null;
 export const init = async (context: Context) => {
   const connectionString = process.env["CosmosDbConnectionStringForiness"];
-  console.log("Connection String:", connectionString);
+  context.log("Connection String:", connectionString);
 
   if (!connectionString) {
     console.error(
@@ -18,7 +18,7 @@ export const init = async (context: Context) => {
       db = await connect(connectionString, {
         dbName: "iness", // Explicitly mention the database name
       });
-      console.log("Database connection successful!"); // Connection success message
+      context.log("Database connection successful!"); // Connection success message
     }
   } catch (error) {
     console.error("Error connecting to database:", error);

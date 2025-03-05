@@ -12,7 +12,7 @@ const httpTrigger: AzureFunction = async function (
 }> {
   try {
     /// Building connection with the cosmos database -----------------/
-    await init();
+    await init(context);
 
     /// Calling the service function ----------------------/
     const response: { message: string; success: boolean } = await userOtpVerify(

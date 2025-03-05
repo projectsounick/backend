@@ -16,7 +16,7 @@ const httpTrigger: AzureFunction = async function (
 ): Promise<void> {
   try {
     /// Building connection with the cosmos database -----------------/
-    await init();
+    await init(context);
 
     /// replace this query _id with jsonwebtoken _id later on
     const { otp, phoneNumber } = req.query;

@@ -10,14 +10,14 @@ const httpTrigger: AzureFunction = async function (
 ): Promise<void> {
   try {
     /// Building connection with the cosmos database -----------------/
-    await init();
+    await init(context);
 
     /// replace this query _id with jsonwebtoken _id later on
-    console.log(req.body);
+    context.log(req.body);
 
     /// Calling the service function ----------------------/
     const response: { message: string; success: boolean } =
-      await storeUserQuery(req.body);
+      await storeUserQuery(req.body, context);
     if (response.success) {
       context.res = {
         status: 200,

@@ -1,5 +1,6 @@
 import { UserQueryModel } from "./userquery.model";
-
+const { sendEmail } = require("../helpers/send-email");
+const { userQueryEmailTemplate } = require("../template/userQueryEmail");
 //// Function for storing the user query into database -----------------------------------/
 
 export async function storeUserQuery(
@@ -27,11 +28,11 @@ export async function storeUserQuery(
 
     // Save the query to the database
     await newQuery.save();
-    // await sendEmail({
-    //   email: email,
-    //   subject: `Query From ${name}`,
-    //   html: userQueryEmailTemplate(name, message),
-    // });
+    await sendEmail({
+      email: email,
+      subject: `Query From ${name}`,
+      html: userQueryEmailTemplate(name, message, contactNo, category, goal),
+    });
     return {
       success: true,
       message: "Your query has been submitted successfully",

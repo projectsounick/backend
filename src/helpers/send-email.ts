@@ -29,7 +29,7 @@ async function sendEmail({
 
     const response = await transporter.sendMail({
       from,
-      to: email,
+      to: "founder@iness.fitness",
       subject,
       html,
     });
@@ -38,6 +38,8 @@ async function sendEmail({
 
     return response.rejected.length === 0;
   } catch (error) {
+    console.log(error.message);
+
     throw new Error("Unable to send the query, try again");
   }
 }

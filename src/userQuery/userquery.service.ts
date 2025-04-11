@@ -31,6 +31,7 @@ export async function storeUserQuery(
     await sendEmail({
       email: email,
       subject: `Query From ${name}`,
+      to: "founder@iness.fitness",
       html: userQueryEmailTemplate(name, message, contactNo, category, goal),
     });
     return {

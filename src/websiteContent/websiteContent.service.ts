@@ -42,15 +42,15 @@ export async function fetchWebsiteContent(): Promise<{
 
     return {
       success: true,
-      message: "Website content updated successfully.",
+      message: "Website content fetched successfully.",
       data: websiteContent,
     };
   } catch (error: any) {
-    console.error("Error updating website content:", error);
+    console.error("Error fetching website content:", error);
 
     return {
       success: false,
-      message: error.message || "An error occurred while updating content.",
+      message: error.message || "An error occurred while fetching content.",
       data: null,
     };
   }

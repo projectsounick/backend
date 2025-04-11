@@ -6,7 +6,7 @@ import UserModel from "../users/user.model";
 export async function createTrainer(data: TrainerProfileInterface) {
   try {
     // Step 1: Check if a user with the same email or phone number exists
-    let existingUser = await UserModel.findOne({
+    let existingUser:any = await UserModel.findOne({
       $or: [{ email: data.email }, { phoneNumber: data.phoneNumber }],
     });
 
@@ -25,7 +25,7 @@ export async function createTrainer(data: TrainerProfileInterface) {
         role: "trainer", // Assign the trainer role
       });
 
-      const savedUser = await newUser.save();
+      const savedUser:any = await newUser.save();
       userId = savedUser._id;
     }
 

@@ -1,11 +1,17 @@
 const nodemailer = require("nodemailer");
 
 const smtpOptions = {
-  host: process.env["emailHost"],
+  // host: process.env["emailHost"],
+  // port: 587,
+  // auth: {
+  //   user: process.env["emailUser"],
+  //   pass: process.env["emailPassword"],
+  // },
+  host: "smtp.ethereal.email",
   port: 587,
   auth: {
-    user: process.env["emailUser"],
-    pass: process.env["emailPassword"],
+    user: "lew87@ethereal.email",
+    pass: "c76ggSXEpvxygKmEeP",
   },
   secure: false, // Use 'false' for STARTTLS
   tls: { rejectUnauthorized: false },
@@ -15,21 +21,21 @@ async function sendEmail({
   email,
   subject,
   html,
-  from = `${email}`,
+
+  to,
 }: {
   email: string;
   subject: string;
   html: string;
-  from?: string;
+
+  to: string;
 }) {
   try {
-    console.log("Sending email to:", email);
-
     const transporter = nodemailer.createTransport(smtpOptions);
 
     const response = await transporter.sendMail({
-      from,
-      to: "founder@iness.fitness",
+      email,
+      to: to,
       subject,
       html,
     });

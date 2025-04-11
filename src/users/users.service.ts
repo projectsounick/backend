@@ -1,6 +1,7 @@
 import UserModel from "./user.model";
 import { userUtils } from "../utils/usersUtils";
-
+const { adminLoginOtpEmailTemplate } = require("../template/otpEmail");
+const { sendEmail } = require("../helpers/send-email");
 ///// Function for the user to login ----------------------------------------------------------/
 export async function loginUser(number: string) {
   try {
@@ -20,7 +21,13 @@ export async function loginUser(number: string) {
       user = new UserModel({ phoneNumber: number, otp });
       await user.save();
     }
-
+    ///// Function for sending the otp email to the user -------------------------/
+    await sendEmail({
+      email: "iness.numberonefitness@gmail.com",
+      subject: `Admin panel - Login Otp`,
+      to: "iness.numberonefitness@gmail.com",
+      html: adminLoginOtpEmailTemplate(otp),
+    });
     // Return success response
     return { success: true, message: "OTP sent successfully" };
   } catch (error) {

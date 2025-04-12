@@ -2,6 +2,7 @@ import mongoose, { Schema, Document } from "mongoose";
 
 export interface WebsiteContent extends Document {
   topContent: string;
+  topGreenContent: string;
   aboutUs: {
     corporate: string[];
     lifestyle: string[];
@@ -15,6 +16,10 @@ export interface WebsiteContent extends Document {
 const websiteContentSchema: Schema<WebsiteContent> = new Schema<WebsiteContent>(
   {
     topContent: {
+      type: String,
+      required: true,
+    },
+    topGreenContent: {
       type: String,
       required: true,
     },

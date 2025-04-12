@@ -11,17 +11,26 @@ export const createDownloadPageContent = async (
 
     // Create new entry
     const newEntry = new DownloadPageContentModel(data);
-    await newEntry.save();
-
-    return {
-      success: true,
-      message: "Download page content created successfully.",
-    };
+    let response = await newEntry.save();
+    if (response) {
+      return {
+        success: true,
+        message: "Download page content created successfully.",
+        data: response,
+      };
+    } else {
+      return {
+        success: false,
+        message: "Unable to update the download page content",
+        data: null,
+      };
+    }
   } catch (error: any) {
     console.error("Error creating download page content:", error);
     return {
       success: false,
       message: error?.message || "Something went wrong while creating content.",
+      data: null,
     };
   }
 };
@@ -34,12 +43,19 @@ export const fetchDownloadPageContent = async (): Promise<{
   try {
     // Create new content
     const DownloadPageContent = await DownloadPageContentModel.findOne();
-
-    return {
-      success: true,
-      message: "Download page content fetched successfully.",
-      data: DownloadPageContent,
-    };
+    if (DownloadPageContent) {
+      return {
+        success: true,
+        message: "Download page content fetched successfully.",
+        data: DownloadPageContent,
+      };
+    } else {
+      return {
+        success: false,
+        message: "Download page content not avaialble",
+        data: null,
+      };
+    }
   } catch (error: any) {
     console.error("Error fetching download content:", error);
 
@@ -49,4 +65,4 @@ export const fetchDownloadPageContent = async (): Promise<{
       data: null,
     };
   }
-}
+};

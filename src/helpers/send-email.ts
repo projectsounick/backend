@@ -1,18 +1,13 @@
 const nodemailer = require("nodemailer");
 
 const smtpOptions = {
-  // host: process.env["emailHost"],
-  // port: 587,
-  // auth: {
-  //   user: process.env["emailUser"],
-  //   pass: process.env["emailPassword"],
-  // },
-  host: "smtp.ethereal.email",
+  host: process.env["emailHost"],
   port: 587,
   auth: {
-    user: "lew87@ethereal.email",
-    pass: "c76ggSXEpvxygKmEeP",
+    user: process.env["emailUser"],
+    pass: process.env["emailPassword"],
   },
+
   secure: false, // Use 'false' for STARTTLS
   tls: { rejectUnauthorized: false },
 };

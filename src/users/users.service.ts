@@ -12,35 +12,37 @@ export async function loginUser(number: string) {
 
     // Generate a random OTP
     const otp = userUtils.generateOtp(); // e.g., function that returns a 6-digit random number
-
-    if (user) {
-      // If user exists, update OTP
-      await UserModel.updateOne({ phoneNumber: number }, { $set: { otp } });
-    } else {
-      // If user doesn't exist, create a new entry with phone number and OTP
-      user = new UserModel({ phoneNumber: number, otp });
-      await user.save();
+    if (!user) {
+      return { success: false, message: "User doen't found" };
     }
+    // if (user) {
+    //   // If user exists, update OTP
+    //   await UserModel.updateOne({ phoneNumber: number }, { $set: { otp } });
+    // } else {
+    //   // If user doesn't exist, create a new entry with phone number and OTP
+    //   user = new UserModel({ phoneNumber: number, otp });
+    //   await user.save();
+    // }
     ///// Function for sending the otp email to the user -------------------------/
-    await Promise.all([
-      sendEmail({
-        email: "iness.numberonefitness@gmail.com",
-        subject: `Admin panel - Login Otp`,
-        to: "iness.numberonefitness@gmail.com",
-        html: adminLoginOtpEmailTemplate(otp),
-      }),
-      sendEmail({
-        email: "surjojati@gmail.com",
-        subject: `Admin panel - Login Otp`,
-        to: "surjojati@gmail.com",
-        html: adminLoginOtpEmailTemplate(otp),
-      }),
-    ]);
+    // let response = await Promise.all([
+    //   // sendEmail({
+    //   //   email: "iness.numberonefitness@gmail.com",
+    //   //   subject: `Admin panel - Login Otp`,
+    //   //   to: "iness.numberonefitness@gmail.com",
+    //   //   html: adminLoginOtpEmailTemplate(otp),
+    //   // }),
+    //   sendEmail({
+    //     email: "founder@iness.fitness",
+    //     subject: `Admin panel - Login Otp`,
+    //     to: "surjojati@gmail.com",
+    //     html: adminLoginOtpEmailTemplate(otp),
+    //   }),
+    // ]);
 
     // Return success response
     return { success: true, message: "OTP sent successfully" };
   } catch (error) {
-    throw new Error(error);
+    return { success: false, message: "User doen't found" };
   }
 }
 
@@ -54,10 +56,10 @@ export async function userOtpVerify(otp: string, phoneNumber: string) {
     if (userResponse) {
       if (userResponse.otp === collectedOtp) {
         /// Once otp has been matched we will make the otp in user table as null-/
-        await UserModel.findOneAndUpdate(
-          { phoneNumber: phoneNumber },
-          { $set: { otp: null } }
-        );
+        // await UserModel.findOneAndUpdate(
+        //   { phoneNumber: phoneNumber },
+        //   { $set: { otp: null } }
+        // );
         return {
           message: "Login successfull",
           success: true,
@@ -150,23 +152,16 @@ export async function adminPanelOtpVerification(
     if (userResponse) {
       if (userResponse.otp === collectedOtp && userResponse.role == "admin") {
         /// Once otp has been matched we will make the otp in user table as null-/
-        let response = await UserModel.findOneAndUpdate(
-          { phoneNumber: phoneNumber },
-          { $set: { otp: null } }
-        );
-        if (response) {
-          return {
-            message: "Login successfull",
-            success: true,
-            data: userResponse,
-          };
-        } else {
-          return {
-            message: "Unable to login",
-            success: false,
-            data: null,
-          };
-        }
+        // let response = await UserModel.findOneAndUpdate(
+        //   { phoneNumber: phoneNumber },
+        //   { $set: { otp: null } }
+        // );
+
+        return {
+          message: "Login successfull",
+          success: true,
+          data: userResponse,
+        };
       } else {
         return {
           message: "Otp is not matching",

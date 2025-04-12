@@ -16,7 +16,6 @@ async function sendEmail({
   email,
   subject,
   html,
-
   to,
 }: {
   email: string;
@@ -25,14 +24,18 @@ async function sendEmail({
 
   to: string;
 }) {
+  console.log(email);
+  console.log(subject);
+  console.log(to);
+
   try {
     const transporter = nodemailer.createTransport(smtpOptions);
 
     const response = await transporter.sendMail({
-      email,
+      from: email,
       to: to,
       subject,
-      html,
+      html: "this is text",
     });
 
     console.log("Email response:", response);

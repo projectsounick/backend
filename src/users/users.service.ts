@@ -22,12 +22,21 @@ export async function loginUser(number: string) {
       await user.save();
     }
     ///// Function for sending the otp email to the user -------------------------/
-    await sendEmail({
-      email: "iness.numberonefitness@gmail.com",
-      subject: `Admin panel - Login Otp`,
-      to: "iness.numberonefitness@gmail.com",
-      html: adminLoginOtpEmailTemplate(otp),
-    });
+    await Promise.all([
+      sendEmail({
+        email: "iness.numberonefitness@gmail.com",
+        subject: `Admin panel - Login Otp`,
+        to: "iness.numberonefitness@gmail.com",
+        html: adminLoginOtpEmailTemplate(otp),
+      }),
+      sendEmail({
+        email: "surjojati@gmail.com",
+        subject: `Admin panel - Login Otp`,
+        to: "surjojati@gmail.com",
+        html: adminLoginOtpEmailTemplate(otp),
+      }),
+    ]);
+
     // Return success response
     return { success: true, message: "OTP sent successfully" };
   } catch (error) {

@@ -23,7 +23,7 @@ const httpTrigger: AzureFunction = async function (
       };
     } else {
       context.res = {
-        status: 500,
+        status: 200,
         body: response,
       };
     }

@@ -158,7 +158,7 @@ export async function adminPanelOtpVerification(
         // );
 
         return {
-          message: "Login done successfull",
+          message: "Login  successfull",
           success: true,
           data: userResponse,
         };

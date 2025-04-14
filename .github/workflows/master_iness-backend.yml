@@ -41,8 +41,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: node-app
-          path: ./dist
-          retention-days: 2
+          path: .
 
   deploy:
     runs-on: windows-latest
@@ -60,9 +59,9 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_2D5A8E83CF7A4AA0940CE8F46F9DC680 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_A7417646CED94439AFA4136DEDF1E732 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_19489B77EFFF49668C0623C3B383643A }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_9B425934D07845E4B833882773725BD8 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_278A4E692EE040BAA22F78A288BEE3C9 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_CD91AE8892114240977EB4808ECE6DE5 }}
 
       - name: 'Run Azure Functions Action'
         uses: Azure/functions-action@v1
@@ -71,3 +70,4 @@ jobs:
           app-name: 'iness-backend'
           slot-name: 'Production'
           package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
+          

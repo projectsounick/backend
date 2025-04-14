@@ -34,16 +34,17 @@ jobs:
           npm test --if-present
 
       - name: Prepare minimal deployment package
-        run: |
-          cd ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
-          mkdir deploy
-          xcopy dist deploy\dist\ /E /I
-          if exist host.json xcopy host.json deploy\
-          if exist package.json xcopy package.json deploy\
-          if exist package-lock.json xcopy package-lock.json deploy\
-          if exist function.json xcopy function.json deploy\
-          cd deploy
-          powershell Compress-Archive -Path * -DestinationPath ../node-app.zip
+  shell: cmd
+  run: |
+    cd %AZURE_FUNCTIONAPP_PACKAGE_PATH%
+    mkdir deploy
+    xcopy dist deploy\dist\ /E /I
+    if exist host.json xcopy host.json deploy\
+    if exist package.json xcopy package.json deploy\
+    if exist package-lock.json xcopy package-lock.json deploy\
+    if exist function.json xcopy function.json deploy\
+    cd deploy
+    powershell Compress-Archive -Path * -DestinationPath ../node-app.zip
 
       - name: Upload zipped artifact for deployment
         uses: actions/upload-artifact@v4

@@ -197,7 +197,7 @@ async function getAllUsers(userId: string) {
       }
     } else {
       return {
-        message: "You are not authorized to use this",
+        message: "You are not authorized to use this.",
         success: false,
         data: [],
       };

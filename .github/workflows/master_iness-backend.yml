@@ -1,3 +1,6 @@
+# Docs for the Azure Web Apps Deploy action: https://github.com/azure/functions-action
+# More GitHub Actions for Azure: https://github.com/Azure/actions
+
 name: Build and deploy Node.js project to Azure Function App - iness-backend
 
 on:
@@ -7,79 +10,64 @@ on:
   workflow_dispatch:
 
 env:
-  AZURE_FUNCTIONAPP_PACKAGE_PATH: '.'  # Path to your Azure Function App
-  NODE_VERSION: '20.x'
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: '.' # set this to the path to your web app project, defaults to the repository root
+  NODE_VERSION: '20.x' # set this to the node version to use (supports 8.x, 10.x, 12.x)
 
 jobs:
   build:
     runs-on: windows-latest
     permissions:
-      contents: read
-
+      contents: read #This is required for actions/checkout
+      
     steps:
-      - name: Checkout repository
+      - name: 'Checkout GitHub Action'
         uses: actions/checkout@v4
 
-      - name: Setup Node.js ${{ env.NODE_VERSION }}
+      - name: Setup Node ${{ env.NODE_VERSION }} Environment
         uses: actions/setup-node@v3
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
 
-      - name: Install dependencies and build
+      - name: 'Resolve Project Dependencies Using Npm'
+        shell: pwsh
         run: |
-          cd ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
-          npm ci
+          pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
+          npm install
           npm run build --if-present
-          npm test --if-present
+          npm run test --if-present
+          popd
 
-      - name: Prepare minimal deployment package
-        shell: cmd
-        run: |
-          cd %AZURE_FUNCTIONAPP_PACKAGE_PATH%
-          mkdir deploy
-          xcopy dist deploy\dist\ /E /I /Y
-          if exist host.json xcopy host.json deploy\ /Y
-          if exist package.json xcopy package.json deploy\ /Y
-          if exist package-lock.json xcopy package-lock.json deploy\ /Y
-          if exist function.json xcopy function.json deploy\ /Y
-          cd deploy
-          powershell -Command "Compress-Archive -Path * -DestinationPath ../node-app.zip"
-
-
-      - name: Upload zipped artifact for deployment
+      - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: node-app
-          path: node-app.zip
-          retention-days: 2
+          path: .
 
   deploy:
     runs-on: windows-latest
     needs: build
     permissions:
-      id-token: write
-      contents: read
+      id-token: write #This is required for requesting the JWT
+      contents: read #This is required for actions/checkout
 
     steps:
-      - name: Download zipped artifact
+      - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
           name: node-app
-
-      - name: Unzip artifact
-        run: Expand-Archive -Path node-app.zip -DestinationPath ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
-
+      
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_2D5A8E83CF7A4AA0940CE8F46F9DC680 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_A7417646CED94439AFA4136DEDF1E732 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_19489B77EFFF49668C0623C3B383643A }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_9B425934D07845E4B833882773725BD8 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_278A4E692EE040BAA22F78A288BEE3C9 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_CD91AE8892114240977EB4808ECE6DE5 }}
 
-      - name: Deploy to Azure Functions
+      - name: 'Run Azure Functions Action'
         uses: Azure/functions-action@v1
+        id: fa
         with:
           app-name: 'iness-backend'
           slot-name: 'Production'
           package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
+          

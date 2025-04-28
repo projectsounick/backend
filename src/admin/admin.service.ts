@@ -1,10 +1,11 @@
 import {
-  BlobServiceClient,
   generateBlobSASQueryParameters,
   BlobSASPermissions,
   StorageSharedKeyCredential,
 } from "@azure/storage-blob";
-
+import jwt from "jsonwebtoken";
+import UserModel from "../users/user.model";
+import axios from "axios";
 ////// Function for generating the sastoken -------------------------------------/
 /// takes container name and generate sastoken for accessing that ----/
 export function generateSasToken(folderName: string) {
@@ -34,5 +35,88 @@ export function generateSasToken(folderName: string) {
     return sasToken;
   } catch (error) {
     throw new Error("Unable to generate the sastoken");
+  }
+}
+
+//// Function to verify and decode JWT token ----------------------------------/
+export function verifyAndDecodeToken(req: any): string | null {
+  try {
+    const authHeader = req.headers["authorization"];
+
+    if (!authHeader) {
+      return null;
+    }
+
+    // Extract the token (e.g., "Bearer <token>")
+    const token = authHeader.split(" ")[1];
+    // Secret key for JWT verification (ensure this is the same as used during token generation)
+    const secretKey = process.env.secretKey!;
+
+    // Verify and decode the JWT token
+    const decodedToken = jwt.verify(token, secretKey) as { _id: string };
+    if (decodedToken._id) {
+      // Return the user ID (_id) if token is valid
+      return decodedToken._id;
+    } else return null;
+  } catch (error) {
+    // Return null if the token is invalid or expired
+    return null;
+  }
+}
+
+//// Function to check if a user exists in the database ---------------------/
+export async function checkUserExists(userId: string): Promise<boolean> {
+  try {
+    // Query the database to find the user by userId
+    const user = await UserModel.findById(userId);
+
+    // If user is found, return true, else false
+    return user !== null;
+  } catch (error) {
+    // If there's any error with the database query, log the error and return false
+    console.error("Error checking user existence:", error);
+    return false;
+  }
+}
+
+//// Function for generating the jwt-------------------------------/
+export function generateJWT(userId: string): string {
+  const payload = {
+    _id: userId,
+  };
+
+  const secretKey = process.env.secretKey!;
+  const token = jwt.sign(payload, secretKey, { expiresIn: "1h" });
+  return token;
+}
+
+export async function sendOtpUsingTwilio(
+  userId: string,
+  phoneNumber: string
+): Promise<boolean> {
+  try {
+    // Generate JWT token with the userId
+    const token = generateJWT(userId);
+
+    // Make the API call to the Azure Function
+    const response = await axios.post(
+      "http://localhost:7071/api/send-twilio-message",
+      { phoneNumber }, // Phone number in the body
+      {
+        headers: {
+          Authorization: `Bearer ${token}`, // Pass JWT in the Authorization header
+        },
+      }
+    );
+
+    // Check if the response is successful
+    if (response.data.success) {
+      return true; // OTP sent successfully
+    } else {
+      return false; // Something went wrong
+    }
+  } catch (error) {
+    console.error("Error sending OTP:", error);
+    return false; // Return false if there's an error
   }
 }

@@ -1,5 +1,7 @@
-import UserModel from "./user.model";
+import UserModel, { User } from "./user.model";
 import { userUtils } from "../utils/usersUtils";
+import twilio from "twilio";
+import { sendOtpUsingTwilio } from "../admin/admin.service";
 const { adminLoginOtpEmailTemplate } = require("../template/otpEmail");
 const { sendEmail } = require("../helpers/send-email");
 ///// Function for the user to login ----------------------------------------------------------/
@@ -46,50 +48,107 @@ export async function loginUser(number: string) {
   }
 }
 
-//// Function for veryfing the otp of the user -------------------------------------------/
-export async function userOtpVerify(otp: string, phoneNumber: string) {
+/// Function for login on the app side and sending otp to mobile number -------------------/
+export async function loginUserApp(number: string): Promise<{
+  data: User;
+  message: string;
+  success: boolean;
+}> {
   try {
-    let collectedOtp = Number(otp);
-    /// Finding the user --------------------/
+    // Find or create user
+    let user: any = await UserModel.findOne({ phoneNumber: number });
 
-    const userResponse = await UserModel.findOne({ phoneNumber: phoneNumber });
-    if (userResponse) {
-      if (userResponse.otp === collectedOtp) {
-        /// Once otp has been matched we will make the otp in user table as null-/
-        // await UserModel.findOneAndUpdate(
-        //   { phoneNumber: phoneNumber },
-        //   { $set: { otp: null } }
-        // );
+    if (!user) {
+      user = await new UserModel({ phoneNumber: number, role: "user" }).save();
+    }
+
+    // Send OTP using Twilio
+    const otpResponse = await sendOtpUsingTwilio(user._id, number);
+
+    if (!otpResponse) {
+      return {
+        success: false,
+        message: "Unable to send OTP",
+        data: null,
+      };
+    }
+
+    return {
+      success: true,
+      message: "OTP sent successfully",
+      data: user,
+    };
+  } catch (error: any) {
+    console.error("Login error:", error);
+    return {
+      success: false,
+      message: "An unexpected error occurred",
+      data: null,
+    };
+  }
+}
+
+//// Function for veryfing the otp of the user -------------------------------------------/
+export async function userOtpVerify(
+  phoneNumber: string,
+  otp: string
+): Promise<{ data: any; message: string; success: boolean }> {
+  try {
+    const accountSid = process.env.TWILIO_ACCOUNT_SID!;
+    const authToken = process.env.TWILIO_AUTH_TOKEN!;
+    const verifyServiceSid = process.env.TWILIO_VERIFY_SERVICE_SID!;
+
+    const client = twilio(accountSid, authToken);
+    // Verify the OTP using Twilio Verify API
+    const verificationCheck = await client.verify.v2
+      .services(verifyServiceSid)
+      .verificationChecks.create({ to: phoneNumber, code: otp });
+
+    console.log(verificationCheck, "this is the verificationCheck response");
+
+    if (verificationCheck.status === "approved") {
+      // OTP is correct
+
+      // Now find the user if needed
+      const userResponse = await UserModel.findOne({
+        phoneNumber: phoneNumber,
+      });
+
+      if (userResponse) {
         return {
-          message: "Login successfull",
+          message: "Login successful",
           success: true,
+          data: userResponse,
         };
       } else {
         return {
-          message: "Otp is not matching",
+          message: "User doesn't exist",
           success: false,
+          data: null,
         };
       }
     } else {
       return {
-        message: "User doesn't exists",
+        message: "Invalid or expired OTP",
         success: false,
+        data: null,
       };
     }
-  } catch (error) {
-    throw new Error(error);
+  } catch (error: any) {
+    console.error(error);
+    return {
+      message: "Unable to verify the otp",
+      success: false,
+      data: null,
+    };
   }
 }
-
 //// Function for updating the user data -----------------------------------------/
 export async function updateUserData(
   userId: string,
   data: Record<string, any>
 ) {
   try {
-    console.log(userId);
-    console.log(data);
-
     const updatedUserResponse = await UserModel.findOneAndUpdate(
       { _id: userId },
       { $set: data }, // Updates only the fields present in `data`

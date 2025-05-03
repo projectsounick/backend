@@ -13,5 +13,5 @@
       "name": "res"
     }
   ],
-  "scriptFile": "../dist/user-otp-verify/index.js"
+  "scriptFile": "../dist/send-twilio-message/index.js"
 }

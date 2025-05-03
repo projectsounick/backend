@@ -1,22 +1,25 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
-import { userOtpVerify } from "../src/users/users.service";
+import { loginUser, loginUserApp } from "../src/users/users.service";
 import { init } from "../src/helpers/azure-cosmosdb-mongodb";
+import { User } from "../src/users/user.model";
 
 //// Main login function ------------------------------------------------------------------------------/
 const httpTrigger: AzureFunction = async function (
   context: Context,
   req: HttpRequest
-) {
+): Promise<void> {
   try {
     /// Building connection with the cosmos database -----------------/
     await init(context);
-    console.log(req.body, "this is the query from the request");
+
+    /// replace this query _id with jsonwebtoken _id later on
 
     /// Calling the service function ----------------------/
-    const response: { message: string; success: boolean } = await userOtpVerify(
-      req.body.phoneNumber,
-      req.body.otp
-    );
+    const response: {
+      message: string;
+      success: boolean;
+      data: User;
+    } = await loginUserApp(req.body.phoneNumber);
     if (response.success) {
       context.res = {
         status: 200,
@@ -32,9 +35,8 @@ const httpTrigger: AzureFunction = async function (
     context.res = {
       status: 500,
       body: {
-        message: "Unable to verify the otp",
+        message: `${error.message}`,
         success: false,
-        data: null,
       },
     };
   }

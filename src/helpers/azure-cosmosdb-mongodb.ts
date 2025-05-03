@@ -3,7 +3,8 @@ import { Context } from "vm";
 
 let db = null;
 export const init = async (context: Context) => {
-  const connectionString = process.env["CosmosDbConnectionStringForiness"];
+  // const connectionString = process.env["CosmosDbConnectionStringForiness"];
+  const connectionString = 'mongodb://localhost:27017/iness';
   context.log("Connection String:", connectionString);
 
   if (!connectionString) {
@@ -15,9 +16,7 @@ export const init = async (context: Context) => {
 
   try {
     if (!db) {
-      db = await connect(connectionString, {
-        dbName: "iness", // Explicitly mention the database name
-      });
+      db = await connect(connectionString);
       context.log("Database connection successful!"); // Connection success message
     }
   } catch (error) {

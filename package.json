@@ -52,6 +52,7 @@
     "sqlite": "^5.1.1",
     "sqlite3": "^5.1.7",
     "tiktoken": "^1.0.20",
+    "twilio": "^5.5.2",
     "validate-azure-ad-token": "^2.2.0"
   },
   "devDependencies": {

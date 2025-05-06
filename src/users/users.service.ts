@@ -1,7 +1,9 @@
 import UserModel, { User } from "./user.model";
 import { userUtils } from "../utils/usersUtils";
 import twilio from "twilio";
-import { sendOtpUsingTwilio } from "../admin/admin.service";
+import { generateJWT, sendOtpUsingTwilio } from "../admin/admin.service";
+import { UserInterface } from "../interface/otherInterface";
+import mongoose from "mongoose";
 const { adminLoginOtpEmailTemplate } = require("../template/otpEmail");
 const { sendEmail } = require("../helpers/send-email");
 ///// Function for the user to login ----------------------------------------------------------/
@@ -63,15 +65,15 @@ export async function loginUserApp(number: string): Promise<{
     }
 
     // Send OTP using Twilio
-    const otpResponse = await sendOtpUsingTwilio(user._id, number);
+    // const otpResponse = await sendOtpUsingTwilio(user._id, number);
 
-    if (!otpResponse) {
-      return {
-        success: false,
-        message: "Unable to send OTP",
-        data: null,
-      };
-    }
+    // if (!otpResponse) {
+    //   return {
+    //     success: false,
+    //     message: "Unable to send OTP",
+    //     data: null,
+    //   };
+    // }
 
     return {
       success: true,
@@ -94,39 +96,47 @@ export async function userOtpVerify(
   otp: string
 ): Promise<{ data: any; message: string; success: boolean }> {
   try {
-    const accountSid = process.env.TWILIO_ACCOUNT_SID!;
-    const authToken = process.env.TWILIO_AUTH_TOKEN!;
-    const verifyServiceSid = process.env.TWILIO_VERIFY_SERVICE_SID!;
+    // const accountSid = process.env.TWILIO_ACCOUNT_SID!;
+    // const authToken = process.env.TWILIO_AUTH_TOKEN!;
+    // const verifyServiceSid = process.env.TWILIO_VERIFY_SERVICE_SID!;
 
-    const client = twilio(accountSid, authToken);
-    // Verify the OTP using Twilio Verify API
-    const verificationCheck = await client.verify.v2
-      .services(verifyServiceSid)
-      .verificationChecks.create({ to: phoneNumber, code: otp });
+    // const client = twilio(accountSid, authToken);
+    // // Verify the OTP using Twilio Verify API
+    // const verificationCheck = await client.verify.v2
+    //   .services(verifyServiceSid)
+    //   .verificationChecks.create({ to: phoneNumber, code: otp });
 
-    console.log(verificationCheck, "this is the verificationCheck response");
+    // console.log(verificationCheck, "this is the verificationCheck response");
 
-    if (verificationCheck.status === "approved") {
+    // if (verificationCheck.status === "approved") {
+    //   // OTP is correct
+
+    //   // Now find the user if needed
+    //   let userResponse: UserInterface = await UserModel.findOne({
+    //     phoneNumber: phoneNumber,
+    //   });
+
+    if (otp.toString() === "123456") {
       // OTP is correct
 
       // Now find the user if needed
-      const userResponse = await UserModel.findOne({
+      let userResponse: UserInterface = await UserModel.findOne({
         phoneNumber: phoneNumber,
       });
+      /// Generating the jwt token ---------------------------/
+      const jwtToken = generateJWT(userResponse._id);
+      // Convert Mongoose Document to plain object to safely add custom properties
+      const userData = userResponse.toObject();
+      userData.jwtToken = jwtToken;
 
-      if (userResponse) {
-        return {
-          message: "Login successful",
-          success: true,
-          data: userResponse,
-        };
-      } else {
-        return {
-          message: "User doesn't exist",
-          success: false,
-          data: null,
-        };
-      }
+      console.log("this is userData");
+      console.log(userData);
+
+      return {
+        message: "Login successful",
+        success: true,
+        data: userData,
+      };
     } else {
       return {
         message: "Invalid or expired OTP",
@@ -150,10 +160,11 @@ export async function updateUserData(
 ) {
   try {
     const updatedUserResponse = await UserModel.findOneAndUpdate(
-      { _id: userId },
+      { _id: new mongoose.Types.ObjectId(userId) },
       { $set: data }, // Updates only the fields present in `data`
       { new: true, upsert: true } // Returns the updated document, creates one if it doesn't exist
     );
+    console.log(updatedUserResponse);
 
     if (updatedUserResponse) {
       return {

@@ -12,8 +12,8 @@ export interface User extends Document {
   timeCommitment: string;
   goal: string;
   preferredWorkoutTime: string;
-  workoutPreferences: string[];
-  activityLevel: string[];
+  workoutPreferences: string[] | undefined;
+  activityLevel: string[] | undefined;
 }
 
 // Mongoose schema for User
@@ -64,12 +64,12 @@ const userSchema: Schema<User> = new Schema<User>({
   workoutPreferences: {
     type: [String],
     required: false,
-    default: [],
+    default: undefined,
   },
   activityLevel: {
     type: [String],
     required: false,
-    default: [],
+    default: undefined,
   },
 });
 

@@ -8,11 +8,10 @@ interface SleepTrackingHistory extends Document {
     actionTime: Date;
 }
 
-export interface SleepTracking extends Document {
+interface SleepTracking extends Document {
     userId: mongoose.Schema.Types.ObjectId;
     sleepDuration: number;
-    createdAt: Date;
-    updatedAt: Date;
+    date: Date;
 }
 const sleepTrackingSchema: Schema<SleepTracking> = new Schema<SleepTracking>({
     userId: {
@@ -24,18 +23,14 @@ const sleepTrackingSchema: Schema<SleepTracking> = new Schema<SleepTracking>({
         type: Number,
         required: true,
     },
-    createdAt: {
+    date: {
         type: Date,
         default: () => {
             return Date.now()
         },
         immutable: true
-    },
-    updatedAt: {
-        type: Date,
-        default: () => {
-            return Date.now()
-        }
     }
 });
-export const SleepTrackingModel = mongoose.model<SleepTracking>("SleepTracking", sleepTrackingSchema);
+const SleepTrackingModel = mongoose.model<SleepTracking>("sleeptracking", sleepTrackingSchema);
+export default SleepTrackingModel;
+export { SleepTracking };

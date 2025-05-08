@@ -1,41 +1,26 @@
 import mongoose, { Schema, Document } from "mongoose";
 
-// Updated User interface
+// Basic user model
 export interface User extends Document {
-  name: string;
-  phoneNumber: string;
+  phoneNumber?: string;
   otp: number;
   onboarding: boolean;
-  email: string;
-  role: string;
+  email?: string;
+  role: 'user' | 'admin' | 'trainer' | 'hr';
+  name: string;
+  dob: Date;
   sex: string;
-  timeCommitment: string;
-  goal: string;
-  preferredWorkoutTime: string;
-  workoutPreferences: string[];
-  activityLevel: string[];
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }
-<<<<<<< Updated upstream
-
-// Mongoose schema for User
-=======
->>>>>>> Stashed changes
 const userSchema: Schema<User> = new Schema<User>({
-  name: {
-    type: String,
-    required: false,
-  },
   phoneNumber: {
     type: String,
-    required: true,
-    unique: true,
+    required: false,
   },
   otp: {
     type: Number,
-    required: false,
-  },
-  email: {
-    type: String,
     required: false,
   },
   onboarding: {
@@ -43,20 +28,94 @@ const userSchema: Schema<User> = new Schema<User>({
     required: false,
     default: false,
   },
+  email: {
+    type: String,
+    required: false,
+  },
   role: {
     type: String,
     required: true,
     default: "user",
   },
+  name: {
+    type: String,
+    required: false,
+  },
+  dob: {
+    type: Date,
+    required: false,
+  },
   sex: {
     type: String,
     required: false,
   },
-  timeCommitment: {
+  isActive: {
+    type: Boolean,
+    required: false,
+    default: true,
+  },
+  createdAt: {
+    type: Date,
+    default: () => {
+      return Date.now()
+    },
+    immutable: true
+  },
+  updatedAt: {
+    type: Date,
+    default: () => {
+      return Date.now()
+    }
+  }
+});
+const UserModel = mongoose.model<User>("users", userSchema);
+
+// User Details model for extra details
+export interface UserDetails extends Document {
+  userId: mongoose.Types.ObjectId;
+  height: string;
+  weight: string;
+  targetWeight: string;
+  medicalConditions: string[];
+  goal: string;
+  secondaryGoal: string[];
+  dailyCommitment: string;
+  preferredWorkoutTime: string;
+  preferredWorkoutType: string;
+  preferredWorkoutLocation: string;
+  activityLevel: string;
+}
+const userDetailsSchema: Schema<UserDetails> = new Schema<UserDetails>({
+  userId: {
+    type: mongoose.SchemaTypes.ObjectId,
+    ref: "users",
+    required: true,
+  },
+  height: {
     type: String,
     required: false,
   },
+  weight: {
+    type: String,
+    required: false,
+  },
+  targetWeight: {
+    type: String,
+    required: false,
+  },
+  medicalConditions: {
+    type: [String],
+    required: false,
+  },
   goal: {
+    type: String,
+    required: false,
+  },
+  secondaryGoal: {
+    type: [String],
+    required: false,
+  },
+  dailyCommitment: {
     type: String,
     required: false,
   },
@@ -64,120 +123,58 @@ const userSchema: Schema<User> = new Schema<User>({
     type: String,
     required: false,
   },
-  workoutPreferences: {
-    type: [String],
+  preferredWorkoutType: {
+    type: String,
     required: false,
-    default: [],
   },
-  activityLevel: {
-    type: [String],
+  preferredWorkoutLocation: {
+    type: String,
     required: false,
-    default: [],
-  },
-});
-<<<<<<< Updated upstream
-
-// Mongoose model
-=======
->>>>>>> Stashed changes
-const UserModel = mongoose.model<User>("User", userSchema);
-export default UserModel;
-
-export interface UserDetails extends Document {
-  userId: mongoose.Schema.Types.ObjectId;
-  birthYear: number;
-  gender: string;
-  height: number;
-  weight: number;
-  targetWeight: number;
-  medicalHistory: string;
-  goal: string;
-  secondaryGoal: string;
-  commitment: string;
-  workoutTimePreference: string;
-  workoutPlacePreference: string;
-  workoutPreference: string;
-  activityLevel: string;
-}
-const userDetailsSchema: Schema<UserDetails> = new Schema<UserDetails>({
-  userId: {
-    type: mongoose.SchemaTypes.ObjectId,
-    ref: "User",
-    required: true,
-  },
-  birthYear: {
-    type: Number,
-    required: true,
-  },
-  gender: {
-    type: String,
-    required: true,
-  },
-  height: {
-    type: Number,
-    required: true,
-  },
-  weight: {
-    type: Number,
-    required: true,
-  },
-  targetWeight: {
-    type: Number,
-    required: true,
-  },
-  medicalHistory: {
-    type: String,
-    required: true,
-  },
-  goal: {
-    type: String,
-    required: true,
-  },
-  secondaryGoal: {
-    type: String,
-    required: true,
-  },
-  commitment: {
-    type: String,
-    required: true,
-  },
-  workoutTimePreference: {
-    type: String,
-    required: true,
-  },
-  workoutPlacePreference: {
-    type: String,
-    required: true,
-  },
-  workoutPreference: {
-    type: String,
-    required: true,
   },
   activityLevel: {
     type: String,
-    required: true,
-  },
+    required: false,
+  }
 });
-export const UserDetailsModel = mongoose.model<UserDetails>("UserDetails", userDetailsSchema);
+const UserDetailsModel = mongoose.model<UserDetails>("userdetails", userDetailsSchema);
 
+// Trainer Details for extra details
 export interface TrainerDetails extends Document {
-  userId: mongoose.Schema.Types.ObjectId;
-  birthYear: number;
-  gender: string;
+  userId: mongoose.Types.ObjectId;
+  achievements: string[];
 }
 const trainerDetailsSchema: Schema<TrainerDetails> = new Schema<TrainerDetails>({
   userId: {
     type: mongoose.SchemaTypes.ObjectId,
-    ref: "User",
+    ref: "users",
     required: true,
   },
-  birthYear: {
-    type: Number,
-    required: true,
-  },
-  gender: {
-    type: String,
-    required: true,
-  },
+  achievements: {
+    type: [String],
+    required: false,
+  }
 });
-export const TrainerDetailsModel = mongoose.model<TrainerDetails>("TrainerDetails", trainerDetailsSchema);
+const TrainerDetailsModel = mongoose.model<TrainerDetails>("trainerdetails", trainerDetailsSchema);
+
+// Hr Details for extra details
+export interface HrDetails extends Document {
+  userId: mongoose.Types.ObjectId;
+  companyId: mongoose.Types.ObjectId;
+}
+const hrDetailsSchema: Schema<HrDetails> = new Schema<HrDetails>({
+  userId: {
+    type: mongoose.SchemaTypes.ObjectId,
+    ref: "users",
+    required: true,
+  },
+  companyId: {
+    type: mongoose.SchemaTypes.ObjectId,
+    ref: "companies",
+    required: true,
+  }
+});
+const HRDetailsModel = mongoose.model<HrDetails>("hrdetails", hrDetailsSchema);
+
+export default UserModel;
+export { UserDetailsModel, TrainerDetailsModel,HRDetailsModel };
+

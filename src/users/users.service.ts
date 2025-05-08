@@ -1,7 +1,8 @@
 import UserModel, { User } from "./user.model";
 import { userUtils } from "../utils/usersUtils";
 import twilio from "twilio";
-import { sendOtpUsingTwilio } from "../admin/admin.service";
+import { generateJWT, sendOtpUsingTwilio } from "../admin/admin.service";
+import { access } from "fs";
 const { adminLoginOtpEmailTemplate } = require("../template/otpEmail");
 const { sendEmail } = require("../helpers/send-email");
 ///// Function for the user to login ----------------------------------------------------------/
@@ -17,14 +18,14 @@ export async function loginUser(number: string) {
     if (!user) {
       return { success: false, message: "User doen't found" };
     }
-    // if (user) {
-    //   // If user exists, update OTP
-    //   await UserModel.updateOne({ phoneNumber: number }, { $set: { otp } });
-    // } else {
-    //   // If user doesn't exist, create a new entry with phone number and OTP
-    //   user = new UserModel({ phoneNumber: number, otp });
-    //   await user.save();
-    // }
+    if (user) {
+      // If user exists, update OTP
+      await UserModel.updateOne({ phoneNumber: number }, { $set: { otp } });
+    } else {
+      // If user doesn't exist, create a new entry with phone number and OTP
+      user = new UserModel({ phoneNumber: number, otp });
+      await user.save();
+    }
     ///// Function for sending the otp email to the user -------------------------/
     // let response = await Promise.all([
     //   // sendEmail({
@@ -206,20 +207,22 @@ export async function adminPanelOtpVerification(
     let collectedOtp = Number(otp);
     /// Finding the user --------------------/
 
-    const userResponse = await UserModel.findOne({ phoneNumber: phoneNumber });
+    const userResponse:any = await UserModel.findOne({ phoneNumber: phoneNumber });
+
+    const token = generateJWT(userResponse._id);
 
     if (userResponse) {
       if (userResponse.otp === collectedOtp && userResponse.role == "admin") {
         /// Once otp has been matched we will make the otp in user table as null-/
-        // let response = await UserModel.findOneAndUpdate(
-        //   { phoneNumber: phoneNumber },
-        //   { $set: { otp: null } }
-        // );
+        let response = await UserModel.findOneAndUpdate(
+          { phoneNumber: phoneNumber },
+          { $set: { otp: null } }
+        );
 
         return {
           message: "Login  successfull",
           success: true,
-          data: userResponse,
+          data: {...userResponse.toObject(),accessToken: token},
         };
       } else {
         return {
@@ -259,6 +262,60 @@ async function getAllUsers(userId: string) {
         message: "You are not authorized to use this.",
         success: false,
         data: [],
+      };
+    }
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+
+
+
+
+//// Function for adding a new Trainer
+export async function addTrainer(data: Record<string, any>) {
+  try {
+    const callingUserId = data.createdBy;
+    const originalUserWhoIsMakingTheCallData = await UserModel.findById(callingUserId);
+    console.log(originalUserWhoIsMakingTheCallData, "this is the originalUserWhoIsMakingTheCallData");
+
+    if (originalUserWhoIsMakingTheCallData.role === "admin") {
+      const trainer = await new UserModel({ ...data, role: "trainer" }).save();
+      return {
+        message: "Trainer added successfully",
+        success: true,
+        data: trainer,
+      };
+    } else {
+      return {
+        message: "You are not authorized to use this.",
+        success: false,
+        data: null,
+      };
+    }
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+//// Function for getting all the trainers -----------------------------------------------/
+export async function getAllTrainers(userId: string) {
+  try {
+    const originalUserWhoIsMakingTheCallData = await UserModel.findById({
+      userId,
+    }).select("role");
+
+    if (originalUserWhoIsMakingTheCallData.role === "admin") {
+      const trainers = await UserModel.find({ role: "trainer" });
+      return {
+        message: "Trainers fetched successfully",
+        success: true,
+        data: trainers,
+      };
+    } else {
+      return {
+        message: "You are not authorized to use this.",
+        success: false,
+        data: null,
       };
     }
   } catch (error) {

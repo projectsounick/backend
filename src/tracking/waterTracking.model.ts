@@ -7,11 +7,10 @@ interface WaterTrackingHistory extends Document {
     actionTime: Date;
 }
 
-export interface WaterTracking extends Document {
+interface WaterTracking extends Document {
     userId: mongoose.Schema.Types.ObjectId;
     waterIntake: number;
-    createdAt: Date;
-    updatedAt: Date;
+    date: Date;
 }
 const waterTrackingSchema: Schema<WaterTracking> = new Schema<WaterTracking>({
     userId: {
@@ -23,18 +22,13 @@ const waterTrackingSchema: Schema<WaterTracking> = new Schema<WaterTracking>({
         type: Number,
         required: true,
     },
-    createdAt: {
+    date: {
         type: Date,
         default: () => {
             return Date.now()
         },
         immutable: true
-    },
-    updatedAt: {
-        type: Date,
-        default: () => {
-            return Date.now()
-        }
     }
-});
-export const WaterTrackingModel = mongoose.model<WaterTracking>("WaterTracking", waterTrackingSchema);
+}); const WaterTrackingModel = mongoose.model<WaterTracking>("WaterTracking", waterTrackingSchema);
+export default WaterTrackingModel;
+export { WaterTracking }

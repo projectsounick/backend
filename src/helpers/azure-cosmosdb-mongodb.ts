@@ -3,8 +3,7 @@ import { Context } from "vm";
 
 let db = null;
 export const init = async (context: Context) => {
-  // const connectionString = process.env["CosmosDbConnectionStringForiness"];
-  const connectionString = 'mongodb://localhost:27017/iness';
+  const connectionString = process.env["CosmosDbConnectionStringForIness"];
   context.log("Connection String:", connectionString);
 
   if (!connectionString) {

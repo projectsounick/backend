@@ -8,11 +8,10 @@ interface WalkTrackingHistory extends Document {
     actionTime: Date;
 }
 
-export interface WalkTracking extends Document {
+interface WalkTracking extends Document {
     userId: mongoose.Schema.Types.ObjectId;
     steps: number;
-    createdAt: Date;
-    updatedAt: Date;
+    date: Date;
 }
 const walkTrackingSchema: Schema<WalkTracking> = new Schema<WalkTracking>({
     userId: {
@@ -24,18 +23,14 @@ const walkTrackingSchema: Schema<WalkTracking> = new Schema<WalkTracking>({
         type: Number,
         required: true,
     },
-    createdAt: {
+    date: {
         type: Date,
         default: () => {
             return Date.now()
         },
         immutable: true
-    },
-    updatedAt: {
-        type: Date,
-        default: () => {
-            return Date.now()
-        }
     }
 });
-export const WalkTrackingModel = mongoose.model<WalkTracking>("WalkTracking", walkTrackingSchema);
+const WalkTrackingModel = mongoose.model<WalkTracking>("WalkTracking", walkTrackingSchema);
+export default WalkTrackingModel;
+export { WalkTracking };

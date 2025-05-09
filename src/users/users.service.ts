@@ -19,29 +19,29 @@ export async function loginUser(number: string) {
     if (!user) {
       return { success: false, message: "User doen't found" };
     }
-    // if (user) {
-    //   // If user exists, update OTP
-    //   await UserModel.updateOne({ phoneNumber: number }, { $set: { otp } });
-    // } else {
-    //   // If user doesn't exist, create a new entry with phone number and OTP
-    //   user = new UserModel({ phoneNumber: number, otp });
-    //   await user.save();
-    // }
+    if (user) {
+      // If user exists, update OTP
+      await UserModel.updateOne({ phoneNumber: number }, { $set: { otp } });
+    } else {
+      // If user doesn't exist, create a new entry with phone number and OTP
+      user = new UserModel({ phoneNumber: number, otp });
+      await user.save();
+    }
     ///// Function for sending the otp email to the user -------------------------/
-    // let response = await Promise.all([
-    //   // sendEmail({
-    //   //   email: "iness.numberonefitness@gmail.com",
-    //   //   subject: `Admin panel - Login Otp`,
-    //   //   to: "iness.numberonefitness@gmail.com",
-    //   //   html: adminLoginOtpEmailTemplate(otp),
-    //   // }),
-    //   sendEmail({
-    //     email: "founder@iness.fitness",
-    //     subject: `Admin panel - Login Otp`,
-    //     to: "surjojati@gmail.com",
-    //     html: adminLoginOtpEmailTemplate(otp),
-    //   }),
-    // ]);
+    let response = await Promise.all([
+      // sendEmail({
+      //   email: "iness.numberonefitness@gmail.com",
+      //   subject: `Admin panel - Login Otp`,
+      //   to: "iness.numberonefitness@gmail.com",
+      //   html: adminLoginOtpEmailTemplate(otp),
+      // }),
+      //  sendEmail({
+      //    email: "founder@iness.fitness",
+      //    subject: `Admin panel - Login Otp`,
+      //    to: "surjojati@gmail.com",
+      //    html: adminLoginOtpEmailTemplate(otp),
+      //  }),
+    ]);
 
     // Return success response
     return { success: true, message: "OTP sent successfully" };
@@ -217,9 +217,16 @@ export async function adminPanelOtpVerification(
     let collectedOtp = Number(otp);
     /// Finding the user --------------------/
 
-    const userResponse = await UserModel.findOne({ phoneNumber: phoneNumber });
+    const sanitizedPhoneNumber = phoneNumber.replace(/\s+/g, "");
+    const userResponse = await UserModel.findOne({
+      phoneNumber: sanitizedPhoneNumber,
+    });
+
+    console.log(userResponse);
 
     if (userResponse) {
+      console.log(collectedOtp);
+
       if (userResponse.otp === collectedOtp && userResponse.role == "admin") {
         /// Once otp has been matched we will make the otp in user table as null-/
         // let response = await UserModel.findOneAndUpdate(

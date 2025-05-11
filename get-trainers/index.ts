@@ -8,7 +8,8 @@ const httpTrigger: AzureFunction = async function (
 ): Promise<void> {
   try {
     await init(context);
-    const response: { message: string; success: boolean } = await addTrainer(req.body);
+    // const response: { message: string; success: boolean } = await getAllTrainers(req.query);
+    const response :any={};
     if (response.success) {
       context.res = {
         status: 200,

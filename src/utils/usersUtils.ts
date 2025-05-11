@@ -17,3 +17,17 @@ export function removeCountryCode(phoneNumber: string): string {
   }
   return phoneNumber;
 }
+export const userSchemaFields = [
+  "phoneNumber",
+  "otp",
+  "onboarding",
+  "email",
+  "role",
+  "name",
+  "dob",
+  "sex",
+  "isActive",
+  "createdAt",
+  "updatedAt",
+  "profilePic",
+];

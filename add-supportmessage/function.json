@@ -5,9 +5,7 @@
       "type": "httpTrigger",
       "direction": "in",
       "name": "req",
-      "methods": [
-        "post"
-      ]
+      "methods": ["post"]
     },
     {
       "type": "http",
@@ -15,5 +13,5 @@
       "name": "res"
     }
   ],
-  "scriptFile": "../dist/create-trainer/index.js"
+  "scriptFile": "../dist/add-supportmessage/index.js"
 }

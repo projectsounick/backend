@@ -1,41 +1,43 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
-import {
-  loginUser,
-  updateUserData,
-  userOtpVerify,
-} from "../src/users/users.service";
 import { init } from "../src/helpers/azure-cosmosdb-mongodb";
 import { verifyAndDecodeToken } from "../src/admin/admin.service";
+import {
+  getSleepTracking,
+  getWalkTracking,
+  getWaterTracking,
+} from "../src/tracking/tracking.service";
+import { getTransformationImagesByUserId } from "../src/TransformationImages.tsx/transformationImages.service";
 
-//// Main login function ------------------------------------------------------------------------------/
 const httpTrigger: AzureFunction = async function (
   context: Context,
   req: HttpRequest
 ): Promise<void> {
   try {
-    // Verify token and extract user ID
-    const userId = verifyAndDecodeToken(req);
+    let userId: string;
+    const authResponse = await verifyAndDecodeToken(req);
+    console.log("this is authreposne");
+    console.log(authResponse);
 
-    if (!userId) {
+    if (authResponse) {
+      userId = authResponse;
+    } else {
       context.res = {
         status: 401,
         body: {
-          message: "You are not authenticated",
+          message: "Unauthorized",
           success: false,
         },
       };
       return;
     }
 
-    /// Building connection with the cosmos database -----------------/
     await init(context);
-    console.log(req.body.data);
+    console.log("this is userId");
+    console.log(userId);
 
-    /// replace this query _id with jsonwebtoken _id later on
-
-    /// Calling the service function ----------------------/
-    const response: { message: string; success: boolean } =
-      await updateUserData(userId, req.body.data);
+    let response = await getTransformationImagesByUserId(userId);
+    console.log(response);
+    console.log(response);
 
     if (response.success) {
       context.res = {
@@ -49,8 +51,6 @@ const httpTrigger: AzureFunction = async function (
       };
     }
   } catch (error) {
-    console.log(`went for catch ${error.message}`);
-
     context.res = {
       status: 500,
       body: {

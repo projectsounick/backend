@@ -6,8 +6,9 @@
       "direction": "in",
       "name": "req",
       "methods": [
-        "post"
-      ]
+        "get"
+      ],
+      "route": "get-tracking/{type}"
     },
     {
       "type": "http",
@@ -15,5 +16,5 @@
       "name": "res"
     }
   ],
-  "scriptFile": "../dist/create-trainer/index.js"
+  "scriptFile": "../dist/get-tracking/index.js"
 }

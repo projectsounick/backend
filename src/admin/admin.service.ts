@@ -49,6 +49,9 @@ export function verifyAndDecodeToken(req: any): string | null {
 
     // Extract the token (e.g., "Bearer <token>")
     const token = authHeader.split(" ")[1];
+    console.log("this is token");
+    console.log(token);
+
     // Secret key for JWT verification (ensure this is the same as used during token generation)
     const secretKey = process.env.secretKey!;
 

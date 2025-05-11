@@ -1,7 +1,8 @@
-import UserModel, { User } from "./user.model";
-import { userUtils } from "../utils/usersUtils";
+import UserModel, { User, UserDetailsModel } from "./user.model";
+import { userSchemaFields, userUtils } from "../utils/usersUtils";
 import twilio from "twilio";
 import { generateJWT, sendOtpUsingTwilio } from "../admin/admin.service";
+import { access } from "fs";
 import { UserInterface } from "../interface/otherInterface";
 import mongoose from "mongoose";
 const { adminLoginOtpEmailTemplate } = require("../template/otpEmail");
@@ -123,14 +124,23 @@ export async function userOtpVerify(
       let userResponse: UserInterface = await UserModel.findOne({
         phoneNumber: phoneNumber,
       });
+      let userDetails = await UserDetailsModel.findById(userResponse._id);
+
       /// Generating the jwt token ---------------------------/
       const jwtToken = generateJWT(userResponse._id);
       // Convert Mongoose Document to plain object to safely add custom properties
       const userData = userResponse.toObject();
+      const userDetailsData = userDetails ? userDetails.toObject() : {};
+
+      // Attach jwt token
       userData.jwtToken = jwtToken;
 
-      console.log("this is userData");
-      console.log(userData);
+      // Merge userDetails fields into userData (excluding _id and __v if desired)
+      Object.entries(userDetailsData).forEach(([key, value]) => {
+        if (key !== "_id" && key !== "__v" && key !== "userId") {
+          userData[key] = value;
+        }
+      });
 
       return {
         message: "Login successful",
@@ -159,27 +169,54 @@ export async function updateUserData(
   data: Record<string, any>
 ) {
   try {
-    const updatedUserResponse = await UserModel.findOneAndUpdate(
-      { _id: new mongoose.Types.ObjectId(userId) },
-      { $set: data }, // Updates only the fields present in `data`
-      { new: true, upsert: true } // Returns the updated document, creates one if it doesn't exist
-    );
-    console.log(updatedUserResponse);
+    const userData: Record<string, any> = {};
+    const userDetailsData: Record<string, any> = {};
 
-    if (updatedUserResponse) {
-      return {
-        message: "User updated successfully",
-        success: true,
-        user: updatedUserResponse,
-      };
-    } else {
-      return {
-        message: "User not found",
-        success: false,
-      };
+    // Separate the data
+    for (const key in data) {
+      if (userSchemaFields.includes(key)) {
+        userData[key] = data[key];
+      } else {
+        userDetailsData[key] = data[key];
+      }
     }
+
+    const userObjectId = new mongoose.Types.ObjectId(userId);
+    const [updatedUser, updatedDetails] = await Promise.all([
+      Object.keys(userData).length
+        ? UserModel.findOneAndUpdate(
+            { _id: userObjectId },
+            { $set: userData },
+            { new: true, upsert: true }
+          )
+        : UserModel.findById(userObjectId),
+
+      Object.keys(userDetailsData).length
+        ? UserDetailsModel.findOneAndUpdate(
+            { userId: userObjectId },
+            { $set: userDetailsData },
+            { new: true, upsert: true }
+          )
+        : Promise.resolve(null),
+    ]);
+
+    // Convert documents to plain objects
+    const userObj = updatedUser?.toObject?.() ?? {};
+    const userDetailsObj = updatedDetails?.toObject?.() ?? {};
+
+    // Remove userId from userDetails
+    delete userDetailsObj.userId;
+
+    // Merge both objects
+    const mergedUser = { ...userObj, ...userDetailsObj };
+
+    return {
+      message: "User updated successfully",
+      success: true,
+      user: mergedUser,
+    };
   } catch (error) {
-    throw new Error(error);
+    throw new Error(`Failed to update user: ${error}`);
   }
 }
 
@@ -217,27 +254,26 @@ export async function adminPanelOtpVerification(
     let collectedOtp = Number(otp);
     /// Finding the user --------------------/
 
-    const sanitizedPhoneNumber = phoneNumber.replace(/\s+/g, "");
-    const userResponse = await UserModel.findOne({
-      phoneNumber: sanitizedPhoneNumber,
+    const userResponse: any = await UserModel.findOne({
+      phoneNumber: phoneNumber,
     });
 
-    console.log(userResponse);
+    const token = generateJWT(userResponse._id);
 
     if (userResponse) {
       console.log(collectedOtp);
 
       if (userResponse.otp === collectedOtp && userResponse.role == "admin") {
         /// Once otp has been matched we will make the otp in user table as null-/
-        // let response = await UserModel.findOneAndUpdate(
-        //   { phoneNumber: phoneNumber },
-        //   { $set: { otp: null } }
-        // );
+        let response = await UserModel.findOneAndUpdate(
+          { phoneNumber: phoneNumber },
+          { $set: { otp: null } }
+        );
 
         return {
           message: "Login  successfull",
           success: true,
-          data: userResponse,
+          data: { ...userResponse.toObject(), accessToken: token },
         };
       } else {
         return {
@@ -277,6 +313,62 @@ async function getAllUsers(userId: string) {
         message: "You are not authorized to use this.",
         success: false,
         data: [],
+      };
+    }
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+
+//// Function for adding a new Trainer
+export async function addTrainer(data: Record<string, any>) {
+  try {
+    const callingUserId = data.createdBy;
+    const originalUserWhoIsMakingTheCallData = await UserModel.findById(
+      callingUserId
+    );
+    console.log(
+      originalUserWhoIsMakingTheCallData,
+      "this is the originalUserWhoIsMakingTheCallData"
+    );
+
+    if (originalUserWhoIsMakingTheCallData.role === "admin") {
+      const trainer = await new UserModel({ ...data, role: "trainer" }).save();
+      return {
+        message: "Trainer added successfully",
+        success: true,
+        data: trainer,
+      };
+    } else {
+      return {
+        message: "You are not authorized to use this.",
+        success: false,
+        data: null,
+      };
+    }
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+//// Function for getting all the trainers -----------------------------------------------/
+export async function getAllTrainers(userId: string) {
+  try {
+    const originalUserWhoIsMakingTheCallData = await UserModel.findById({
+      userId,
+    }).select("role");
+
+    if (originalUserWhoIsMakingTheCallData.role === "admin") {
+      const trainers = await UserModel.find({ role: "trainer" });
+      return {
+        message: "Trainers fetched successfully",
+        success: true,
+        data: trainers,
+      };
+    } else {
+      return {
+        message: "You are not authorized to use this.",
+        success: false,
+        data: null,
       };
     }
   } catch (error) {

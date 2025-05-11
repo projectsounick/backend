@@ -1,13 +1,29 @@
 import mongoose, { Schema, Document } from "mongoose";
 
+interface PodcastInteractions {
+  comment: string;
+  userName: string;
+  userId: string;
+}
+
 export interface Podcast extends Document {
   podcastName: string;
   podcastLink: string;
   category: string;
-  createdBy: mongoose.Types.ObjectId; // Refers to User model
+  createdBy: mongoose.Types.ObjectId;
   createdAt?: Date;
   updatedAt?: Date;
+  interactions: PodcastInteractions[];
+  thumbnailImageLink: string;
+  description: string;
+  likes: string[]; // array of userIds
 }
+
+const podcastInteractionSchema = new Schema<PodcastInteractions>({
+  comment: { type: String, required: false },
+  userName: { type: String, required: false },
+  userId: { type: String, required: false },
+});
 
 const podcastSchema: Schema<Podcast> = new Schema<Podcast>(
   {
@@ -23,13 +39,23 @@ const podcastSchema: Schema<Podcast> = new Schema<Podcast>(
       type: String,
       required: true,
     },
+    interactions: [podcastInteractionSchema],
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User", // Assuming the user model is named "User"
+      ref: "User",
       required: true,
     },
+    thumbnailImageLink: {
+      type: String,
+      required: true,
+    },
+    description: {
+      type: String,
+      required: true,
+    },
+    likes: [{ type: String }], // now a simple array of userId strings
   },
-  { timestamps: true } // Automatically adds createdAt and updatedAt
+  { timestamps: true }
 );
 
 const PodcastModel = mongoose.model<Podcast>("Podcast", podcastSchema);

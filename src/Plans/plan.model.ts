@@ -1,7 +1,45 @@
 import mongoose, { Schema, Document } from "mongoose";
 
+export interface PlanType extends Document {
+  title: string;
+  desc: string;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+const planTypeSchema: Schema<PlanType> = new Schema<PlanType>({
+  title: {
+    type: String,
+    required: true,
+  },
+  desc: {
+    type: String,
+    required: true,
+  },
+  isActive: {
+    type: Boolean,
+    required: false,
+    default: true,
+  },
+  createdAt: {
+    type: Date,
+    default: () => {
+      return Date.now();
+    },
+    immutable: true,
+  },
+  updatedAt: {
+    type: Date,
+    default: () => {
+      return Date.now();
+    },
+  },
+});
+const PlanTypeModel = mongoose.model<PlanType>("planTypes", planTypeSchema);
+
 
 export interface Plan extends Document {
+  planTypeId: mongoose.Types.ObjectId;
   title: string;
   descItems: Array<string>;
   imgUrl: string;
@@ -10,6 +48,11 @@ export interface Plan extends Document {
   updatedAt: Date;
 }
 const planSchema: Schema<Plan> = new Schema<Plan>({
+  planTypeId: {
+    type: mongoose.SchemaTypes.ObjectId,
+    ref: "planTypes",
+    required: true,
+  },
   title: {
     type: String,
     required: true,
@@ -108,4 +151,4 @@ const planItemSchema: Schema<PlanItems> = new Schema<PlanItems>({
 const PlanItemModel = mongoose.model<PlanItems>("planItemss", planItemSchema);
 
 export default PlanModel;
-export { PlanItemModel };
+export { PlanTypeModel,PlanItemModel };

@@ -1,15 +1,10 @@
-///// Exporting all the utils function for the users -------------------------------------/
-export const userUtils = {
-  generateOtp,
-};
+import UserModel from "../users/user.model";
 
-//// Function for generating new otp -------------------/
-export function generateOtp() {
+
+function generateOtp() {
   return Math.floor(1000 + Math.random() * 9000); // Generates a random 4-digit number
 }
-//// Funciton for removing country code from the mobile number---/
-
-export function removeCountryCode(phoneNumber: string): string {
+function removeCountryCode(phoneNumber: string): string {
   console.log(phoneNumber);
 
   if (phoneNumber.startsWith("91")) {
@@ -31,3 +26,29 @@ export const userSchemaFields = [
   "updatedAt",
   "profilePic",
 ];
+async function isUserPresent(data: Record<string, any>) {
+  const { phoneNumber, email } = data;
+
+  const message= [];
+  let userPresent= false;
+
+  if(phoneNumber) {
+    const savedUser = await UserModel.findOne({phoneNumber: phoneNumber});
+    if(savedUser) {
+      userPresent = true;
+      message.push("Duplicate phone number provided");
+    }
+  }
+  if(email) {
+    const savedUser = await UserModel.findOne({email: email});
+    if(savedUser) {
+      userPresent = true;
+      message.push("Duplicate email provided");
+    }
+  }
+
+  return { userPresent:userPresent, message:message.join(", ") };
+}
+
+
+export { generateOtp, removeCountryCode, isUserPresent };

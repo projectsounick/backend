@@ -1,5 +1,6 @@
 import UserModel, { User, UserDetailsModel } from "./user.model";
-import { userSchemaFields, userUtils } from "../utils/usersUtils";
+import { userSchemaFields } from "../utils/usersUtils";
+import { generateOtp,removeCountryCode } from "../utils/usersUtils";
 import twilio from "twilio";
 import { generateJWT, sendOtpUsingTwilio } from "../admin/admin.service";
 import { access } from "fs";
@@ -7,24 +8,19 @@ import { UserInterface } from "../interface/otherInterface";
 import mongoose from "mongoose";
 const { adminLoginOtpEmailTemplate } = require("../template/otpEmail");
 const { sendEmail } = require("../helpers/send-email");
-///// Function for the user to login ----------------------------------------------------------/
+
+///// Functions For Login Flow For Admin Panel Start////
 export async function loginUser(number: string) {
   try {
-    // Get database connection
-
-    // Check if the user already exists
     let user = await UserModel.findOne({ phoneNumber: number });
-
-    // Generate a random OTP
-    const otp = userUtils.generateOtp(); // e.g., function that returns a 6-digit random number
+    // const otp = generateOtp();
+    const otp = 1234;
     if (!user) {
       return { success: false, message: "User doen't found" };
     }
     if (user) {
-      // If user exists, update OTP
       await UserModel.updateOne({ phoneNumber: number }, { $set: { otp } });
     } else {
-      // If user doesn't exist, create a new entry with phone number and OTP
       user = new UserModel({ phoneNumber: number, otp });
       await user.save();
     }
@@ -50,6 +46,44 @@ export async function loginUser(number: string) {
     return { success: false, message: "User doen't found" };
   }
 }
+export async function adminPanelOtpVerification(otp: string,phoneNumber: string) {
+  try {
+    let collectedOtp = Number(otp);
+
+    const userResponse: any = await UserModel.findOne({ phoneNumber: phoneNumber });
+    const token = generateJWT(userResponse._id);
+    if (userResponse) {
+      if (userResponse.otp === collectedOtp && userResponse.role == "admin") {
+        let response = await UserModel.findOneAndUpdate(
+          { phoneNumber: phoneNumber },
+          { $set: { otp: null } }
+        );
+
+        return {
+          message: "Login  successfull",
+          success: true,
+          data: { ...userResponse.toObject(), accessToken: token },
+        };
+      } else {
+        return {
+          message: "Otp is not matching",
+          success: false,
+          data: null,
+        };
+      }
+    } else {
+      return {
+        message: "User doesn't exists",
+        success: false,
+        data: null,
+      };
+    }
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+///// Functions For Login Flow For Admin Panel End////
+
 
 /// Function for login on the app side and sending otp to mobile number -------------------/
 export async function loginUserApp(number: string): Promise<{
@@ -124,13 +158,18 @@ export async function userOtpVerify(
       let userResponse: UserInterface = await UserModel.findOne({
         phoneNumber: phoneNumber,
       });
-      let userDetails = await UserDetailsModel.findById(userResponse._id);
+      let userDetails = await UserDetailsModel.findOne({
+        userId: userResponse._id,
+      });
 
       /// Generating the jwt token ---------------------------/
       const jwtToken = generateJWT(userResponse._id);
       // Convert Mongoose Document to plain object to safely add custom properties
       const userData = userResponse.toObject();
       const userDetailsData = userDetails ? userDetails.toObject() : {};
+      console.log("this is userdetailsdata");
+
+      console.log(userDetailsData);
 
       // Attach jwt token
       userData.jwtToken = jwtToken;
@@ -245,54 +284,7 @@ export async function getUserData(userId: string) {
   }
 }
 
-///// Function for login in the admin panel with otp verficiation ----------------------------/
-export async function adminPanelOtpVerification(
-  otp: string,
-  phoneNumber: string
-) {
-  try {
-    let collectedOtp = Number(otp);
-    /// Finding the user --------------------/
 
-    const userResponse: any = await UserModel.findOne({
-      phoneNumber: phoneNumber,
-    });
-
-    const token = generateJWT(userResponse._id);
-
-    if (userResponse) {
-      console.log(collectedOtp);
-
-      if (userResponse.otp === collectedOtp && userResponse.role == "admin") {
-        /// Once otp has been matched we will make the otp in user table as null-/
-        let response = await UserModel.findOneAndUpdate(
-          { phoneNumber: phoneNumber },
-          { $set: { otp: null } }
-        );
-
-        return {
-          message: "Login  successfull",
-          success: true,
-          data: { ...userResponse.toObject(), accessToken: token },
-        };
-      } else {
-        return {
-          message: "Otp is not matching",
-          success: false,
-          data: null,
-        };
-      }
-    } else {
-      return {
-        message: "User doesn't exists",
-        success: false,
-        data: null,
-      };
-    }
-  } catch (error) {
-    throw new Error(error);
-  }
-}
 
 //// Function for getting all the users ----------------------------------------------------/
 async function getAllUsers(userId: string) {
@@ -323,54 +315,81 @@ async function getAllUsers(userId: string) {
 //// Function for adding a new Trainer
 export async function addTrainer(data: Record<string, any>) {
   try {
-    const callingUserId = data.createdBy;
-    const originalUserWhoIsMakingTheCallData = await UserModel.findById(
-      callingUserId
-    );
-    console.log(
-      originalUserWhoIsMakingTheCallData,
-      "this is the originalUserWhoIsMakingTheCallData"
-    );
+    const trainer = new UserModel({ ...data, role: "trainer" });
+    const savedTrainer = await trainer.save();
+    return {
+      message: "Trainer added successfully",
+      success: true,
+      data: savedTrainer,
+    };
 
-    if (originalUserWhoIsMakingTheCallData.role === "admin") {
-      const trainer = await new UserModel({ ...data, role: "trainer" }).save();
-      return {
-        message: "Trainer added successfully",
-        success: true,
-        data: trainer,
-      };
-    } else {
-      return {
-        message: "You are not authorized to use this.",
-        success: false,
-        data: null,
-      };
-    }
   } catch (error) {
     throw new Error(error);
   }
 }
-//// Function for getting all the trainers -----------------------------------------------/
-export async function getAllTrainers(userId: string) {
+//// Function for getting all the trainers
+export async function getAllTrainers(isActive: boolean | null,search:string, page:number, limit:number) {
   try {
-    const originalUserWhoIsMakingTheCallData = await UserModel.findById({
-      userId,
-    }).select("role");
-
-    if (originalUserWhoIsMakingTheCallData.role === "admin") {
-      const trainers = await UserModel.find({ role: "trainer" });
-      return {
-        message: "Trainers fetched successfully",
-        success: true,
-        data: trainers,
-      };
-    } else {
-      return {
-        message: "You are not authorized to use this.",
-        success: false,
-        data: null,
-      };
+    const queryObj:any = {
+      role: "trainer",
     }
+    if(isActive !== null) {
+      queryObj['isActive'] = isActive;
+    }
+    if (search) {
+      queryObj["$or"] = [
+        { name: { $regex: search, $options: "i" } }, // Case-insensitive match
+        { email: { $regex: search, $options: "i" } },
+        { phoneNumber: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    const pageNumber = page > 0 ? page : 1;
+    const itemsPerPage = limit > 0 ? limit : 10;
+    const skip = (pageNumber - 1) * itemsPerPage;
+
+
+    const savedTrainers = await UserModel.aggregate([
+      { $match: queryObj },
+      { $sort: { createdAt: -1 } },
+      { $skip: skip },
+      { $limit: itemsPerPage },
+      {
+        $lookup: {
+          from: "trainerdetails",
+          localField: "_id",
+          foreignField: "userId",
+          as: "trainerDetails",
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          phoneNumber: 1,
+          email: 1,
+          name: 1,
+          dob:1,
+          sex:1,
+          isActive: 1,
+          createdAt: 1,
+          achievements: { $ifNull: [{ $arrayElemAt: ["$trainerDetails.achievements", 0] }, []] },
+        },
+      },
+    ]);
+    
+    
+
+    const totalTrainers = await UserModel.countDocuments(queryObj);
+    return {
+      message: "Trainers fetched successfully",
+      success: true,
+      data: savedTrainers,
+      pagination: {
+        currentPage: pageNumber,
+        totalItems: totalTrainers,
+        totalPages: Math.ceil(totalTrainers / itemsPerPage),
+      },
+    };
   } catch (error) {
     throw new Error(error);
   }

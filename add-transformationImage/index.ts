@@ -1,8 +1,15 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
-import { addTrainer } from "../src/users/users.service";
 import { init } from "../src/helpers/azure-cosmosdb-mongodb";
-import { checkIfAdmin, verifyAndDecodeToken } from "../src/admin/admin.service";
-import { isUserPresent } from "../src/utils/usersUtils";
+import { verifyAndDecodeToken } from "../src/admin/admin.service";
+import {
+  getSleepTracking,
+  getWalkTracking,
+  getWaterTracking,
+} from "../src/tracking/tracking.service";
+import {
+  addTransformationImages,
+  getTransformationImagesByUserId,
+} from "../src/TransformationImages.tsx/transformationImages.service";
 
 const httpTrigger: AzureFunction = async function (
   context: Context,
@@ -23,30 +30,10 @@ const httpTrigger: AzureFunction = async function (
       };
       return;
     }
-    if(!checkIfAdmin(userId)) {
-      context.res = {
-        status: 401,
-        body: {
-          message: "Unauthorized",
-          success: false,
-        },
-      };
-      return;
-    }
 
     await init(context);
-    const { userPresent, message } = await isUserPresent(req.body);
-    if (userPresent) {
-      context.res = {
-        status: 400,
-        body: {
-          message: message,
-          success: false,
-        },
-      };
-      return;
-    }
-    const response: { message: string; success: boolean } = await addTrainer(req.body);
+
+    let response = await addTransformationImages(userId, req.body.data);
     if (response.success) {
       context.res = {
         status: 200,

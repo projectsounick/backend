@@ -1,14 +1,19 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
-import { addTrainer } from "../src/users/users.service";
-import { init } from "../src/helpers/azure-cosmosdb-mongodb";
-import { checkIfAdmin, verifyAndDecodeToken } from "../src/admin/admin.service";
-import { isUserPresent } from "../src/utils/usersUtils";
 
+import { init } from "../src/helpers/azure-cosmosdb-mongodb";
+import { createBlog } from "../src/Blogs/blogs.service";
+import { Blog } from "../src/Blogs/blogs.model";
+import { verifyAndDecodeToken } from "../src/admin/admin.service";
+import { addUserPodcastInteraction } from "../src/Podcast/podcast.service";
+
+//// Main login function ------------------------------------------------------------------------------/
 const httpTrigger: AzureFunction = async function (
   context: Context,
   req: HttpRequest
 ): Promise<void> {
   try {
+    /// Building connection with the cosmos database -----------------/
+    await init(context);
     let userId: string;
     const authResponse = await verifyAndDecodeToken(req);
     if (authResponse) {
@@ -23,30 +28,11 @@ const httpTrigger: AzureFunction = async function (
       };
       return;
     }
-    if(!checkIfAdmin(userId)) {
-      context.res = {
-        status: 401,
-        body: {
-          message: "Unauthorized",
-          success: false,
-        },
-      };
-      return;
-    }
+    /// replace this query _id with jsonwebtoken _id later on
 
-    await init(context);
-    const { userPresent, message } = await isUserPresent(req.body);
-    if (userPresent) {
-      context.res = {
-        status: 400,
-        body: {
-          message: message,
-          success: false,
-        },
-      };
-      return;
-    }
-    const response: { message: string; success: boolean } = await addTrainer(req.body);
+    /// Calling the service function ----------------------/
+    const response: { message: string; success: boolean; data: any } =
+      await addUserPodcastInteraction(userId, req.body.data);
     if (response.success) {
       context.res = {
         status: 200,

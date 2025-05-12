@@ -1,15 +1,46 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
-import { addTrainer } from "../src/users/users.service";
 import { init } from "../src/helpers/azure-cosmosdb-mongodb";
+import { checkIfAdmin, verifyAndDecodeToken } from "../src/admin/admin.service";
+import { getAllTrainers } from "../src/users/users.service";
 
 const httpTrigger: AzureFunction = async function (
   context: Context,
   req: HttpRequest
 ): Promise<void> {
   try {
+    let userId: string;
+    const authResponse = await verifyAndDecodeToken(req);
+    if (authResponse) {
+      userId = authResponse;
+    } else {
+      context.res = {
+        status: 401,
+        body: {
+          message: "Unauthorized",
+          success: false,
+        },
+      };
+      return;
+    }
+    if (!checkIfAdmin(userId)) {
+      context.res = {
+        status: 401,
+        body: {
+          message: "Unauthorized",
+          success: false,
+        },
+      };
+      return;
+    }
+
     await init(context);
-    // const response: { message: string; success: boolean } = await getAllTrainers(req.query);
-    const response :any={};
+    const { isActive, search, page, limit } = req.query;
+    
+    const parsedIsActive = isActive === "true" ? true : isActive === "false" ? false : null;
+    const parsedPage = page ? parseInt(page, 10) : 1;
+    const parsedLimit = limit ? parseInt(limit, 10) : 10;
+
+    const response: { message: string; success: boolean } = await getAllTrainers(parsedIsActive, search, parsedPage, parsedLimit);
     if (response.success) {
       context.res = {
         status: 200,

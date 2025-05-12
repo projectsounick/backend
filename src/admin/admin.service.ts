@@ -49,6 +49,9 @@ export function verifyAndDecodeToken(req: any): string | null {
 
     // Extract the token (e.g., "Bearer <token>")
     const token = authHeader.split(" ")[1];
+    console.log("this is token");
+    console.log(token);
+
     // Secret key for JWT verification (ensure this is the same as used during token generation)
     const secretKey = process.env.secretKey!;
 
@@ -118,5 +121,23 @@ export async function sendOtpUsingTwilio(
   } catch (error) {
     console.error("Error sending OTP:", error);
     return false; // Return false if there's an error
+  }
+}
+
+
+//// Function to check if a user is admin ---------------------/
+export async function checkIfAdmin(userId: string): Promise<boolean> {
+  try {
+    const user = await UserModel.findById(userId);
+    if(!user) {
+      return false;
+    }
+    if (user.role === "admin"){
+      return true;
+    }
+    return false; 
+  } catch (error) {
+    console.error("Error checking user existence:", error);
+    return false;
   }
 }

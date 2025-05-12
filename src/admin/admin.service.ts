@@ -123,3 +123,21 @@ export async function sendOtpUsingTwilio(
     return false; // Return false if there's an error
   }
 }
+
+
+//// Function to check if a user is admin ---------------------/
+export async function checkIfAdmin(userId: string): Promise<boolean> {
+  try {
+    const user = await UserModel.findById(userId);
+    if(!user) {
+      return false;
+    }
+    if (user.role === "admin"){
+      return true;
+    }
+    return false; 
+  } catch (error) {
+    console.error("Error checking user existence:", error);
+    return false;
+  }
+}

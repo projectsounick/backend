@@ -4,7 +4,7 @@
   "description": "",
   "scripts": {
     "build": "tsc",
-    "watch": "tsc -w",
+    "watch": "tsc -w & func start",
     "clean": "rimraf dist",
     "prestart": "npm run clean && npm run build",
     "start": "func start",

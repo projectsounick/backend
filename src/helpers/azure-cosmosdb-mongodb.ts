@@ -15,9 +15,7 @@ export const init = async (context: Context) => {
 
   try {
     if (!db) {
-      db = await connect(connectionString, {
-        dbName: "iness", // Explicitly mention the database name
-      });
+      db = await connect(connectionString);
       context.log("Database connection successful!"); // Connection success message
     }
   } catch (error) {

@@ -1,7 +1,11 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 import { init } from "../src/helpers/azure-cosmosdb-mongodb";
 import { verifyAndDecodeToken } from "../src/admin/admin.service";
-import { getSleepTracking, getWalkTracking, getWaterTracking } from "../src/tracking/tracking.service";
+import {
+  getSleepTracking,
+  getWalkTracking,
+  getWaterTracking,
+} from "../src/tracking/tracking.service";
 
 const httpTrigger: AzureFunction = async function (
   context: Context,
@@ -24,18 +28,22 @@ const httpTrigger: AzureFunction = async function (
     }
 
     await init(context);
-    const { startDate, endDate } = req.query;
+    const { startDate, endDate, id } = req.query;
     const trackingType = req.params.type;
 
     let response: { message: string; success: boolean };
+    const finalUserId = id || userId;
+    console.log("this is finaluserId");
+    console.log(finalUserId);
 
-    if(trackingType === "sleep") {
-      response = await getSleepTracking(userId, startDate, endDate);
-    }else if(trackingType === "walk") {
-      response = await getWalkTracking(userId, startDate, endDate);
-    }else if(trackingType === "water") {
-      response = await getWaterTracking(userId, startDate, endDate);
+    if (trackingType === "sleep") {
+      response = await getSleepTracking(finalUserId, startDate, endDate);
+    } else if (trackingType === "walk") {
+      response = await getWalkTracking(finalUserId, startDate, endDate);
+    } else if (trackingType === "water") {
+      response = await getWaterTracking(finalUserId, startDate, endDate);
     }
+    console.log(response);
 
     if (response.success) {
       context.res = {

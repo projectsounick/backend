@@ -5,8 +5,10 @@
       "type": "httpTrigger",
       "direction": "in",
       "name": "req",
-      "methods": ["get"]
+      "methods": ["get"],
+      "route": "get-supportchat/{userId}"
     },
+
     {
       "type": "http",
       "direction": "out",

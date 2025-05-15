@@ -1,6 +1,6 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 import {
-  getUserData,
+  getAllUsers,
   loginUser,
   updateUserData,
   userOtpVerify,
@@ -19,9 +19,7 @@ const httpTrigger: AzureFunction = async function (
     /// replace this query _id with jsonwebtoken _id later on
 
     /// Calling the service function ----------------------/
-    const response: { message: string; success: boolean } = await getUserData(
-      req.query._id
-    );
+    const response: { message: string; success: boolean } = await getAllUsers();
     if (response.success) {
       context.res = {
         status: 200,

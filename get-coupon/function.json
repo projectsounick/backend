@@ -5,7 +5,10 @@
       "type": "httpTrigger",
       "direction": "in",
       "name": "req",
-      "methods": ["get"]
+      "methods": [
+        "get",
+        "post"
+      ]
     },
     {
       "type": "http",
@@ -13,5 +16,5 @@
       "name": "res"
     }
   ],
-  "scriptFile": "../dist/get-user-data/index.js"
+  "scriptFile": "../dist/get-coupon/index.js"
 }

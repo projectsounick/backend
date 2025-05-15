@@ -1,11 +1,5 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
-import {
-  adminPanelOtpVerification,
-  getUserData,
-  loginUser,
-  updateUserData,
-  userOtpVerify,
-} from "../src/users/users.service";
+import { adminPanelOtpVerification } from "../src/users/users.service";
 import { init } from "../src/helpers/azure-cosmosdb-mongodb";
 import { User } from "../src/users/user.model";
 
@@ -18,8 +12,11 @@ const httpTrigger: AzureFunction = async function (
     /// Building connection with the cosmos database -----------------/
     await init(context);
 
+    console.log("this is body");
+    console.log(req.body);
+
     /// replace this query _id with jsonwebtoken _id later on
-    const { otp, phoneNumber } = req.query;
+    const { otp, phoneNumber } = req.body.data;
     /// Calling the service function ----------------------/
     const response: { message: string; success: boolean; data: User | null } =
       await adminPanelOtpVerification(otp, phoneNumber);

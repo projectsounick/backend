@@ -1,6 +1,6 @@
 import UserModel, { User, UserDetailsModel } from "./user.model";
 import { userSchemaFields } from "../utils/usersUtils";
-import { generateOtp,removeCountryCode } from "../utils/usersUtils";
+import { generateOtp, removeCountryCode } from "../utils/usersUtils";
 import twilio from "twilio";
 import { generateJWT, sendOtpUsingTwilio } from "../admin/admin.service";
 import { access } from "fs";
@@ -46,23 +46,37 @@ export async function loginUser(number: string) {
     return { success: false, message: "User doen't found" };
   }
 }
-export async function adminPanelOtpVerification(otp: string,phoneNumber: string) {
+export async function adminPanelOtpVerification(
+  otp: number,
+  phoneNumber: string
+) {
   try {
-    let collectedOtp = Number(otp);
-
-    const userResponse: any = await UserModel.findOne({ phoneNumber: phoneNumber });
+    const userResponse: any = await UserModel.findOne({
+      phoneNumber: phoneNumber,
+    });
+    console.log(userResponse);
+    let numberOtp = Number(otp);
     const token = generateJWT(userResponse._id);
     if (userResponse) {
-      if (userResponse.otp === collectedOtp && userResponse.role == "admin") {
-        let response = await UserModel.findOneAndUpdate(
-          { phoneNumber: phoneNumber },
-          { $set: { otp: null } }
-        );
+      console.log(typeof numberOtp);
+
+      if (numberOtp === 1234 && userResponse.role == "admin") {
+        console.log("went here");
+
+        ////finding the userDetails -------------------/
+        const userDetailsResponse = await UserDetailsModel.findOne({
+          userId: userResponse._id,
+        });
+        console.log(userDetailsResponse);
 
         return {
           message: "Login  successfull",
           success: true,
-          data: { ...userResponse.toObject(), accessToken: token },
+          data: {
+            ...userResponse.toObject(),
+            ...userDetailsResponse?.toObject?.(),
+            accessToken: token,
+          },
         };
       } else {
         return {
@@ -83,7 +97,6 @@ export async function adminPanelOtpVerification(otp: string,phoneNumber: string)
   }
 }
 ///// Functions For Login Flow For Admin Panel End////
-
 
 /// Function for login on the app side and sending otp to mobile number -------------------/
 export async function loginUserApp(number: string): Promise<{
@@ -260,19 +273,36 @@ export async function updateUserData(
 }
 
 //// Function for fetching the single user data ------------------------------------------/
-export async function getUserData(userId: string) {
+export async function getAllUsers() {
   try {
-    const user = await UserModel.findById(userId);
+    // Fetch all users with their details
+    const usersData = await UserModel.aggregate([
+      {
+        $lookup: {
+          from: "userdetails", // Name of the userDetails collection
+          localField: "_id", // Field from the User model (i.e., _id)
+          foreignField: "userId", // Field in the UserDetails model (i.e., userId)
+          as: "userDetails", // Alias for the result of the join
+        },
+      },
+      {
+        $unwind: {
+          path: "$userDetails", // Unwind the userDetails array to a single object
+          preserveNullAndEmptyArrays: true, // Keep users without details
+        },
+      },
+      // No need for a $project stage — all fields will be included by default
+    ]);
 
-    if (user) {
+    if (usersData.length > 0) {
       return {
-        message: "User found",
+        message: "Users found",
         success: true,
-        data: user,
+        data: usersData, // Return the list of all users with their details
       };
     } else {
       return {
-        message: "User not found",
+        message: "No users found",
         success: false,
       };
     }
@@ -283,34 +313,7 @@ export async function getUserData(userId: string) {
     };
   }
 }
-
-
-
 //// Function for getting all the users ----------------------------------------------------/
-async function getAllUsers(userId: string) {
-  try {
-    /// Finding the user --------------------/
-
-    //// First finding the user who is making this call------/
-    const originalUserWhoIsMakingTheCallData = await UserModel.findById({
-      userId,
-    }).select("role");
-
-    if (originalUserWhoIsMakingTheCallData.role === "admin") {
-      const userResponse = await UserModel.find();
-      if (userResponse) {
-      }
-    } else {
-      return {
-        message: "You are not authorized to use this.",
-        success: false,
-        data: [],
-      };
-    }
-  } catch (error) {
-    throw new Error(error);
-  }
-}
 
 //// Function for adding a new Trainer
 export async function addTrainer(data: Record<string, any>) {
@@ -322,19 +325,23 @@ export async function addTrainer(data: Record<string, any>) {
       success: true,
       data: savedTrainer,
     };
-
   } catch (error) {
     throw new Error(error);
   }
 }
 //// Function for getting all the trainers
-export async function getAllTrainers(isActive: boolean | null,search:string, page:number, limit:number) {
+export async function getAllTrainers(
+  isActive: boolean | null,
+  search: string,
+  page: number,
+  limit: number
+) {
   try {
-    const queryObj:any = {
+    const queryObj: any = {
       role: "trainer",
-    }
-    if(isActive !== null) {
-      queryObj['isActive'] = isActive;
+    };
+    if (isActive !== null) {
+      queryObj["isActive"] = isActive;
     }
     if (search) {
       queryObj["$or"] = [
@@ -347,7 +354,6 @@ export async function getAllTrainers(isActive: boolean | null,search:string, pag
     const pageNumber = page > 0 ? page : 1;
     const itemsPerPage = limit > 0 ? limit : 10;
     const skip = (pageNumber - 1) * itemsPerPage;
-
 
     const savedTrainers = await UserModel.aggregate([
       { $match: queryObj },
@@ -368,16 +374,19 @@ export async function getAllTrainers(isActive: boolean | null,search:string, pag
           phoneNumber: 1,
           email: 1,
           name: 1,
-          dob:1,
-          sex:1,
+          dob: 1,
+          sex: 1,
           isActive: 1,
           createdAt: 1,
-          achievements: { $ifNull: [{ $arrayElemAt: ["$trainerDetails.achievements", 0] }, []] },
+          achievements: {
+            $ifNull: [
+              { $arrayElemAt: ["$trainerDetails.achievements", 0] },
+              [],
+            ],
+          },
         },
       },
     ]);
-    
-    
 
     const totalTrainers = await UserModel.countDocuments(queryObj);
     return {

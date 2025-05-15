@@ -89,6 +89,7 @@ export interface UserDetails extends Document {
   workoutPreferences: string[];
   preferredWorkoutLocation: string;
   activityLevel: string;
+  assignedCoupons: string[];
 }
 const userDetailsSchema: Schema<UserDetails> = new Schema<UserDetails>({
   userId: {
@@ -96,6 +97,12 @@ const userDetailsSchema: Schema<UserDetails> = new Schema<UserDetails>({
     ref: "users",
     required: true,
   },
+  assignedCoupons: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "coupons", // Make sure your Coupon model is named "coupons"
+    },
+  ],
   height: {
     type: String,
     required: false,

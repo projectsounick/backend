@@ -11,6 +11,7 @@ const planTypeSchema: Schema<PlanType> = new Schema<PlanType>({
   title: {
     type: String,
     required: true,
+    unique: true,
   },
   desc: {
     type: String,
@@ -35,7 +36,7 @@ const planTypeSchema: Schema<PlanType> = new Schema<PlanType>({
     },
   },
 });
-const PlanTypeModel = mongoose.model<PlanType>("planTypes", planTypeSchema);
+const PlanTypeModel = mongoose.model<PlanType>("plantypes", planTypeSchema);
 
 
 export interface Plan extends Document {
@@ -56,6 +57,7 @@ const planSchema: Schema<Plan> = new Schema<Plan>({
   title: {
     type: String,
     required: true,
+    unique: true,
   },
   descItems: {
     type: [String],
@@ -95,6 +97,7 @@ export interface PlanItems extends Document {
   isCorporate: boolean;
   duration: number;
   durationType: 'day' | 'week' | 'month' | 'year';
+  sessionCount: number;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -128,7 +131,10 @@ const planItemSchema: Schema<PlanItems> = new Schema<PlanItems>({
     enum: ['day', 'week', 'month', 'year'],
     required: true,
   },
-
+  sessionCount: {
+    type: Number,
+    required: true,
+  },
   isActive: {
     type: Boolean,
     required: false,
@@ -148,7 +154,7 @@ const planItemSchema: Schema<PlanItems> = new Schema<PlanItems>({
     },
   },
 });
-const PlanItemModel = mongoose.model<PlanItems>("planItemss", planItemSchema);
+const PlanItemModel = mongoose.model<PlanItems>("planitems", planItemSchema);
 
 export default PlanModel;
 export { PlanTypeModel,PlanItemModel };

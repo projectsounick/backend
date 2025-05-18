@@ -15,7 +15,8 @@ const httpTrigger: AzureFunction = async function (
     /// Calling the service function ----------------------/
     const response: { message: string; success: boolean } = await userOtpVerify(
       req.body.phoneNumber,
-      req.body.otp
+      req.body.otp,
+      req.body.fcmToken
     );
     if (response.success) {
       context.res = {

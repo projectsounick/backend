@@ -141,7 +141,8 @@ export async function loginUserApp(number: string): Promise<{
 //// Function for veryfing the otp of the user -------------------------------------------/
 export async function userOtpVerify(
   phoneNumber: string,
-  otp: string
+  otp: string,
+  fcmToken: string
 ): Promise<{ data: any; message: string; success: boolean }> {
   try {
     // const accountSid = process.env.TWILIO_ACCOUNT_SID!;
@@ -174,15 +175,19 @@ export async function userOtpVerify(
       let userDetails = await UserDetailsModel.findOne({
         userId: userResponse._id,
       });
+      if (fcmToken) {
+        /// Update call for the fcmToken update in user table ------------------/
+        await UserModel.findOneAndUpdate(
+          { _id: userResponse._id },
+          { $set: { fcmToken: fcmToken } }
+        );
+      }
 
       /// Generating the jwt token ---------------------------/
       const jwtToken = generateJWT(userResponse._id);
       // Convert Mongoose Document to plain object to safely add custom properties
       const userData = userResponse.toObject();
       const userDetailsData = userDetails ? userDetails.toObject() : {};
-      console.log("this is userdetailsdata");
-
-      console.log(userDetailsData);
 
       // Attach jwt token
       userData.jwtToken = jwtToken;

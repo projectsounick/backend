@@ -15,10 +15,10 @@ const httpTrigger: AzureFunction = async function (
     await init(context);
 
     /// replace this query _id with jsonwebtoken _id later on
-
+    let ids = req.query.couponIds.split(","); // ['gpt-4o', 'gpt-4', 'gpt-3.5']
     /// Calling the service function ----------------------/
     const response: { message: string; success: boolean; data: Podcast[] } =
-      await fetchCoupons();
+      await fetchCoupons(ids);
 
     if (response.success) {
       context.res = {

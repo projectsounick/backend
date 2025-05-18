@@ -84,7 +84,7 @@ export interface UserDetails extends Document {
   medicalConditions: string[];
   goal: string;
   secondaryGoal: string[];
-  dailyCommitment: string;
+  timeCommitment: string;
   preferredWorkoutTime: string;
   workoutPreferences: string[];
   preferredWorkoutLocation: string;
@@ -120,7 +120,7 @@ const userDetailsSchema: Schema<UserDetails> = new Schema<UserDetails>({
     type: [String],
     required: false,
   },
-  dailyCommitment: {
+  timeCommitment: {
     type: String,
     required: false,
   },

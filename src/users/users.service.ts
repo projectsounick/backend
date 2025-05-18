@@ -158,13 +158,18 @@ export async function userOtpVerify(
       let userResponse: UserInterface = await UserModel.findOne({
         phoneNumber: phoneNumber,
       });
-      let userDetails = await UserDetailsModel.findById(userResponse._id);
+      let userDetails = await UserDetailsModel.findOne({
+        userId: userResponse._id,
+      });
 
       /// Generating the jwt token ---------------------------/
       const jwtToken = generateJWT(userResponse._id);
       // Convert Mongoose Document to plain object to safely add custom properties
       const userData = userResponse.toObject();
       const userDetailsData = userDetails ? userDetails.toObject() : {};
+      console.log("this is userdetailsdata");
+
+      console.log(userDetailsData);
 
       // Attach jwt token
       userData.jwtToken = jwtToken;

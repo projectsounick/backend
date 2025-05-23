@@ -15,5 +15,5 @@
       "name": "res"
     }
   ],
-  "scriptFile": "../dist/get-plan/index.js"
+  "scriptFile": "../dist/get-plantype/index.js"
 }

@@ -4,24 +4,32 @@ import mongoose from "mongoose";
 //// Function for Plan Types
 export async function addPlanType(data: Record<string, any>) {
   try {
+    console.log("this is data");
+    console.log(data);
+
     const savedPlanType = await PlanTypeModel.create({ ...data });
     return {
       message: "Plan type added successfully",
       success: true,
       data: savedPlanType,
     };
-
   } catch (error) {
     throw new Error(error);
   }
 }
-export async function getPlanType(status: boolean, page?: string, limit?: string) {
+export async function getPlanType(
+  status: boolean,
+  page?: string,
+  limit?: string
+) {
   try {
+    console.log("called here");
+
     let savedPlanType;
     let paginationInfo = null;
-    const queryObj: any = {}
+    const queryObj: any = {};
     if (status !== null) {
-      queryObj['isActive'] = status;
+      queryObj["isActive"] = status;
     }
 
     if (page && limit) {
@@ -46,7 +54,9 @@ export async function getPlanType(status: boolean, page?: string, limit?: string
         totalPages,
       };
     } else {
-      savedPlanType = await PlanTypeModel.find(queryObj).sort({ createdAt: -1 });
+      savedPlanType = await PlanTypeModel.find(queryObj).sort({
+        createdAt: -1,
+      });
     }
 
     return {
@@ -59,7 +69,10 @@ export async function getPlanType(status: boolean, page?: string, limit?: string
     throw new Error(error);
   }
 }
-export async function updatePlanType(planTypeId: string, data: Record<string, any>) {
+export async function updatePlanType(
+  planTypeId: string,
+  data: Record<string, any>
+) {
   try {
     const planTypeToBeUpdated = await PlanTypeModel.findById(planTypeId);
     if (!planTypeToBeUpdated) {
@@ -90,13 +103,13 @@ export async function addPlan(data: Record<string, any>) {
       planTypeId: data.planTypeId,
       title: data.title,
       descItems: data.descItems,
-      imgUrl: data.imgUrl
-    }
+      imgUrl: data.imgUrl,
+    };
     const savedPlan = await PlanModel.create(planObj);
 
     const planItems = data.planItems.map((item: any) => ({
       planId: savedPlan._id,
-      ...item
+      ...item,
     }));
     const savedPlanItems = await PlanItemModel.insertMany(planItems);
     return {
@@ -105,6 +118,8 @@ export async function addPlan(data: Record<string, any>) {
       data: { ...savedPlan.toObject(), planItems: savedPlanItems },
     };
   } catch (error) {
+    console.log(error.message);
+
     throw new Error(error);
   }
 }
@@ -112,9 +127,9 @@ export async function getPlan(status: boolean, page?: string, limit?: string) {
   try {
     let savedPlan;
     let paginationInfo = null;
-    const queryObj: any = {}
+    const queryObj: any = {};
     if (status !== null) {
-      queryObj['isActive'] = status;
+      queryObj["isActive"] = status;
     }
 
     if (page && limit) {
@@ -145,8 +160,8 @@ export async function getPlan(status: boolean, page?: string, limit?: string) {
             foreignField: "planId",
             as: "planItems",
           },
-        }
-      ])
+        },
+      ]);
 
       const totalItems = await PlanModel.countDocuments(queryObj);
       const totalPages = Math.ceil(totalItems / itemsPerPage);
@@ -162,7 +177,7 @@ export async function getPlan(status: boolean, page?: string, limit?: string) {
         { $sort: { createdAt: -1, isActive: -1 } },
         {
           $lookup: {
-            from: "planTypes",
+            from: "plantypes",
             localField: "planTypeId",
             foreignField: "_id",
             as: "planType",
@@ -170,13 +185,13 @@ export async function getPlan(status: boolean, page?: string, limit?: string) {
         },
         {
           $lookup: {
-            from: "planItems",
+            from: "planitems",
             localField: "_id",
             foreignField: "planId",
             as: "planItems",
           },
-        }
-      ])
+        },
+      ]);
     }
 
     return {
@@ -226,8 +241,8 @@ export async function addPlanItem(planId: string, data: Record<string, any>) {
 
     const planItemObj = {
       planId,
-      ...data
-    }
+      ...data,
+    };
     const savedPlanItem = await PlanItemModel.create(planItemObj);
     return {
       message: "Plan item added successfully",
@@ -238,7 +253,10 @@ export async function addPlanItem(planId: string, data: Record<string, any>) {
     throw new Error(error);
   }
 }
-export async function updatePlanItem(planItemId: string, data: Record<string, any>) {
+export async function updatePlanItem(
+  planItemId: string,
+  data: Record<string, any>
+) {
   try {
     const planItemToBeUpdated = await PlanItemModel.findById(planItemId);
     if (!planItemToBeUpdated) {

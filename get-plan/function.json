@@ -5,9 +5,7 @@
       "type": "httpTrigger",
       "direction": "in",
       "name": "req",
-      "methods": [
-        "get"
-      ]
+      "methods": ["get"]
     },
     {
       "type": "http",
@@ -15,5 +13,5 @@
       "name": "res"
     }
   ],
-  "scriptFile": "../dist/get-plantype/index.js"
+  "scriptFile": "../dist/get-plan/index.js"
 }

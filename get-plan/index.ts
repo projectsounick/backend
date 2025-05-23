@@ -1,34 +1,39 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 import { init } from "../src/helpers/azure-cosmosdb-mongodb";
 import { verifyAndDecodeToken } from "../src/admin/admin.service";
-import { getPlanType } from "../src/Plans/plan.service";
+import { getPlan } from "../src/Plans/plan.service";
 
 const httpTrigger: AzureFunction = async function (
   context: Context,
   req: HttpRequest
 ): Promise<void> {
   try {
-    let userId: string;
-    const authResponse = await verifyAndDecodeToken(req);
-    if (authResponse) {
-      userId = authResponse;
-    } else {
-      context.res = {
-        status: 401,
-        body: {
-          message: "Unauthorized",
-          success: false,
-        },
-      };
-      return;
-    }
+    // let userId: string;
+    // const authResponse = await verifyAndDecodeToken(req);
+    // if (authResponse) {
+    //   userId = authResponse;
+    // } else {
+    //   context.res = {
+    //     status: 401,
+    //     body: {
+    //       message: "Unauthorized",
+    //       success: false,
+    //     },
+    //   };
+    //   return;
+    // }
 
     await init(context);
     const { isActive, page, limit } = req.query;
-    
-    const parsedIsActive = isActive === "true" ? true : isActive === "false" ? false : null;
-    
-    const response: { message: string; success: boolean } = await getPlanType(parsedIsActive, page, limit);
+
+    const parsedIsActive =
+      isActive === "true" ? true : isActive === "false" ? false : null;
+
+    const response: { message: string; success: boolean } = await getPlan(
+      parsedIsActive,
+      page,
+      limit
+    );
     if (response.success) {
       context.res = {
         status: 200,

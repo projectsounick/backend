@@ -16,6 +16,7 @@ export async function AddOrUpdateSleepTracking(
         data: null,
       };
     }
+
     const existingEntry = await SleepTrackingModel.findOne({
       userId,
       date: new Date(date),
@@ -109,9 +110,16 @@ export async function AddOrUpdateWalkTracking(
         data: null,
       };
     }
+    // ✅ Normalize the date to local midnight
+    const localDate = new Date(date);
+    localDate.setHours(0, 0, 0, 0); // start of the day in local time
+
+    // ✅ Use ISO format or your DB format (e.g., YYYY-MM-DD)
+    const normalizedDate = localDate.toLocaleDateString("en-CA"); // "2025-05-18"
+
     const existingEntry = await WalkTrackingModel.findOne({
       userId,
-      date: new Date(date),
+      date: normalizedDate,
     });
     if (existingEntry) {
       // ✅ If entry exists, update it
@@ -127,7 +135,7 @@ export async function AddOrUpdateWalkTracking(
       const newEntry = new WalkTrackingModel({
         userId: userId,
         steps: value,
-        date: new Date(date),
+        date: normalizedDate,
       });
       const savedEntry = await newEntry.save();
       return {

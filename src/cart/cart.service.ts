@@ -1,8 +1,50 @@
+import mongoose from "mongoose";
+import PlanModel, { PlanItemModel } from "../Plans/plan.model";
 import CartModel from "./cart.model";
 
 export async function addCart(userId: string, data: Record<string, any>) {
   try {
-    const savedCart = await CartModel.create({ userId, ...data });
+    if (!data.planId && !data.productId) {
+      return {
+        message: "Either productId or planId is required",
+        success: false,
+      };
+    }
+    const cartObj:any = {
+      userId:userId
+    }
+    if (data.productId) {
+      cartObj['productId'] = data.productId;
+    }
+
+    if (data.planId) {
+      const planToBeAdded = await PlanModel.findById(data.planId);
+      if (!planToBeAdded) {
+        return {
+          message: "Plan with given id is not found",
+          success: false,
+        };
+      }
+      cartObj['planId'] = data.planId;
+
+      if (data.planItemId) {
+        const planItemToBeAdded = await PlanItemModel.findById(data.planItemId);
+        if (!planItemToBeAdded) {
+          return {
+            message: "Plan item with given id is not found",
+            success: false,
+          };
+        }
+        if(planItemToBeAdded.planId.toString() !== data.planId) {
+          return {
+            message: "Plan item does not belong to the given plan",
+            success: false,
+          };
+        }
+        cartObj['planItemId'] = data.planItemId;
+      }
+    }
+    const savedCart = await CartModel.create({ ...cartObj });
     return {
       message: "added successfully",
       success: true,
@@ -14,15 +56,15 @@ export async function addCart(userId: string, data: Record<string, any>) {
 }
 export async function getCart(userId: string, status: boolean | null) {
   try {
-    const queryObj: any = { userId };
+    const queryObj: any = { userId:new mongoose.Types.ObjectId(userId) };
 
     if (status !== null) {
-      queryObj["isActive"] = status;
+      queryObj["isDeleted"] = status;
     }
 
     const cartItems = await CartModel.aggregate([
-      { $match: queryObj }, // ✅ Filter by userId & status
-      { $sort: { createdAt: -1 } }, // ✅ Sort by recent entries
+      { $match: queryObj },
+      { $sort: { createdAt: -1 } },
       {
         $lookup: {
           from: "products",
@@ -40,6 +82,14 @@ export async function getCart(userId: string, status: boolean | null) {
         },
       },
       {
+        $lookup: {
+          from: "planitems",
+          localField: "planItemId",
+          foreignField: "_id",
+          as: "planItemDetails",
+        },
+      },
+      {
         $project: {
           _id: 1,
           userId: 1,
@@ -47,8 +97,9 @@ export async function getCart(userId: string, status: boolean | null) {
           isDeleted: 1,
           createdAt: 1,
           updatedAt: 1,
-          productDetails: { $arrayElemAt: ["$productDetails", 0] }, // ✅ Ensure single product
-          planDetails: { $arrayElemAt: ["$planDetails", 0] }, // ✅ Ensure single plan
+          productDetails: { $arrayElemAt: ["$productDetails", 0] },
+          planDetails: { $arrayElemAt: ["$planDetails", 0] },
+          planItemDetails: { $arrayElemAt: ["$planItemDetails", 0] },
         },
       },
     ]);

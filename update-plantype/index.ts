@@ -23,6 +23,8 @@ const httpTrigger: AzureFunction = async function (
       };
       return;
     }
+    await init(context);
+
     if (!checkIfAdmin(userId)) {
       context.res = {
         status: 401,
@@ -34,7 +36,6 @@ const httpTrigger: AzureFunction = async function (
       return;
     }
     const planTypeId = req.params.planTypeId;
-    await init(context);
     const response: { message: string; success: boolean } = await updatePlanType(planTypeId, req.body);
     if (response.success) {
       context.res = {

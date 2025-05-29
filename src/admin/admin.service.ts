@@ -125,6 +125,20 @@ export async function sendOtpUsingTwilio(
 }
 
 
+//// Function to get a user role ---------------------/
+export async function getUserRole(userId: string): Promise<{status: boolean, role?: string}> {
+  try {
+    const user = await UserModel.findById(userId);
+    if(!user) {
+      return {status:false};
+    }
+    return {status:true, role:user.role}; 
+  } catch (error) {
+    console.error("Error checking user existence:", error);
+    return {status:false};
+  }
+}
+
 //// Function to check if a user is admin ---------------------/
 export async function checkIfAdmin(userId: string): Promise<boolean> {
   try {
@@ -133,6 +147,23 @@ export async function checkIfAdmin(userId: string): Promise<boolean> {
       return false;
     }
     if (user.role === "admin"){
+      return true;
+    }
+    return false; 
+  } catch (error) {
+    console.error("Error checking user existence:", error);
+    return false;
+  }
+}
+
+//// Function to check if a user is normal user ---------------------/
+export async function checkIfNormalUser(userId: string): Promise<boolean> {
+  try {
+    const user = await UserModel.findById(userId);
+    if(!user) {
+      return false;
+    }
+    if (user.role === "user"){
       return true;
     }
     return false; 

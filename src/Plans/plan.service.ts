@@ -104,14 +104,20 @@ export async function addPlan(data: Record<string, any>) {
       title: data.title,
       descItems: data.descItems,
       imgUrl: data.imgUrl,
+      isDietIncluded:data.isDietIncluded
     };
     const savedPlan = await PlanModel.create(planObj);
 
-    const planItems = data.planItems.map((item: any) => ({
-      planId: savedPlan._id,
-      ...item,
-    }));
-    const savedPlanItems = await PlanItemModel.insertMany(planItems);
+    let savedPlanItems = [];
+
+    if (data.planItems && data.planItems.length > 0) {
+      const planItems = data.planItems.map((item: any) => ({
+        planId: savedPlan._id,
+        ...item,
+      }));
+
+      savedPlanItems = await PlanItemModel.insertMany(planItems);
+    }
     return {
       message: "Plan added successfully",
       success: true,

@@ -12,11 +12,16 @@ export interface User extends Document {
   sex: string;
   isActive: boolean;
   createdAt: Date;
+  fcmToken: string;
   updatedAt: Date;
   profilePic: string;
 }
 const userSchema: Schema<User> = new Schema<User>({
   phoneNumber: {
+    type: String,
+    required: false,
+  },
+  fcmToken: {
     type: String,
     required: false,
   },

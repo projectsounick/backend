@@ -1,4 +1,4 @@
-import UserModel, { User, UserDetailsModel } from "./user.model";
+import UserModel, { User, UserDetailsModel, TrainerDetailsModel } from "./user.model";
 import { userSchemaFields } from "../utils/usersUtils";
 import { generateOtp, removeCountryCode } from "../utils/usersUtils";
 import twilio from "twilio";
@@ -141,7 +141,8 @@ export async function loginUserApp(number: string): Promise<{
 //// Function for veryfing the otp of the user -------------------------------------------/
 export async function userOtpVerify(
   phoneNumber: string,
-  otp: string
+  otp: string,
+  fcmToken: string
 ): Promise<{ data: any; message: string; success: boolean }> {
   try {
     // const accountSid = process.env.TWILIO_ACCOUNT_SID!;
@@ -174,15 +175,19 @@ export async function userOtpVerify(
       let userDetails = await UserDetailsModel.findOne({
         userId: userResponse._id,
       });
+      if (fcmToken) {
+        /// Update call for the fcmToken update in user table ------------------/
+        await UserModel.findOneAndUpdate(
+          { _id: userResponse._id },
+          { $set: { fcmToken: fcmToken } }
+        );
+      }
 
       /// Generating the jwt token ---------------------------/
       const jwtToken = generateJWT(userResponse._id);
       // Convert Mongoose Document to plain object to safely add custom properties
       const userData = userResponse.toObject();
       const userDetailsData = userDetails ? userDetails.toObject() : {};
-      console.log("this is userdetailsdata");
-
-      console.log(userDetailsData);
 
       // Attach jwt token
       userData.jwtToken = jwtToken;
@@ -315,15 +320,28 @@ export async function getAllUsers() {
 }
 //// Function for getting all the users ----------------------------------------------------/
 
+
 //// Function for adding a new Trainer
 export async function addTrainer(data: Record<string, any>) {
   try {
+    const achievements = data.achievements || [];
+    delete data.achievements;
+
     const trainer = new UserModel({ ...data, role: "trainer" });
     const savedTrainer = await trainer.save();
+
+    // Create a new TrainerDetails document
+    const trainerDetails = new TrainerDetailsModel({
+      userId: savedTrainer._id,
+      achievements: achievements,
+    });
+    await trainerDetails.save();
+
+    // Return success response
     return {
       message: "Trainer added successfully",
       success: true,
-      data: savedTrainer,
+      data: {...savedTrainer.toObject(), achievements: achievements},
     };
   } catch (error) {
     throw new Error(error);
@@ -398,6 +416,40 @@ export async function getAllTrainers(
         totalItems: totalTrainers,
         totalPages: Math.ceil(totalTrainers / itemsPerPage),
       },
+    };
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+//// Function for updating a trainer's details
+export async function updateTrainers(trainerId: string, data: Record<string, any>) {
+  try {
+    const achievements = data.achievements || [];
+    delete data.achievements;
+
+    const trainerToBeUpdated = await UserModel.findById(trainerId);
+    if (!trainerToBeUpdated) {
+      return {
+        message: "Trainer with given id is not found",
+        success: false,
+      };
+    }
+    const updatedTrainer = await UserModel.findByIdAndUpdate(
+      trainerId,
+      { ...data },
+      { new: true }
+    );
+
+    const updatedTrainerDetails = await TrainerDetailsModel.findOneAndUpdate(
+      { userId: trainerId },
+      { achievements },
+      { new: true }
+    );
+
+    return {
+      message: "Trainer updated successfully",
+      success: true,
+      data: {...updatedTrainer.toObject(), achievements: updatedTrainerDetails.toObject().achievements },
     };
   } catch (error) {
     throw new Error(error);

@@ -1,22 +1,33 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
-import { userOtpVerify } from "../src/users/users.service";
 import { init } from "../src/helpers/azure-cosmosdb-mongodb";
+import { checkIfAdmin, verifyAndDecodeToken } from "../src/admin/admin.service";
+import { addCart } from "../src/cart/cart.service";
 
-//// Main login function ------------------------------------------------------------------------------/
 const httpTrigger: AzureFunction = async function (
   context: Context,
   req: HttpRequest
-) {
+): Promise<void> {
   try {
-    /// Building connection with the cosmos database -----------------/
-    await init(context);
-    console.log(req.body, "this is the query from the request");
+    let userId: string;
+    const authResponse = await verifyAndDecodeToken(req);
+    if (authResponse) {
+      userId = authResponse;
+    } else {
+      context.res = {
+        status: 401,
+        body: {
+          message: "Unauthorized",
+          success: false,
+        },
+      };
+      return;
+    }
 
-    /// Calling the service function ----------------------/
-    const response: { message: string; success: boolean } = await userOtpVerify(
-      req.body.phoneNumber,
-      req.body.otp,
-      req.body.fcmToken
+    await init(context);
+
+    const response: { message: string; success: boolean } = await addCart(
+      userId,
+      req.body
     );
     if (response.success) {
       context.res = {
@@ -33,9 +44,8 @@ const httpTrigger: AzureFunction = async function (
     context.res = {
       status: 500,
       body: {
-        message: "Unable to verify the otp",
+        message: `${error.message}`,
         success: false,
-        data: null,
       },
     };
   }

@@ -24,8 +24,11 @@ const httpTrigger: AzureFunction = async function (
     }
 
     await init(context);
-  
-    const response: { message: string; success: boolean } = await addCart(req.body);
+
+    const response: { message: string; success: boolean } = await addCart(
+      userId,
+      req.body
+    );
     if (response.success) {
       context.res = {
         status: 200,

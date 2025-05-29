@@ -98,3 +98,26 @@ export async function updateCartItem(
     throw new Error(error);
   }
 }
+
+//// Function for deleting from the cart items ----------------------------/
+export const deleteCartItem = async (cartItemId: string) => {
+  try {
+    const response = await CartModel.findOneAndUpdate(
+      { _id: cartItemId },
+      { $set: { isDeleted: true } }
+    );
+    if (response) {
+      return {
+        success: true,
+        message: "Cart item marked as deleted",
+      };
+    } else {
+      return {
+        success: false,
+        message: "No changes made (item not found or already deleted)",
+      };
+    }
+  } catch (error) {
+    throw new Error(error);
+  }
+};

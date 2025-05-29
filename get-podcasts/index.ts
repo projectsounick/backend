@@ -1,5 +1,5 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
-import { getUserData } from "../src/users/users.service";
+
 import { init } from "../src/helpers/azure-cosmosdb-mongodb";
 import { Podcast } from "../src/Podcast/podcast.model";
 import { fetchPodcasts } from "../src/Podcast/podcast.service";

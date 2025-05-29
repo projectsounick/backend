@@ -1,6 +1,5 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 import {
-  getUserData,
   loginUser,
   updateUserData,
   userOtpVerify,

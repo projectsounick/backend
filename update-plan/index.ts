@@ -1,6 +1,6 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 import { init } from "../src/helpers/azure-cosmosdb-mongodb";
-import { verifyAndDecodeToken } from "../src/admin/admin.service";
+import { checkIfAdmin, verifyAndDecodeToken } from "../src/admin/admin.service";
 import { updatePlan } from "../src/Plans/plan.service";
 
 //// Main login function ------------------------------------------------------------------------------/
@@ -14,6 +14,16 @@ const httpTrigger: AzureFunction = async function (
     if (authResponse) {
       userId = authResponse;
     } else {
+      context.res = {
+        status: 401,
+        body: {
+          message: "Unauthorized",
+          success: false,
+        },
+      };
+      return;
+    }
+    if (!checkIfAdmin(userId)) {
       context.res = {
         status: 401,
         body: {

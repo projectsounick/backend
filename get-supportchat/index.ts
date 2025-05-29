@@ -31,8 +31,9 @@ const httpTrigger: AzureFunction = async function (
     }
 
     await init(context);
-
-    let response = await getSupportChat(userId);
+    const id = req.params.userId;
+    let finalId = id || userId;
+    let response = await getSupportChat(finalId);
 
     if (response.success) {
       context.res = {

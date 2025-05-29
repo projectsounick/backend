@@ -1,12 +1,9 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
-import {
-  loginUser,
-  updateUserData,
-  userOtpVerify,
-} from "../src/users/users.service";
+
 import { init } from "../src/helpers/azure-cosmosdb-mongodb";
-import { createBlog } from "../src/Blogs/blogs.service";
-import { Blog } from "../src/Blogs/blogs.model";
+import { Podcast } from "../src/Podcast/podcast.model";
+import { fetchPodcasts } from "../src/Podcast/podcast.service";
+import { fetchCoupons } from "../src/Coupon/coupon.service";
 
 //// Main login function ------------------------------------------------------------------------------/
 const httpTrigger: AzureFunction = async function (
@@ -20,8 +17,9 @@ const httpTrigger: AzureFunction = async function (
     /// replace this query _id with jsonwebtoken _id later on
 
     /// Calling the service function ----------------------/
-    const response: { message: string; success: boolean; data: Blog } =
-      await createBlog(req.body.data);
+    const response: { message: string; success: boolean; data: Podcast[] } =
+      await fetchCoupons();
+
     if (response.success) {
       context.res = {
         status: 200,

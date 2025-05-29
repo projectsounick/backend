@@ -1,6 +1,5 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 import {
-  getUserData,
   loginUser,
   updateUserData,
   userOtpVerify,
@@ -8,7 +7,6 @@ import {
 import { init } from "../src/helpers/azure-cosmosdb-mongodb";
 import { fetchDownloadPageContent } from "../src/downloadPageContent/downloadPageContent.service";
 import { DownloadPageContent } from "../src/downloadPageContent/downloadPageContent.model";
-
 
 //// Main login function ------------------------------------------------------------------------------/
 const httpTrigger: AzureFunction = async function (

@@ -5,15 +5,14 @@
       "type": "httpTrigger",
       "direction": "in",
       "name": "req",
-      "methods": ["get"],
-      "route": "get-supportchat/{userId}"
+      "methods": ["put"],
+      "route": "update-cart/{cartItemId}"
     },
-
     {
       "type": "http",
       "direction": "out",
       "name": "res"
     }
   ],
-  "scriptFile": "../dist/get-supportchat/index.js"
+  "scriptFile": "../dist/update-cart/index.js"
 }

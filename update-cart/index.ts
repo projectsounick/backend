@@ -1,11 +1,8 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
-import {
-  getUserData,
-  loginUser,
-  updateUserData,
-  userOtpVerify,
-} from "../src/users/users.service";
 import { init } from "../src/helpers/azure-cosmosdb-mongodb";
+import { checkIfAdmin, verifyAndDecodeToken } from "../src/admin/admin.service";
+import { updatePlan } from "../src/Plans/plan.service";
+import { updateCartItem } from "../src/cart/cart.service";
 
 //// Main login function ------------------------------------------------------------------------------/
 const httpTrigger: AzureFunction = async function (
@@ -13,15 +10,23 @@ const httpTrigger: AzureFunction = async function (
   req: HttpRequest
 ): Promise<void> {
   try {
-    /// Building connection with the cosmos database -----------------/
+    let userId: string;
+    const authResponse = await verifyAndDecodeToken(req);
+    if (authResponse) {
+      userId = authResponse;
+    } else {
+      context.res = {
+        status: 401,
+        body: {
+          message: "Unauthorized",
+          success: false,
+        },
+      };
+      return;
+    }
+    const cartItemId = req.params.cartItemId;
     await init(context);
-
-    /// replace this query _id with jsonwebtoken _id later on
-
-    /// Calling the service function ----------------------/
-    const response: { message: string; success: boolean } = await getUserData(
-      req.query._id
-    );
+    const response: { message: string; success: boolean } = await updateCartItem(cartItemId, req.body);
     if (response.success) {
       context.res = {
         status: 200,

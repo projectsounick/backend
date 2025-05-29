@@ -1,7 +1,6 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 import { init } from "../src/helpers/azure-cosmosdb-mongodb";
-import { checkIfAdmin, verifyAndDecodeToken } from "../src/admin/admin.service";
-import { updatePlan } from "../src/Plans/plan.service";
+import { verifyAndDecodeToken } from "../src/admin/admin.service";
 import { updateCartItem } from "../src/cart/cart.service";
 
 //// Main login function ------------------------------------------------------------------------------/

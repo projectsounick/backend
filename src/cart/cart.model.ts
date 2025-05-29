@@ -4,6 +4,7 @@ export interface Cart extends Document {
     userId: mongoose.Types.ObjectId;
     productId: mongoose.Types.ObjectId;
     planId: mongoose.Types.ObjectId;
+    planItemId: mongoose.Types.ObjectId;
     quantity: number;
     isDeleted:boolean;
     createdAt: Date;
@@ -23,6 +24,11 @@ const CartSchema: Schema<Cart> = new Schema<Cart>({
     planId: {
         type: mongoose.SchemaTypes.ObjectId,
         ref: "plans",
+        required: false,
+    },
+    planItemId: {
+        type: mongoose.SchemaTypes.ObjectId,
+        ref: "planitems",
         required: false,
     },
     quantity:{

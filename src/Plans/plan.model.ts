@@ -44,6 +44,7 @@ export interface Plan extends Document {
   title: string;
   descItems: Array<string>;
   imgUrl: string;
+  isDietIncluded: boolean;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -66,6 +67,11 @@ const planSchema: Schema<Plan> = new Schema<Plan>({
   imgUrl: {
     type: String,
     required: true,
+  },
+  isDietIncluded: {
+    type: Boolean,
+    required: true,
+    default: false,
   },
   isActive: {
     type: Boolean,

@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import UserActivePlansModel from "./activePlans.model";
 import dayjs from "dayjs";
+import UserModel from "../users/user.model";
 export async function activePlanForUser(userId: string, plans: Array<any>) {
     try {
         const useractiveplansObj = plans.map((item) => {
@@ -34,7 +35,44 @@ export async function activePlanForUser(userId: string, plans: Array<any>) {
         throw new Error(error);
     }
 }
-
+export async function updateActivePlan(activePlanId: string, data: Record<string, any>) {
+  try {
+    if(data.trainerId){
+        const user = await UserModel.findById(data.trainerId);
+        if (!user) {
+            return {
+                message: "Trainer with given id is not found",
+                success: false,
+            };
+        }
+        if (user.role !== "trainer") {
+            return {
+                message: "User is not a trainer",
+                success: false,
+            };
+        }
+    }
+    const activePlanToBeUpdated = await UserActivePlansModel.findById(activePlanId);
+    if (!activePlanToBeUpdated) {
+      return {
+        message: "Active Plan with given id is not found",
+        success: false,
+      };
+    }
+    const updatedActivePlan = await UserActivePlansModel.findByIdAndUpdate(
+      activePlanId,
+      { ...data },
+      { new: true }
+    );
+    return {
+      message: "Active Plan updated successfully",
+      success: true,
+      data: updatedActivePlan,
+    };
+  } catch (error) {
+    throw new Error(error);
+  }
+}
 export async function getUserPlanHostory(userId: string, status: boolean | null) {
     try {
         const queryObj: any = { userId: new mongoose.Types.ObjectId(userId) };
@@ -45,6 +83,42 @@ export async function getUserPlanHostory(userId: string, status: boolean | null)
         const activePlans = await UserActivePlansModel.aggregate([
             { $match: queryObj },
             { $sort: { createdAt: -1 } },
+            // Lookup trainer details (if applicable)
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "trainerId",
+                    foreignField: "_id",
+                    as: "trainerBasicDetails",
+                },
+            },
+            {
+                $lookup: {
+                    from: "trainerdetails",
+                    localField: "trainerId",
+                    foreignField: "userId",
+                    as: "trainerExtraDetails",
+                },
+            },
+            // Convert `trainerDetails`, `trainerExtraDetails` into a structured trainer object
+            {
+                $addFields: {
+                    trainer: {
+                        $cond: {
+                            if: { $gt: [{ $size: "$trainerBasicDetails" }, 0] }, // Only add if trainerBasicDetails exists
+                            then: {
+                                $mergeObjects: [
+                                    { $arrayElemAt: ["$trainerBasicDetails", 0] }, // Extract plan object
+                                    {
+                                        trainerDetails: { $arrayElemAt: ["$trainerExtraDetails", 0] }, //  Nest trainerExtraDetails inside trainer
+                                    }
+                                ]
+                            },
+                            else: "$$REMOVE" //  Completely remove plan if no data exists
+                        }
+                    }
+                }
+            },
 
             // Lookup diet plan details (if applicable)
             {
@@ -120,6 +194,7 @@ export async function getUserPlanHostory(userId: string, status: boolean | null)
                     totalSessions: 1,
                     remainingSessions: 1,
                     trainerId: 1,
+                    trainer:1, // Trainer object will appear only if data exists
                     preferredAddress: 1,
                     preferredDays: 1,
                     preferredTime: 1,

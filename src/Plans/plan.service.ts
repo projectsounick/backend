@@ -1,4 +1,4 @@
-import PlanModel, { PlanTypeModel, PlanItemModel } from "./plan.model";
+import PlanModel, { PlanTypeModel, PlanItemModel, DietPlanModel } from "./plan.model";
 import mongoose from "mongoose";
 
 //// Function for Plan Types
@@ -99,19 +99,30 @@ export async function updatePlanType(
 //// Function for Plans
 export async function addPlan(data: Record<string, any>) {
   try {
+    if (!data.planItems || data.planItems.length === 0) {
+      return {
+        message: "Plan items are required",
+        success: false,
+      };
+    }
     const planObj = {
       planTypeId: data.planTypeId,
       title: data.title,
       descItems: data.descItems,
       imgUrl: data.imgUrl,
     };
+    if (data.dietPlanId) {
+      planObj['dietPlanId'] = new mongoose.Types.ObjectId(data.dietPlanId);
+    }
     const savedPlan = await PlanModel.create(planObj);
 
     const planItems = data.planItems.map((item: any) => ({
       planId: savedPlan._id,
       ...item,
     }));
+
     const savedPlanItems = await PlanItemModel.insertMany(planItems);
+
     return {
       message: "Plan added successfully",
       success: true,
@@ -119,11 +130,10 @@ export async function addPlan(data: Record<string, any>) {
     };
   } catch (error) {
     console.log(error.message);
-
     throw new Error(error);
   }
 }
-export async function getPlan(status: boolean, page?: string, limit?: string) {
+export async function getPlan(status: boolean, planItemStatus: Array<boolean>, page?: string, limit?: string) {
   try {
     let savedPlan;
     let paginationInfo = null;
@@ -154,10 +164,41 @@ export async function getPlan(status: boolean, page?: string, limit?: string) {
           },
         },
         {
+          $set: {
+            planType: { $arrayElemAt: ["$planType", 0] }
+          }
+        },
+        {
+          $lookup: {
+            from: "dietplans",
+            localField: "dietPlanId",
+            foreignField: "_id",
+            as: "dietPlanDetails",
+          },
+        },
+        {
+          $set: {
+            dietPlanDetails: { $arrayElemAt: ["$dietPlanDetails", 0] }
+          }
+        },
+        // Lookup plan items **WITH STATUS FILTER**
+        {
           $lookup: {
             from: "planitems",
-            localField: "_id",
-            foreignField: "planId",
+            let: { planId: "$_id" },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $and: [
+                      { $eq: ["$planId", "$$planId"] },
+                      { $in: ["$isActive", [...planItemStatus]] },
+                      // { $eq: ["$isActive", true] }
+                    ]
+                  }
+                }
+              }
+            ],
             as: "planItems",
           },
         },
@@ -184,10 +225,41 @@ export async function getPlan(status: boolean, page?: string, limit?: string) {
           },
         },
         {
+          $set: {
+            planType: { $arrayElemAt: ["$planType", 0] }
+          }
+        },
+        {
+          $lookup: {
+            from: "dietplans",
+            localField: "dietPlanId",
+            foreignField: "_id",
+            as: "dietPlanDetails",
+          },
+        },
+        {
+          $set: {
+            dietPlanDetails: { $arrayElemAt: ["$dietPlanDetails", 0] }
+          }
+        },
+        // Lookup plan items **WITH STATUS FILTER**
+        {
           $lookup: {
             from: "planitems",
-            localField: "_id",
-            foreignField: "planId",
+            let: { planId: "$_id" },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $and: [
+                      { $eq: ["$planId", "$$planId"] },
+                      { $in: ["$isActive", [...planItemStatus]] },
+                      // { $eq: ["$isActive", true] }
+                    ]
+                  }
+                }
+              }
+            ],
             as: "planItems",
           },
         },
@@ -274,6 +346,95 @@ export async function updatePlanItem(
       message: "Plan item updated successfully",
       success: true,
       data: updatedPlanItem,
+    };
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+
+
+//// Function for Diet Plans
+export async function addDietPlan(data: Record<string, any>) {
+  try {
+    const dietPlanObj = {
+      title: data.title,
+      descItems: data.descItems,
+      imgUrl: data.imgUrl,
+      duration: data.duration,
+      durationType: data.durationType,
+      price: data.price
+    };
+    const savedDietPlan = await DietPlanModel.create(dietPlanObj);
+    return {
+      message: "Diet plan added successfully",
+      success: true,
+      data: savedDietPlan,
+    };
+  } catch (error) {
+    console.log(error.message);
+
+    throw new Error(error);
+  }
+}
+export async function getDietPlan(status: boolean, page?: string, limit?: string) {
+  try {
+    let savedDietPlan;
+    let paginationInfo = null;
+    const queryObj: any = {};
+    if (status !== null) {
+      queryObj["isActive"] = status;
+    }
+
+    if (page && limit) {
+      const parsedPage = page ? parseInt(page, 10) : 1;
+      const parsedLimit = limit ? parseInt(limit, 10) : 10;
+
+      const pageNumber = parsedPage > 0 ? parsedPage : 1;
+      const itemsPerPage = parsedLimit > 0 ? parsedLimit : 10;
+      const skip = (pageNumber - 1) * itemsPerPage;
+
+      savedDietPlan = await DietPlanModel.find(queryObj).skip(skip).limit(itemsPerPage).sort({ createdAt: -1, isActive: -1 });
+
+      const totalItems = await DietPlanModel.countDocuments(queryObj);
+      const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+      paginationInfo = {
+        currentPage: pageNumber,
+        totalItems,
+        totalPages,
+      };
+    } else {
+      savedDietPlan = await DietPlanModel.find(queryObj).sort({ createdAt: -1, isActive: -1 });
+    }
+
+    return {
+      message: "Diet plan fetched successfully",
+      success: true,
+      data: savedDietPlan,
+      pagination: paginationInfo,
+    };
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+export async function updateDietPlan(dietPlanId: string, data: Record<string, any>) {
+  try {
+    const dietPlanToBeUpdated = await DietPlanModel.findById(dietPlanId);
+    if (!dietPlanToBeUpdated) {
+      return {
+        message: "Diet plan with given id is not found",
+        success: false,
+      };
+    }
+    const updatedDietPlan = await DietPlanModel.findByIdAndUpdate(
+      dietPlanId,
+      { ...data },
+      { new: true }
+    );
+    return {
+      message: "Diet plan updated successfully",
+      success: true,
+      data: updatedDietPlan,
     };
   } catch (error) {
     throw new Error(error);

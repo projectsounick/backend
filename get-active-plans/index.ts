@@ -1,18 +1,17 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 import { init } from "../src/helpers/azure-cosmosdb-mongodb";
-import { checkIfAdmin, verifyAndDecodeToken } from "../src/admin/admin.service";
-import { updatePlanItem } from "../src/Plans/plan.service";
+import { getUserRole, verifyAndDecodeToken } from "../src/admin/admin.service";
+import { getUserPlanHostory } from "../src/userActivePlans/activePlans.service";
 
-//// Main login function ------------------------------------------------------------------------------/
 const httpTrigger: AzureFunction = async function (
   context: Context,
   req: HttpRequest
 ): Promise<void> {
   try {
-    let userId: string;
+    let callingUserId: string;
     const authResponse = await verifyAndDecodeToken(req);
     if (authResponse) {
-      userId = authResponse;
+      callingUserId = authResponse;
     } else {
       context.res = {
         status: 401,
@@ -25,7 +24,8 @@ const httpTrigger: AzureFunction = async function (
     }
     await init(context);
 
-    if (!checkIfAdmin(userId)) {
+    const userRoleResponse = await getUserRole(callingUserId);
+    if (!userRoleResponse.status) {
       context.res = {
         status: 401,
         body: {
@@ -35,8 +35,22 @@ const httpTrigger: AzureFunction = async function (
       };
       return;
     }
-    const planItemId = req.params.planItemId;
-    const response: { message: string; success: boolean } = await updatePlanItem(planItemId, req.body);
+    if( userRoleResponse.role == "admin" && !req.query.userId) {
+      context.res = {
+        status: 403,
+        body: {
+          message: "User ID is required",
+          success: false,
+        },
+      };
+      return;
+    }
+    const { isActive, userId } = req.query;
+
+    const parsedIsActive = isActive === "true" ? true : isActive === "false" ? false : null;
+    const parsedUserId = userRoleResponse.role === "user" ? callingUserId : userId;
+    console.log("Parsed User ID:", parsedUserId);
+    const response: { message: string; success: boolean } = await getUserPlanHostory(parsedUserId, parsedIsActive);
     if (response.success) {
       context.res = {
         status: 200,

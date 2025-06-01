@@ -1,29 +1,30 @@
 import mongoose, { Schema, Document } from "mongoose";
 
-export interface Cart extends Document {
+export interface UserActivePlans extends Document {
     userId: mongoose.Types.ObjectId;
-    productId: mongoose.Types.ObjectId;
     dietPlanId: mongoose.Types.ObjectId;
     plan: {
         planId: mongoose.Types.ObjectId;
         planItemId: mongoose.Types.ObjectId;
     }
-    quantity: number;
-    isDeleted: boolean;
-    isBought: boolean;
+    planStartDate: Date;
+    planEndDate: Date;
+    totalSessions: number;
+    remainingSessions: number;
+    trainerId: mongoose.Types.ObjectId;
+    preferredAddress: string;
+    // sun-0, mon-1, tue-2, wed-3, thu-4, fri-5, sat-6
+    preferredDays: Array<number>;
+    preferredTime: string;
+    isActive: boolean;
     createdAt: Date;
     updatedAt: Date;
 }
-const CartSchema: Schema<Cart> = new Schema<Cart>({
+const UserActivePlansSchema: Schema<UserActivePlans> = new Schema<UserActivePlans>({
     userId: {
         type: mongoose.SchemaTypes.ObjectId,
         ref: "users",
         required: true,
-    },
-    productId: {
-        type: mongoose.SchemaTypes.ObjectId,
-        ref: "products",
-        required: false,
     },
     dietPlanId: {
         type: mongoose.SchemaTypes.ObjectId,
@@ -44,20 +45,43 @@ const CartSchema: Schema<Cart> = new Schema<Cart>({
         required: false,
         _id: false
     },
-    quantity: {
-        type: Number,
+    planStartDate: {
+        type: Date,
         required: true,
-        default: 1
     },
-    isDeleted: {
-        type: Boolean,
-        required: true,
-        default: false
-    },
-    isBought: {
-        type: Boolean,
+    planEndDate: {
+        type: Date,
         required: false,
-        default: false
+    },
+    totalSessions: {
+        type: Number,
+        required: false,
+    },
+    remainingSessions: {
+        type: Number,
+        required: false,
+    },
+    trainerId: {
+        type: mongoose.SchemaTypes.ObjectId,
+        ref: "users",
+        required: false,
+    },
+    isActive: {
+        type: Boolean,
+        required: true,
+        default: true
+    },
+    preferredAddress: {
+        type: String,
+        required: false,
+    },
+    preferredDays: {
+        type: [Number],
+        required: false,
+    },
+    preferredTime: {
+        type: String,
+        required: false,
     },
     createdAt: {
         type: Date,
@@ -73,6 +97,6 @@ const CartSchema: Schema<Cart> = new Schema<Cart>({
         },
     },
 });
-const CartModel = mongoose.model<Cart>("cart", CartSchema);
-export default CartModel;
+const UserActivePlansModel = mongoose.model<UserActivePlans>("useractiveplans", UserActivePlansSchema);
+export default UserActivePlansModel;
 

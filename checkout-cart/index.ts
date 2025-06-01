@@ -1,9 +1,8 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 import { init } from "../src/helpers/azure-cosmosdb-mongodb";
-import { checkIfAdmin, verifyAndDecodeToken } from "../src/admin/admin.service";
-import { updatePlanItem } from "../src/Plans/plan.service";
+import { checkIfNormalUser, verifyAndDecodeToken } from "../src/admin/admin.service";
+import { cartCheckout, getCart } from "../src/cart/cart.service";
 
-//// Main login function ------------------------------------------------------------------------------/
 const httpTrigger: AzureFunction = async function (
   context: Context,
   req: HttpRequest
@@ -25,7 +24,7 @@ const httpTrigger: AzureFunction = async function (
     }
     await init(context);
 
-    if (!checkIfAdmin(userId)) {
+    if (!checkIfNormalUser(userId)) {
       context.res = {
         status: 401,
         body: {
@@ -35,8 +34,7 @@ const httpTrigger: AzureFunction = async function (
       };
       return;
     }
-    const planItemId = req.params.planItemId;
-    const response: { message: string; success: boolean } = await updatePlanItem(planItemId, req.body);
+    const response: { message: string; success: boolean } = await cartCheckout(userId);
     if (response.success) {
       context.res = {
         status: 200,

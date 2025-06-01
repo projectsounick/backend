@@ -1,6 +1,6 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 import { init } from "../src/helpers/azure-cosmosdb-mongodb";
-import { checkIfAdmin, verifyAndDecodeToken } from "../src/admin/admin.service";
+import { checkIfNormalUser, verifyAndDecodeToken } from "../src/admin/admin.service";
 import { addCart } from "../src/cart/cart.service";
 
 const httpTrigger: AzureFunction = async function (
@@ -22,8 +22,19 @@ const httpTrigger: AzureFunction = async function (
       };
       return;
     }
-
     await init(context);
+
+    if (!checkIfNormalUser(userId)) {
+      context.res = {
+        status: 401,
+        body: {
+          message: "Unauthorized",
+          success: false,
+        },
+      };
+      return;
+    }
+
 
     const response: { message: string; success: boolean } = await addCart(
       userId,

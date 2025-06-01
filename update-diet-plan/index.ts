@@ -1,7 +1,7 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 import { init } from "../src/helpers/azure-cosmosdb-mongodb";
 import { checkIfAdmin, verifyAndDecodeToken } from "../src/admin/admin.service";
-import { updatePlanItem } from "../src/Plans/plan.service";
+import { updateDietPlan } from "../src/Plans/plan.service";
 
 //// Main login function ------------------------------------------------------------------------------/
 const httpTrigger: AzureFunction = async function (
@@ -35,8 +35,8 @@ const httpTrigger: AzureFunction = async function (
       };
       return;
     }
-    const planItemId = req.params.planItemId;
-    const response: { message: string; success: boolean } = await updatePlanItem(planItemId, req.body);
+    const dietPlanId = req.params.dietPlanId;
+    const response: { message: string; success: boolean } = await updateDietPlan(dietPlanId, req.body);
     if (response.success) {
       context.res = {
         status: 200,

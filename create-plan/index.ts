@@ -22,6 +22,8 @@ const httpTrigger: AzureFunction = async function (
       };
       return;
     }
+    await init(context);
+
     if (!checkIfAdmin(userId)) {
       context.res = {
         status: 401,
@@ -32,9 +34,6 @@ const httpTrigger: AzureFunction = async function (
       };
       return;
     }
-
-    await init(context);
-    console.log(req.body);
 
     const response: { message: string; success: boolean } = await addPlan(
       req.body

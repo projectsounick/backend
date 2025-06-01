@@ -1,7 +1,7 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 import { init } from "../src/helpers/azure-cosmosdb-mongodb";
 import { verifyAndDecodeToken } from "../src/admin/admin.service";
-import { getPlan } from "../src/Plans/plan.service";
+import { getDietPlan } from "../src/Plans/plan.service";
 
 const httpTrigger: AzureFunction = async function (
   context: Context,
@@ -24,23 +24,13 @@ const httpTrigger: AzureFunction = async function (
     // }
 
     await init(context);
-    const { isActive, planItemStatus, page, limit } = req.query;
+    const { isActive, page, limit } = req.query;
 
     const parsedIsActive =
       isActive === "true" ? true : isActive === "false" ? false : null;
 
-    const planItemStatusArr = [];
-    if (planItemStatus === undefined || planItemStatus === null) {
-      planItemStatusArr.push(true)
-    } else if (planItemStatus === "false") {
-      planItemStatusArr.push(false);
-    } else {
-      planItemStatusArr.push(true);
-    }
-
-    const response: { message: string; success: boolean } = await getPlan(
+    const response: { message: string; success: boolean } = await getDietPlan(
       parsedIsActive,
-      planItemStatusArr,
       page,
       limit
     );

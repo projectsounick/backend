@@ -23,6 +23,8 @@ const httpTrigger: AzureFunction = async function (
       };
       return;
     }
+    await init(context);
+
     if(!checkIfAdmin(userId)) {
       context.res = {
         status: 401,
@@ -34,7 +36,6 @@ const httpTrigger: AzureFunction = async function (
       return;
     }
 
-    await init(context);
     const { userPresent, message } = await isUserPresent(req.body);
     if (userPresent) {
       context.res = {

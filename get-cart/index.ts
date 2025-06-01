@@ -1,6 +1,6 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 import { init } from "../src/helpers/azure-cosmosdb-mongodb";
-import { verifyAndDecodeToken } from "../src/admin/admin.service";
+import { getUserRole, verifyAndDecodeToken } from "../src/admin/admin.service";
 import { getCart } from "../src/cart/cart.service";
 
 const httpTrigger: AzureFunction = async function (
@@ -8,10 +8,10 @@ const httpTrigger: AzureFunction = async function (
   req: HttpRequest
 ): Promise<void> {
   try {
-    let userId: string;
+    let callingUserId: string;
     const authResponse = await verifyAndDecodeToken(req);
     if (authResponse) {
-      userId = authResponse;
+      callingUserId = authResponse;
     } else {
       context.res = {
         status: 401,
@@ -22,13 +22,31 @@ const httpTrigger: AzureFunction = async function (
       };
       return;
     }
-
     await init(context);
-    const { isActive, page, limit } = req.query;
-    
-    const parsedIsActive = isActive === "true" ? true : isActive === "false" ? false : null;
-    
-    const response: { message: string; success: boolean } = await getCart(userId,parsedIsActive);
+
+    const userRoleResponse = await getUserRole(callingUserId);
+    if (!userRoleResponse.status) {
+      context.res = {
+        status: 401,
+        body: {
+          message: "Unauthorized",
+          success: false,
+        },
+      };
+      return;
+    }
+
+    let { isDeleted, userId } = req.query;
+
+    const parsedIsDeleted =
+      isDeleted === "true" ? true : isDeleted === "false" ? false : null;
+    const parsedUserId =
+      userRoleResponse.role === "user" ? callingUserId : userId;
+
+    const response: { message: string; success: boolean } = await getCart(
+      parsedUserId,
+      parsedIsDeleted
+    );
     if (response.success) {
       context.res = {
         status: 200,

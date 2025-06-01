@@ -35,22 +35,18 @@ const httpTrigger: AzureFunction = async function (
       };
       return;
     }
-    if( userRoleResponse.role == "admin" && !req.query.userId) {
-      context.res = {
-        status: 403,
-        body: {
-          message: "User ID is required",
-          success: false,
-        },
-      };
-      return;
-    }
-    const { isDeleted, userId } = req.query;
 
-    const parsedIsDeleted = isDeleted === "true" ? true : isDeleted === "false" ? false : null;
-    const parsedUserId = userRoleResponse.role === "user" ? callingUserId : userId;
-    console.log("Parsed User ID:", parsedUserId);
-    const response: { message: string; success: boolean } = await getCart(parsedUserId, parsedIsDeleted);
+    let { isDeleted, userId } = req.query;
+
+    const parsedIsDeleted =
+      isDeleted === "true" ? true : isDeleted === "false" ? false : null;
+    const parsedUserId =
+      userRoleResponse.role === "user" ? callingUserId : userId;
+
+    const response: { message: string; success: boolean } = await getCart(
+      parsedUserId,
+      parsedIsDeleted
+    );
     if (response.success) {
       context.res = {
         status: 200,

@@ -140,7 +140,7 @@ export async function loginUserApp(number: string): Promise<{
 export async function userOtpVerify(
   phoneNumber: string,
   otp: string,
-  fcmToken: string
+  expoPushToken: string
 ): Promise<{ data: any; message: string; success: boolean }> {
   try {
     // const accountSid = process.env.TWILIO_ACCOUNT_SID!;
@@ -173,11 +173,15 @@ export async function userOtpVerify(
       let userDetails = await UserDetailsModel.findOne({
         userId: userResponse._id,
       });
-      if (fcmToken) {
-        /// Update call for the fcmToken update in user table ------------------/
+      console.log(expoPushToken);
+
+      if (expoPushToken) {
+        console.log("went here");
+
+        /// Update call for the expoPushToken update in user table ------------------/
         await UserModel.findOneAndUpdate(
           { _id: userResponse._id },
-          { $set: { fcmToken: fcmToken } }
+          { $set: { expoPushToken: expoPushToken } }
         );
       }
 

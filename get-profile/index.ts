@@ -1,41 +1,30 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
-import {
-  loginUser,
-  updateUserData,
-  userOtpVerify,
-} from "../src/users/users.service";
 import { init } from "../src/helpers/azure-cosmosdb-mongodb";
-import { verifyAndDecodeToken } from "../src/admin/admin.service";
+import {verifyAndDecodeToken } from "../src/admin/admin.service";
+import { getUserProfile } from "../src/users/users.service";
 
-//// Main login function ------------------------------------------------------------------------------/
 const httpTrigger: AzureFunction = async function (
   context: Context,
   req: HttpRequest
 ): Promise<void> {
   try {
-    // Verify token and extract user ID
-    const userId = verifyAndDecodeToken(req);
-
-    if (!userId) {
+    let callingUserId: string;
+    const authResponse = await verifyAndDecodeToken(req);
+    if (authResponse) {
+      callingUserId = authResponse;
+    } else {
       context.res = {
         status: 401,
         body: {
-          message: "You are not authenticated",
+          message: "Unauthorized",
           success: false,
         },
       };
       return;
     }
-
-    /// Building connection with the cosmos database -----------------/
     await init(context);
 
-    /// replace this query _id with jsonwebtoken _id later on
-
-    /// Calling the service function ----------------------/
-    const response: { message: string; success: boolean } =
-      await updateUserData(userId, req.body.data);
-
+    const response: any = await getUserProfile(callingUserId);
     if (response.success) {
       context.res = {
         status: 200,
@@ -48,8 +37,6 @@ const httpTrigger: AzureFunction = async function (
       };
     }
   } catch (error) {
-    console.log(`went for catch ${error.message}`);
-
     context.res = {
       status: 500,
       body: {

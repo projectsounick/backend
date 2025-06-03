@@ -1,4 +1,9 @@
-import UserModel, { User, UserDetailsModel, TrainerDetailsModel } from "./user.model";
+import UserModel, {
+  User,
+  UserDetailsModel,
+  TrainerDetailsModel,
+  HRDetailsModel,
+} from "./user.model";
 import { userSchemaFields } from "../utils/usersUtils";
 import { generateOtp, removeCountryCode } from "../utils/usersUtils";
 import twilio from "twilio";
@@ -13,17 +18,15 @@ const { sendEmail } = require("../helpers/send-email");
 export async function loginUser(number: string) {
   try {
     let user = await UserModel.findOne({ phoneNumber: number });
+    if (!user) {
+      return {
+        success: false,
+        message: "User with given phone number not found",
+      };
+    }
     // const otp = generateOtp();
     const otp = 1234;
-    if (!user) {
-      return { success: false, message: "User doen't found" };
-    }
-    if (user) {
-      await UserModel.updateOne({ phoneNumber: number }, { $set: { otp } });
-    } else {
-      user = new UserModel({ phoneNumber: number, otp });
-      await user.save();
-    }
+    await UserModel.updateOne({ phoneNumber: number }, { $set: { otp } });
     ///// Function for sending the otp email to the user -------------------------/
     let response = await Promise.all([
       // sendEmail({
@@ -54,51 +57,48 @@ export async function adminPanelOtpVerification(
     const userResponse: any = await UserModel.findOne({
       phoneNumber: phoneNumber,
     });
-    console.log(userResponse);
-    let numberOtp = Number(otp);
-    const token = generateJWT(userResponse._id);
-    if (userResponse) {
-      console.log(typeof numberOtp);
-
-      if (numberOtp === 1234 && userResponse.role == "admin") {
-        console.log("went here");
-
-        ////finding the userDetails -------------------/
-        const userDetailsResponse = await UserDetailsModel.findOne({
-          userId: userResponse._id,
-        });
-        console.log(userDetailsResponse);
-
-        return {
-          message: "Login  successfull",
-          success: true,
-          data: {
-            ...userResponse.toObject(),
-            ...userDetailsResponse?.toObject?.(),
-            accessToken: token,
-          },
-        };
-      } else {
-        return {
-          message: "Otp is not matching",
-          success: false,
-          data: null,
-        };
-      }
-    } else {
+    if (!userResponse) {
       return {
-        message: "User doesn't exists",
+        success: false,
+        message: "User with given phone number not found",
+        data: null,
+      };
+    }
+    let parsedOTP = Number(otp);
+    if (parsedOTP !== userResponse.otp) {
+      return {
+        message: "Otp is not matching",
         success: false,
         data: null,
       };
     }
+    let userOtherDetails;
+    if (userResponse.role == "trainer") {
+      userOtherDetails = await TrainerDetailsModel.findOne({
+        userId: userResponse._id,
+      });
+    } else {
+      userOtherDetails = await HRDetailsModel.findOne({
+        userId: userResponse._id,
+      });
+    }
+    const token = generateJWT(userResponse._id);
+    return {
+      message: "Login successfullf",
+      success: true,
+      data: {
+        ...userResponse.toObject(),
+        ...userOtherDetails?.toObject(),
+        accessToken: token,
+      },
+    };
   } catch (error) {
     throw new Error(error);
   }
 }
 ///// Functions For Login Flow For Admin Panel End////
 
-/// Function for login on the app side and sending otp to mobile number -------------------/
+///// Functions For Login Flow For App Start////
 export async function loginUserApp(number: string): Promise<{
   data: User;
   message: string;
@@ -137,8 +137,6 @@ export async function loginUserApp(number: string): Promise<{
     };
   }
 }
-
-//// Function for veryfing the otp of the user -------------------------------------------/
 export async function userOtpVerify(
   phoneNumber: string,
   otp: string,
@@ -220,12 +218,56 @@ export async function userOtpVerify(
     };
   }
 }
+///// Functions For Login Flow For App End////
+
+///// Functions For Getting Loggedin User Profile using token Start////
+export async function getUserProfile(userId: string) {
+  try {
+    const savedUser: any = await UserModel.findById(userId);
+    if (!savedUser) {
+      return { success: false, message: "User data not found" };
+    }
+    let userOtherDetails;
+    if (savedUser.role == "trainer") {
+      userOtherDetails = await TrainerDetailsModel.findOne({
+        userId: savedUser._id,
+      });
+    }
+    if (savedUser.role == "user") {
+      userOtherDetails = await UserDetailsModel.findOne({
+        userId: savedUser._id,
+      });
+    }
+    if (savedUser.role == "hr") {
+      userOtherDetails = await HRDetailsModel.findOne({
+        userId: savedUser._id,
+      });
+    }
+    return {
+      message: "Profile fetched successfully",
+      success: true,
+      data: {
+        ...savedUser.toObject(),
+        ...userOtherDetails?.toObject(),
+      },
+    };
+  } catch (error) {
+    return {
+      message: "Internal Server Error",
+      success: false,
+    };
+  }
+}
+///// Functions For Getting Loggedin User Profile using token End////
+
 //// Function for updating the user data -----------------------------------------/
 export async function updateUserData(
   userId: string,
   data: Record<string, any>
 ) {
   try {
+    console.log(data);
+
     const userData: Record<string, any> = {};
     const userDetailsData: Record<string, any> = {};
 
@@ -237,6 +279,9 @@ export async function updateUserData(
         userDetailsData[key] = data[key];
       }
     }
+    console.log("this is userdetails data");
+
+    console.log(userDetailsData);
 
     const userObjectId = new mongoose.Types.ObjectId(userId);
     const [updatedUser, updatedDetails] = await Promise.all([
@@ -320,7 +365,6 @@ export async function getAllUsers() {
 }
 //// Function for getting all the users ----------------------------------------------------/
 
-
 //// Function for adding a new Trainer
 export async function addTrainer(data: Record<string, any>) {
   try {
@@ -341,7 +385,7 @@ export async function addTrainer(data: Record<string, any>) {
     return {
       message: "Trainer added successfully",
       success: true,
-      data: {...savedTrainer.toObject(), achievements: achievements},
+      data: { ...savedTrainer.toObject(), achievements: achievements },
     };
   } catch (error) {
     throw new Error(error);
@@ -422,7 +466,10 @@ export async function getAllTrainers(
   }
 }
 //// Function for updating a trainer's details
-export async function updateTrainers(trainerId: string, data: Record<string, any>) {
+export async function updateTrainers(
+  trainerId: string,
+  data: Record<string, any>
+) {
   try {
     const achievements = data.achievements || [];
     delete data.achievements;
@@ -449,7 +496,10 @@ export async function updateTrainers(trainerId: string, data: Record<string, any
     return {
       message: "Trainer updated successfully",
       success: true,
-      data: {...updatedTrainer.toObject(), achievements: updatedTrainerDetails.toObject().achievements },
+      data: {
+        ...updatedTrainer.toObject(),
+        achievements: updatedTrainerDetails.toObject().achievements,
+      },
     };
   } catch (error) {
     throw new Error(error);

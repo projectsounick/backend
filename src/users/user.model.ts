@@ -12,7 +12,7 @@ export interface User extends Document {
   sex: string;
   isActive: boolean;
   createdAt: Date;
-  fcmToken: string;
+  expoPushToken: string;
   updatedAt: Date;
   profilePic: string;
 }
@@ -21,7 +21,7 @@ const userSchema: Schema<User> = new Schema<User>({
     type: String,
     required: false,
   },
-  fcmToken: {
+  expoPushToken: {
     type: String,
     required: false,
   },

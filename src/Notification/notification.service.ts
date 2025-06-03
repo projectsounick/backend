@@ -1,5 +1,5 @@
 import NotificationModel from "./notification.model";
-
+const { Expo } = require("expo-server-sdk");
 interface GetNotificationsOptions {
   page?: number;
   limit?: number;
@@ -7,6 +7,74 @@ interface GetNotificationsOptions {
   isAdmin?: boolean;
   isTrainer?: boolean;
   isHr?: boolean;
+}
+export async function sendPushNotifications(title, body, expoPushTokens) {
+  const expo = new Expo();
+
+  function chunkArray(arr, size) {
+    const chunks = [];
+    for (let i = 0; i < arr.length; i += size) {
+      chunks.push(arr.slice(i, i + size));
+    }
+    return chunks;
+  }
+
+  const batches = chunkArray(expoPushTokens, 100);
+
+  let allSuccess = true;
+  const errors = [];
+
+  for (const [index, batch] of batches.entries()) {
+    const messages = batch
+      .map((token) => {
+        if (!Expo.isExpoPushToken(token)) {
+          errors.push({
+            batch: index + 1,
+            token,
+            error: "Invalid Expo push token",
+          });
+          allSuccess = false;
+          return null;
+        }
+        return {
+          to: token,
+          sound: "default",
+          title,
+          body,
+          data: { withSome: "data" },
+        };
+      })
+      .filter(Boolean);
+
+    if (messages.length === 0) continue;
+
+    try {
+      const tickets = await expo.sendPushNotificationsAsync(messages);
+      // Check tickets for errors (optional)
+      tickets.forEach((ticket, i) => {
+        if (ticket.status === "error") {
+          errors.push({
+            batch: index + 1,
+            token: messages[i].to,
+            error: ticket.message,
+          });
+          allSuccess = false;
+        }
+      });
+    } catch (error) {
+      errors.push({
+        batch: index + 1,
+        error: error.message || error.toString(),
+      });
+      allSuccess = false;
+    }
+  }
+
+  if (allSuccess) {
+    return { success: true, message: "All notifications sent successfully" };
+  } else {
+    return { success: false, message: "Some notifications failed", errors };
+  }
 }
 export async function getNotifications(options: GetNotificationsOptions = {}) {
   try {

@@ -95,6 +95,7 @@ export interface UserDetails extends Document {
   preferredWorkoutLocation: string;
   activityLevel: string;
   assignedCoupons: string[];
+  companyId: mongoose.Types.ObjectId;
 }
 const userDetailsSchema: Schema<UserDetails> = new Schema<UserDetails>({
   userId: {
@@ -150,6 +151,11 @@ const userDetailsSchema: Schema<UserDetails> = new Schema<UserDetails>({
   },
   activityLevel: {
     type: String,
+    required: false,
+  },
+  companyId: {
+    type: mongoose.SchemaTypes.ObjectId,
+    ref: "companies",
     required: false,
   },
 });

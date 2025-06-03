@@ -3,6 +3,7 @@ import { adminPanelOtpVerification } from "../src/users/users.service";
 import { init } from "../src/helpers/azure-cosmosdb-mongodb";
 import { User } from "../src/users/user.model";
 import { postNotification } from "../src/Notification/notification.service";
+import { verifyAndDecodeToken } from "../src/admin/admin.service";
 
 //// Main login function ------------------------------------------------------------------------------/
 const httpTrigger: AzureFunction = async function (
@@ -12,10 +13,24 @@ const httpTrigger: AzureFunction = async function (
   try {
     /// Building connection with the cosmos database -----------------/
     await init(context);
+    let userId: string;
+    const authResponse = await verifyAndDecodeToken(req);
+    if (authResponse) {
+      userId = authResponse;
+    } else {
+      context.res = {
+        status: 401,
+        body: {
+          message: "Unauthorized",
+          success: false,
+        },
+      };
+      return;
+    }
 
     /// Calling the service function ----------------------/
     const response: { message: string; success: boolean; data: any } =
-      await postNotification(req.body);
+      await postNotification(req.body, userId);
     if (response.success) {
       context.res = {
         status: 200,

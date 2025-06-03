@@ -29,7 +29,6 @@ const httpTrigger: AzureFunction = async function (
 
     /// Building connection with the cosmos database -----------------/
     await init(context);
-    console.log(req.body.data);
 
     /// replace this query _id with jsonwebtoken _id later on
 

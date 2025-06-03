@@ -1,4 +1,9 @@
-import UserModel, { User, UserDetailsModel, TrainerDetailsModel, HRDetailsModel } from "./user.model";
+import UserModel, {
+  User,
+  UserDetailsModel,
+  TrainerDetailsModel,
+  HRDetailsModel,
+} from "./user.model";
 import { userSchemaFields } from "../utils/usersUtils";
 import { generateOtp, removeCountryCode } from "../utils/usersUtils";
 import twilio from "twilio";
@@ -14,7 +19,10 @@ export async function loginUser(number: string) {
   try {
     let user = await UserModel.findOne({ phoneNumber: number });
     if (!user) {
-      return { success: false, message: "User with given phone number not found" };
+      return {
+        success: false,
+        message: "User with given phone number not found",
+      };
     }
     // const otp = generateOtp();
     const otp = 1234;
@@ -50,7 +58,11 @@ export async function adminPanelOtpVerification(
       phoneNumber: phoneNumber,
     });
     if (!userResponse) {
-      return { success: false, message: "User with given phone number not found", data: null, };
+      return {
+        success: false,
+        message: "User with given phone number not found",
+        data: null,
+      };
     }
     let parsedOTP = Number(otp);
     if (parsedOTP !== userResponse.otp) {
@@ -85,7 +97,6 @@ export async function adminPanelOtpVerification(
   }
 }
 ///// Functions For Login Flow For Admin Panel End////
-
 
 ///// Functions For Login Flow For App Start////
 export async function loginUserApp(number: string): Promise<{
@@ -209,7 +220,6 @@ export async function userOtpVerify(
 }
 ///// Functions For Login Flow For App End////
 
-
 ///// Functions For Getting Loggedin User Profile using token Start////
 export async function getUserProfile(userId: string) {
   try {
@@ -250,13 +260,14 @@ export async function getUserProfile(userId: string) {
 }
 ///// Functions For Getting Loggedin User Profile using token End////
 
-
 //// Function for updating the user data -----------------------------------------/
 export async function updateUserData(
   userId: string,
   data: Record<string, any>
 ) {
   try {
+    console.log(data);
+
     const userData: Record<string, any> = {};
     const userDetailsData: Record<string, any> = {};
 
@@ -268,23 +279,26 @@ export async function updateUserData(
         userDetailsData[key] = data[key];
       }
     }
+    console.log("this is userdetails data");
+
+    console.log(userDetailsData);
 
     const userObjectId = new mongoose.Types.ObjectId(userId);
     const [updatedUser, updatedDetails] = await Promise.all([
       Object.keys(userData).length
         ? UserModel.findOneAndUpdate(
-          { _id: userObjectId },
-          { $set: userData },
-          { new: true, upsert: true }
-        )
+            { _id: userObjectId },
+            { $set: userData },
+            { new: true, upsert: true }
+          )
         : UserModel.findById(userObjectId),
 
       Object.keys(userDetailsData).length
         ? UserDetailsModel.findOneAndUpdate(
-          { userId: userObjectId },
-          { $set: userDetailsData },
-          { new: true, upsert: true }
-        )
+            { userId: userObjectId },
+            { $set: userDetailsData },
+            { new: true, upsert: true }
+          )
         : Promise.resolve(null),
     ]);
 
@@ -350,7 +364,6 @@ export async function getAllUsers() {
   }
 }
 //// Function for getting all the users ----------------------------------------------------/
-
 
 //// Function for adding a new Trainer
 export async function addTrainer(data: Record<string, any>) {
@@ -453,7 +466,10 @@ export async function getAllTrainers(
   }
 }
 //// Function for updating a trainer's details
-export async function updateTrainers(trainerId: string, data: Record<string, any>) {
+export async function updateTrainers(
+  trainerId: string,
+  data: Record<string, any>
+) {
   try {
     const achievements = data.achievements || [];
     delete data.achievements;
@@ -480,12 +496,12 @@ export async function updateTrainers(trainerId: string, data: Record<string, any
     return {
       message: "Trainer updated successfully",
       success: true,
-      data: { ...updatedTrainer.toObject(), achievements: updatedTrainerDetails.toObject().achievements },
+      data: {
+        ...updatedTrainer.toObject(),
+        achievements: updatedTrainerDetails.toObject().achievements,
+      },
     };
   } catch (error) {
     throw new Error(error);
   }
 }
-
-
-

@@ -104,7 +104,7 @@ export interface PlanItems extends Document {
   isOnline: boolean;
   isCorporate: boolean;
   duration: number;
-  durationType: 'day' | 'week' | 'month' | 'year';
+  durationType: "day" | "week" | "month" | "year";
   sessionCount: number;
   isActive: boolean;
   createdAt: Date;
@@ -136,7 +136,7 @@ const planItemSchema: Schema<PlanItems> = new Schema<PlanItems>({
   },
   durationType: {
     type: String,
-    enum: ['day', 'week', 'month', 'year'],
+    enum: ["day", "week", "month", "year"],
     required: true,
   },
   sessionCount: {
@@ -170,16 +170,21 @@ export interface DietPlan extends Document {
   descItems: Array<string>;
   imgUrl: string;
   duration: number;
-  durationType: 'day' | 'week' | 'month' | 'year';
+  durationType: "day" | "week" | "month" | "year";
   price: number;
   isActive: boolean;
+  desc: string;
   createdAt: Date;
   updatedAt: Date;
 }
 const dietPlanSchema: Schema<DietPlan> = new Schema<DietPlan>({
   title: {
     type: String,
-    required: true
+    required: true,
+  },
+  desc: {
+    type: String,
+    required: true,
   },
   descItems: {
     type: [String],
@@ -195,12 +200,12 @@ const dietPlanSchema: Schema<DietPlan> = new Schema<DietPlan>({
   },
   durationType: {
     type: String,
-    enum: ['day', 'week', 'month', 'year'],
+    enum: ["day", "week", "month", "year"],
     required: true,
   },
   price: {
     type: Number,
-    required: true,
+    required: false,
   },
   isActive: {
     type: Boolean,

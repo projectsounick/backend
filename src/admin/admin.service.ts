@@ -124,18 +124,19 @@ export async function sendOtpUsingTwilio(
   }
 }
 
-
 //// Function to get a user role ---------------------/
-export async function getUserRole(userId: string): Promise<{status: boolean, role?: string}> {
+export async function getUserRole(
+  userId: string
+): Promise<{ status: boolean; role?: string }> {
   try {
     const user = await UserModel.findById(userId);
-    if(!user) {
-      return {status:false};
+    if (!user) {
+      return { status: false };
     }
-    return {status:true, role:user.role}; 
+    return { status: true, role: user.role };
   } catch (error) {
     console.error("Error checking user existence:", error);
-    return {status:false};
+    return { status: false };
   }
 }
 
@@ -143,13 +144,13 @@ export async function getUserRole(userId: string): Promise<{status: boolean, rol
 export async function checkIfAdmin(userId: string): Promise<boolean> {
   try {
     const user = await UserModel.findById(userId);
-    if(!user) {
+    if (!user) {
       return false;
     }
-    if (user.role === "admin"){
+    if (user.role === "admin") {
       return true;
     }
-    return false; 
+    return false;
   } catch (error) {
     console.error("Error checking user existence:", error);
     return false;
@@ -160,15 +161,61 @@ export async function checkIfAdmin(userId: string): Promise<boolean> {
 export async function checkIfNormalUser(userId: string): Promise<boolean> {
   try {
     const user = await UserModel.findById(userId);
-    if(!user) {
+    if (!user) {
       return false;
     }
-    if (user.role === "user"){
+    if (user.role === "user") {
       return true;
     }
-    return false; 
+    return false;
   } catch (error) {
     console.error("Error checking user existence:", error);
     return false;
+  }
+}
+import { BlobServiceClient, ContainerClient } from "@azure/storage-blob";
+
+export async function uploadSlotsJson(
+  slots: string[],
+  fileName: string
+): Promise<any> {
+  try {
+    const folderName = "Jsons";
+    const sasToken = await generateSasToken(folderName); // assumes this returns a valid SAS
+    const storageAccountName = process.env.storageAccountName;
+
+    if (!sasToken || !storageAccountName) {
+      throw new Error("Azure storage account or SAS token is missing in env.");
+    }
+
+    const blobServiceClient = new BlobServiceClient(
+      `https://${storageAccountName}.blob.core.windows.net?${sasToken}`
+    );
+
+    const containerClient: ContainerClient =
+      blobServiceClient.getContainerClient("admin-data");
+
+    // Store the file inside the "Jsons/" folder in the container
+    const blobClient = containerClient.getBlockBlobClient(
+      `${folderName}/${fileName}`
+    );
+
+    const data = JSON.stringify({ slots });
+    console.log("this is data");
+    console.log(slots);
+
+    const exists = await blobClient.exists();
+
+    await blobClient.upload(data, Buffer.byteLength(data), {
+      blobHTTPHeaders: { blobContentType: "application/json" },
+    });
+
+    return {
+      message: "Data has been uploaded",
+      success: true,
+    };
+  } catch (err) {
+    console.error("Error uploading JSON to Azure Blob:", err);
+    throw err;
   }
 }

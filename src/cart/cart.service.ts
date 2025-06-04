@@ -5,6 +5,8 @@ import { addPaymentItem } from "../payment/payment.service";
 
 export async function addCart(userId: string, data: Record<string, any>) {
   try {
+    console.log(data);
+
     if (!data.productId && !data.dietPlanId && !data.plan) {
       return {
         message: "Either product id, diet plan id or plan detail is required",
@@ -24,6 +26,8 @@ export async function addCart(userId: string, data: Record<string, any>) {
     if (data.productId) {
       cartObj["productId"] = new mongoose.Types.ObjectId(data.productId);
     } else if (data.dietPlanId) {
+      console.log("should went here");
+
       const dietPlanToBeAdded = await DietPlanModel.findById(data.dietPlanId);
       if (!dietPlanToBeAdded) {
         return {

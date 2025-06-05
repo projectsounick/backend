@@ -33,7 +33,6 @@ const SessionSchema: Schema<Sessions> = new Schema<Sessions>({
         default: () => {
             return Date.now();
         },
-        immutable: true,
     },
     sessionTime: {
         type: String,

@@ -645,19 +645,22 @@ export async function updateTrainers(
       { new: true }
     );
 
-    const updatedTrainerDetails = await TrainerDetailsModel.findOneAndUpdate(
-      { userId: trainerId },
-      { achievements },
-      { new: true }
-    );
+    const respObj = {
+      ...updatedTrainer.toObject(),
+    };
+    if (achievements.length > 0) {
+      const updatedTrainerDetails = await TrainerDetailsModel.findOneAndUpdate(
+        { userId: trainerId },
+        { achievements },
+        { new: true }
+      );
+      respObj["achievements"] = updatedTrainerDetails.toObject().achievements;
+    }
 
     return {
       message: "Trainer updated successfully",
       success: true,
-      data: {
-        ...updatedTrainer.toObject(),
-        achievements: updatedTrainerDetails.toObject().achievements,
-      },
+      data: respObj,
     };
   } catch (error) {
     throw new Error(error);

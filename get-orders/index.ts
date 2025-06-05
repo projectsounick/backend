@@ -35,7 +35,7 @@ const httpTrigger: AzureFunction = async function (
       };
       return;
     }
-    if (userRoleResponse.role == "admin" && !req.query.userId) {
+    if( (userRoleResponse.role == "admin" || userRoleResponse.role == "trainer" || userRoleResponse.role == "hr") && !req.query.userId) {
       context.res = {
         status: 403,
         body: {

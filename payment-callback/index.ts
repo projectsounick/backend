@@ -1,25 +1,18 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
-import { loginUser, loginUserApp } from "../src/users/users.service";
 import { init } from "../src/helpers/azure-cosmosdb-mongodb";
-import { User } from "../src/users/user.model";
+import { checkIfAdmin, verifyAndDecodeToken } from "../src/admin/admin.service";
+import { addPlanItem } from "../src/Plans/plan.service";
+import crypto from "crypto";
+import { validatePayment } from "../src/payment/payment.service";
 
-//// Main login function ------------------------------------------------------------------------------/
 const httpTrigger: AzureFunction = async function (
   context: Context,
   req: HttpRequest
 ): Promise<void> {
   try {
-    /// Building connection with the cosmos database -----------------/
-    await init(context);
 
-    /// replace this query _id with jsonwebtoken _id later on
-
-    /// Calling the service function ----------------------/
-    const response: {
-      message: string;
-      success: boolean;
-      data: User;
-    } = await loginUserApp(req.body.email);
+    const { status, merchantTransactionId } = req.body;
+    const response: { message: string; success: boolean } = await validatePayment(req.body);
     if (response.success) {
       context.res = {
         status: 200,

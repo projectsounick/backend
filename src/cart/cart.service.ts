@@ -374,21 +374,23 @@ export async function cartCheckout(userId: string) {
       cartItemsId.push(item._id);
     });
 
-    // Mark all cart items as deleted
-    await CartModel.updateMany(
-      { _id: { $in: cartItemsId } },
-      { $set: { isDeleted: true, isBought: true } }
-    );
 
-    const paymentResponse = await addPaymentItem(userId, totalAmount, false, {
-      items: cartItemsId,
-    });
+
+    const paymentResponse = await addPaymentItem(userId, totalAmount,cartItemsId);
     if (!paymentResponse.success) {
       return {
         message: paymentResponse.message,
         success: false,
       };
     }
+
+    // Mark all cart items as deleted
+    await CartModel.updateMany(
+      { _id: { $in: cartItemsId } },
+      { $set: { isDeleted: true, isBought: true } }
+    );
+
+
     return {
       message: "Items Ordered successfully",
       success: true,

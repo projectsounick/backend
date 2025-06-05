@@ -6,18 +6,13 @@ export interface Sessions extends Document {
     sessionDate: Date;
     sessionTime: string;
     sessionType: "online" | "offline";
+    sessionDuration: string;
     sessionAddress: string; // Address for offline sessions
     sessionStatus: "scheduled" | "completed" | "cancelled";
     sessionNotes: string;
-    workoutPlan: Array<{
-        exercise: string;
-        sets: number;
-        reps: number;
-        timer: string;
-    }>;
     sessionAgainstPlan: boolean; // Whether the session is against the user's active plan
     activePlanId: mongoose.Types.ObjectId; // Reference to the active plan if session is against a plan
-    paymentItemId: mongoose.Types.ObjectId; // Reference to the payment item if session is independent
+    activeServiceId: mongoose.Types.ObjectId; // Reference to the active service if session is against a service
     isActive: boolean;
     createdAt: Date;
     updatedAt: Date;
@@ -38,7 +33,6 @@ const SessionSchema: Schema<Sessions> = new Schema<Sessions>({
         default: () => {
             return Date.now();
         },
-        immutable: true,
     },
     sessionTime: {
         type: String,
@@ -47,6 +41,10 @@ const SessionSchema: Schema<Sessions> = new Schema<Sessions>({
     sessionType: {
         type: String,
         enum: ["online", "offline"],
+        required: true,
+    },
+    sessionDuration: {
+        type: String,
         required: true,
     },
     sessionAddress: {
@@ -65,28 +63,6 @@ const SessionSchema: Schema<Sessions> = new Schema<Sessions>({
         type: String,
         required: false,
     },
-    workoutPlan: {
-        type: [{
-            exercise: {
-                type: String,
-                required: true,
-            },
-            sets: {
-                type: Number,
-                required: true,
-            },
-            reps: {
-                type: Number,
-                required: true,
-            },
-            timer: {
-                type: String,
-                required: false,
-            },
-        }],
-        required: false,
-        _id: false
-    },
     sessionAgainstPlan: {
         type: Boolean,
         default: true,
@@ -97,9 +73,9 @@ const SessionSchema: Schema<Sessions> = new Schema<Sessions>({
         ref: "useractiveplans",
         required: false,
     },
-    paymentItemId: {
+    activeServiceId: {
         type: mongoose.SchemaTypes.ObjectId,
-        ref: "payments",
+        ref: "useractiveservices",
         required: false,
     },
     isActive: {

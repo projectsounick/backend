@@ -1,11 +1,7 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 import { init } from "../src/helpers/azure-cosmosdb-mongodb";
 import { getUserRole, verifyAndDecodeToken } from "../src/admin/admin.service";
-import {
-  getSleepTracking,
-  getWalkTracking,
-  getWaterTracking,
-} from "../src/tracking/tracking.service";
+import { getUserSessions } from "../src/sessions/sessions.service";
 
 const httpTrigger: AzureFunction = async function (
   context: Context,
@@ -51,18 +47,14 @@ const httpTrigger: AzureFunction = async function (
       return;
     }
 
-    const { startDate, endDate, id } = req.query;
-    const trackingType = req.params.type;
+    const { startDate, endDate, id, isActive } = req.query;
 
     let response: { message: string; success: boolean };
+
     const finalUserId = userRoleResponse.role === "user" ? userId : id;
-    if (trackingType === "sleep") {
-      response = await getSleepTracking(finalUserId, startDate, endDate);
-    } else if (trackingType === "walk") {
-      response = await getWalkTracking(finalUserId, startDate, endDate);
-    } else if (trackingType === "water") {
-      response = await getWaterTracking(finalUserId, startDate, endDate);
-    }
+    const parsedStatus =isActive === "true" ? true : isActive === "false" ? false : null;
+
+    response = await getUserSessions(finalUserId, startDate, endDate,parsedStatus);
 
     if (response.success) {
       context.res = {

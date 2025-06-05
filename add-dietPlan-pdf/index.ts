@@ -1,13 +1,11 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
-import {
-  getAllUsers,
-  getTrainerAssignedUsers,
-  loginUser,
-  updateUserData,
-  userOtpVerify,
-} from "../src/users/users.service";
+
 import { init } from "../src/helpers/azure-cosmosdb-mongodb";
-import { getUserRole, verifyAndDecodeToken } from "../src/admin/admin.service";
+import { createBlog } from "../src/Blogs/blogs.service";
+import { Blog } from "../src/Blogs/blogs.model";
+import { verifyAndDecodeToken } from "../src/admin/admin.service";
+import { addUserPodcastInteraction } from "../src/Podcast/podcast.service";
+import { updateDietPlanPdf } from "../src/userActivePlans/activePlans.service";
 
 //// Main login function ------------------------------------------------------------------------------/
 const httpTrigger: AzureFunction = async function (
@@ -15,6 +13,8 @@ const httpTrigger: AzureFunction = async function (
   req: HttpRequest
 ): Promise<void> {
   try {
+    /// Building connection with the cosmos database -----------------/
+    await init(context);
     let userId: string;
     const authResponse = await verifyAndDecodeToken(req);
     if (authResponse) {
@@ -29,38 +29,14 @@ const httpTrigger: AzureFunction = async function (
       };
       return;
     }
-    await init(context);
+    /// replace this query _id with jsonwebtoken _id later on
+    console.log(req.body);
 
-    const userRoleResponse = await getUserRole(userId);
-    if (!userRoleResponse.status) {
-      context.res = {
-        status: 401,
-        body: {
-          message: "Unauthorized",
-          success: false,
-        },
-      };
-      return;
-    }
-
-    let response: { message: string; success: boolean };
-    if( userRoleResponse.role == "admin") {
-      response = await getAllUsers(req.query);
-    }else if( userRoleResponse.role == "trainer") {
-      response = await getTrainerAssignedUsers(userId,req.query);
-    }else if( userRoleResponse.role == "hr") {
-      response = await getAllUsers(req.query);
-    }else{
-      context.res = {
-        status: 403,
-        body: {
-          message: "Forbidden",
-          success: false,
-        },
-      };
-      return;
-    }
-    
+    /// Calling the service function ----------------------/
+    const response = await updateDietPlanPdf(
+      req.body.dietPlanUrl,
+      req.body.activePlanId
+    );
     if (response.success) {
       context.res = {
         status: 200,
@@ -73,6 +49,8 @@ const httpTrigger: AzureFunction = async function (
       };
     }
   } catch (error) {
+    console.log(error.message);
+
     context.res = {
       status: 500,
       body: {

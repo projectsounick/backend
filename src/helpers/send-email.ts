@@ -35,7 +35,7 @@ async function sendEmail({
       from: email,
       to: to,
       subject,
-      html: "this is text",
+      html: html,
     });
 
     console.log("Email response:", response);

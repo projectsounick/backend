@@ -19,7 +19,7 @@ const httpTrigger: AzureFunction = async function (
       message: string;
       success: boolean;
       data: User;
-    } = await loginUserApp(req.body.phoneNumber);
+    } = await loginUserApp(req.body.email);
     if (response.success) {
       context.res = {
         status: 200,

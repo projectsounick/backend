@@ -6,6 +6,7 @@ export interface Sessions extends Document {
     sessionDate: Date;
     sessionTime: string;
     sessionType: "online" | "offline";
+    sessionDuration: string;
     sessionAddress: string; // Address for offline sessions
     sessionStatus: "scheduled" | "completed" | "cancelled";
     sessionNotes: string;
@@ -17,7 +18,7 @@ export interface Sessions extends Document {
     }>;
     sessionAgainstPlan: boolean; // Whether the session is against the user's active plan
     activePlanId: mongoose.Types.ObjectId; // Reference to the active plan if session is against a plan
-    paymentItemId: mongoose.Types.ObjectId; // Reference to the payment item if session is independent
+    activeServiceId: mongoose.Types.ObjectId; // Reference to the active service if session is against a service
     isActive: boolean;
     createdAt: Date;
     updatedAt: Date;
@@ -47,6 +48,10 @@ const SessionSchema: Schema<Sessions> = new Schema<Sessions>({
     sessionType: {
         type: String,
         enum: ["online", "offline"],
+        required: true,
+    },
+    sessionDuration: {
+        type: String,
         required: true,
     },
     sessionAddress: {
@@ -97,9 +102,9 @@ const SessionSchema: Schema<Sessions> = new Schema<Sessions>({
         ref: "useractiveplans",
         required: false,
     },
-    paymentItemId: {
+    activeServiceId: {
         type: mongoose.SchemaTypes.ObjectId,
-        ref: "payments",
+        ref: "useractiveservices",
         required: false,
     },
     isActive: {

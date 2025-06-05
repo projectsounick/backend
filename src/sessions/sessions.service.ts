@@ -33,30 +33,19 @@ export async function createNewSession(data: any[],) {
                     await activePlan.save();
                 }
                 if(!sessionItem.sessionAgainstPlan){
-                    const paymentItem = await PaymentModel.findById(sessionItem.paymentItemId);
-                    if (!paymentItem) {
-                        return {
-                            message: "Payment item with given id is not found",
-                            success: false,
-                        };
-                    }
-                    if(paymentItem.status !== "success") {
-                        return {
-                            message: "Payment is not successful for the session",
-                            success: false,
-                        };
-                    }
-
-                    const alreadyUsedSessions = await SessionModel.countDocuments({
-                        paymentItemId: sessionItem.paymentItemId,
-                        isActive: true,
-                    });
-                    if (alreadyUsedSessions >= paymentItem.independentSessionCount) {
-                        return {
-                            message: "No independent sessions remaining",
-                            success: false,
-                        };
-                    }
+                    // const paymentItem = await PaymentModel.findById(sessionItem.paymentItemId);
+                    // if (!paymentItem) {
+                    //     return {
+                    //         message: "Payment item with given id is not found",
+                    //         success: false,
+                    //     };
+                    // }
+                    // if(paymentItem.status !== "success") {
+                    //     return {
+                    //         message: "Payment is not successful for the session",
+                    //         success: false,
+                    //     };
+                    // }
                 }
             }
         }

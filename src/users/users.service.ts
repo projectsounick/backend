@@ -326,39 +326,66 @@ export async function updateUserData(
   }
 }
 
-//// Function for fetching the single user data ------------------------------------------/
-export async function getAllUsers() {
+///// Functions For Getting All User Data Start////
+export async function getAllUsers(query: Record<string, any>) {
   try {
+    const gender = query.gender?.split(",") || [];
+    const age = query.age?.split(",").map(Number) || [];
+    const isCorporateUser = query.isCorporateUser === "true";
+    const search = query.search || "";
+
+    const queryObj: any = { role: "user" };
+
+    if (gender.length > 0) {
+      queryObj["sex"] = { $in: gender };
+    }
+    if (age.length > 0) {
+      queryObj["$expr"] = {
+        $and: [
+          { $gte: [{ $subtract: [new Date().getFullYear(), { $year: "$dob" }] }, Math.min(...age)] },
+          { $lte: [{ $subtract: [new Date().getFullYear(), { $year: "$dob" }] }, Math.max(...age)] }
+        ]
+      };
+    }
+    if (isCorporateUser) {
+      queryObj["userDetails.companyId"] = { $exists: true };
+    }
+    if (search) {
+      const searchRegex = { $regex: search, $options: "i" };
+
+      queryObj["$or"] = [
+        { name: searchRegex },
+        { email: searchRegex },
+        { phoneNumber: searchRegex },
+        { _id: { $eq: search.match(/^[0-9a-fA-F]{24}$/) ? new mongoose.Types.ObjectId(search) : null } },
+      ];
+    }
+
     // Fetch all users with their details
-    const usersData = await UserModel.aggregate([
+    const savedUsers = await UserModel.aggregate([
+      {
+        $match: queryObj,
+      },
       {
         $lookup: {
-          from: "userdetails", // Name of the userDetails collection
-          localField: "_id", // Field from the User model (i.e., _id)
-          foreignField: "userId", // Field in the UserDetails model (i.e., userId)
-          as: "userDetails", // Alias for the result of the join
+          from: "userdetails",
+          localField: "_id",
+          foreignField: "userId",
+          as: "userDetails",
         },
       },
       {
         $unwind: {
-          path: "$userDetails", // Unwind the userDetails array to a single object
-          preserveNullAndEmptyArrays: true, // Keep users without details
+          path: "$userDetails",
+          preserveNullAndEmptyArrays: true,
         },
       },
-      // No need for a $project stage — all fields will be included by default
     ]);
 
-    if (usersData.length > 0) {
-      return {
-        message: "Users found",
-        success: true,
-        data: usersData, // Return the list of all users with their details
-      };
-    } else {
-      return {
-        message: "No users found",
-        success: false,
-      };
+    return {
+      message: "Users fetched successfully found",
+      success: true,
+      data: savedUsers,
     }
   } catch (error) {
     return {
@@ -367,7 +394,75 @@ export async function getAllUsers() {
     };
   }
 }
-//// Function for getting all the users ----------------------------------------------------/
+export async function getTrainerAssignedUsers(trainerId:string,query: Record<string, any>) {
+  try {
+    const gender = query.gender?.split(",") || [];
+    const age = query.age?.split(",").map(Number) || [];
+    const isCorporateUser = query.isCorporateUser === "true";
+    const search = query.search || "";
+
+    const queryObj: any = { role: "user" };
+
+    if (gender.length > 0) {
+      queryObj["sex"] = { $in: gender };
+    }
+    if (age.length > 0) {
+      queryObj["$expr"] = {
+        $and: [
+          { $gte: [{ $subtract: [new Date().getFullYear(), { $year: "$dob" }] }, Math.min(...age)] },
+          { $lte: [{ $subtract: [new Date().getFullYear(), { $year: "$dob" }] }, Math.max(...age)] }
+        ]
+      };
+    }
+    if (isCorporateUser) {
+      queryObj["userDetails.companyId"] = { $exists: true };
+    }
+    if (search) {
+      const searchRegex = { $regex: search, $options: "i" };
+
+      queryObj["$or"] = [
+        { name: searchRegex },
+        { email: searchRegex },
+        { phoneNumber: searchRegex },
+        { _id: { $eq: search.match(/^[0-9a-fA-F]{24}$/) ? new mongoose.Types.ObjectId(search) : null } },
+      ];
+    }
+
+    // Fetch all users with their details
+    const savedUsers = await UserModel.aggregate([
+      {
+        $match: queryObj, // ✅ Apply filters to the query
+      },
+      {
+        $lookup: {
+          from: "userdetails",
+          localField: "_id",
+          foreignField: "userId",
+          as: "userDetails",
+        },
+      },
+      {
+        $unwind: {
+          path: "$userDetails",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+    ]);
+
+    return {
+      message: "Users fetched successfully found",
+      success: true,
+      data: savedUsers,
+    }
+  } catch (error) {
+    return {
+      message: error instanceof Error ? error.message : "An error occurred",
+      success: false,
+    };
+  }
+}
+///// Functions For Getting All User Data End////
+
 
 //// Function for adding a new Trainer
 export async function addTrainer(data: Record<string, any>) {

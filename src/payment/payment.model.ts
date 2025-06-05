@@ -4,8 +4,6 @@ export interface Payment extends Document {
     userId: mongoose.Types.ObjectId;
     amount: number;
     status: 'pending' | 'success' | 'failed' | 'fullRefunded' | 'partialRefunded';
-    isIndependentSession:boolean;
-    independentSessionCount?: number;
     items: Array<mongoose.Types.ObjectId>;
     // Optional field for refunds
     refundAmount?: number;
@@ -28,15 +26,6 @@ const PaymentSchema: Schema<Payment> = new Schema<Payment>({
         type: String,
         required: true,
         default: 'pending'
-    },
-    isIndependentSession: {
-        type: Boolean,
-        default: false,
-        required: true,
-    },
-    independentSessionCount: {
-        type: Number,
-        required: false,
     },
     items: {
         type: [mongoose.SchemaTypes.ObjectId],

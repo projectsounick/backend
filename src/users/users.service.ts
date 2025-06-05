@@ -291,18 +291,18 @@ export async function updateUserData(
     const [updatedUser, updatedDetails] = await Promise.all([
       Object.keys(userData).length
         ? UserModel.findOneAndUpdate(
-            { _id: userObjectId },
-            { $set: userData },
-            { new: true, upsert: true }
-          )
+          { _id: userObjectId },
+          { $set: userData },
+          { new: true, upsert: true }
+        )
         : UserModel.findById(userObjectId),
 
       Object.keys(userDetailsData).length
         ? UserDetailsModel.findOneAndUpdate(
-            { userId: userObjectId },
-            { $set: userDetailsData },
-            { new: true, upsert: true }
-          )
+          { userId: userObjectId },
+          { $set: userDetailsData },
+          { new: true, upsert: true }
+        )
         : Promise.resolve(null),
     ]);
 
@@ -394,7 +394,7 @@ export async function getAllUsers(query: Record<string, any>) {
     };
   }
 }
-export async function getTrainerAssignedUsers(trainerId:string,query: Record<string, any>) {
+export async function getTrainerAssignedUsers(trainerId: string, query: Record<string, any>) {
   try {
     const gender = query.gender?.split(",") || [];
     const age = query.age?.split(",").map(Number) || [];
@@ -586,19 +586,22 @@ export async function updateTrainers(
       { new: true }
     );
 
-    const updatedTrainerDetails = await TrainerDetailsModel.findOneAndUpdate(
-      { userId: trainerId },
-      { achievements },
-      { new: true }
-    );
+    const respObj = {
+      ...updatedTrainer.toObject(),
+    }
+    if (achievements.length > 0) {
+      const updatedTrainerDetails = await TrainerDetailsModel.findOneAndUpdate(
+        { userId: trainerId },
+        { achievements },
+        { new: true }
+      );
+      respObj['achievements'] = updatedTrainerDetails.toObject().achievements
+    }
 
     return {
       message: "Trainer updated successfully",
       success: true,
-      data: {
-        ...updatedTrainer.toObject(),
-        achievements: updatedTrainerDetails.toObject().achievements,
-      },
+      data: respObj
     };
   } catch (error) {
     throw new Error(error);

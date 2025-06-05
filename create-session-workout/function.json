@@ -6,7 +6,7 @@
       "direction": "in",
       "name": "req",
       "methods": ["post"],
-      "route": "create-session/{userId}"
+      "route": "create-session-workout/{sessionId}"
     },
     {
       "type": "http",
@@ -14,5 +14,5 @@
       "name": "res"
     }
   ],
-  "scriptFile": "../dist/create-session/index.js"
+  "scriptFile": "../dist/create-session-workout/index.js"
 }

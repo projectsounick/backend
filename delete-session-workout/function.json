@@ -5,8 +5,8 @@
       "type": "httpTrigger",
       "direction": "in",
       "name": "req",
-      "methods": ["post"],
-      "route": "create-session/{userId}"
+      "methods": ["delete"],
+      "route": "delete-session-workout/{workoutId}"
     },
     {
       "type": "http",
@@ -14,5 +14,5 @@
       "name": "res"
     }
   ],
-  "scriptFile": "../dist/create-session/index.js"
+  "scriptFile": "../dist/delete-session-workout/index.js"
 }

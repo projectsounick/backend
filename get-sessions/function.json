@@ -5,8 +5,10 @@
       "type": "httpTrigger",
       "direction": "in",
       "name": "req",
-      "methods": ["post"],
-      "route": "create-session/{userId}"
+      "methods": [
+        "get"
+      ],
+      "route": "get-sessions"
     },
     {
       "type": "http",
@@ -14,5 +16,5 @@
       "name": "res"
     }
   ],
-  "scriptFile": "../dist/create-session/index.js"
+  "scriptFile": "../dist/get-sessions/index.js"
 }

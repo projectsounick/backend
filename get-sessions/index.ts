@@ -1,7 +1,7 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 import { init } from "../src/helpers/azure-cosmosdb-mongodb";
-import { checkIfAdmin, getUserRole, verifyAndDecodeToken } from "../src/admin/admin.service";
-import { createNewSession } from "../src/sessions/sessions.service";
+import { getUserRole, verifyAndDecodeToken } from "../src/admin/admin.service";
+import { getUserSessions } from "../src/sessions/sessions.service";
 
 const httpTrigger: AzureFunction = async function (
   context: Context,
@@ -22,6 +22,7 @@ const httpTrigger: AzureFunction = async function (
       };
       return;
     }
+
     await init(context);
 
     const userRoleResponse = await getUserRole(userId);
@@ -35,20 +36,26 @@ const httpTrigger: AzureFunction = async function (
       };
       return;
     }
-    if (userRoleResponse.role != "admin" && userRoleResponse.role == "trainer") {
-     context.res = {
-        status: 401,
+    if ((userRoleResponse.role == "admin" || userRoleResponse.role == "trainer" || userRoleResponse.role == "hr") && !req.query.id) {
+      context.res = {
+        status: 403,
         body: {
-          message: "Unauthorized",
+          message: "User ID is required",
           success: false,
         },
       };
       return;
     }
 
-    const toBeassignedUserId = req.params.userId;
+    const { startDate, endDate, id, isActive } = req.query;
 
-    const response: { message: string; success: boolean } = await createNewSession(toBeassignedUserId,req.body);
+    let response: { message: string; success: boolean };
+
+    const finalUserId = userRoleResponse.role === "user" ? userId : id;
+    const parsedStatus =isActive === "true" ? true : isActive === "false" ? false : null;
+
+    response = await getUserSessions(finalUserId, startDate, endDate,parsedStatus);
+
     if (response.success) {
       context.res = {
         status: 200,

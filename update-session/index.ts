@@ -1,8 +1,9 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 import { init } from "../src/helpers/azure-cosmosdb-mongodb";
 import { checkIfAdmin, getUserRole, verifyAndDecodeToken } from "../src/admin/admin.service";
-import { createNewSession } from "../src/sessions/sessions.service";
+import { updateSession } from "../src/sessions/sessions.service";
 
+//// Main login function ------------------------------------------------------------------------------/
 const httpTrigger: AzureFunction = async function (
   context: Context,
   req: HttpRequest
@@ -36,7 +37,7 @@ const httpTrigger: AzureFunction = async function (
       return;
     }
     if (userRoleResponse.role != "admin" && userRoleResponse.role == "trainer") {
-     context.res = {
+      context.res = {
         status: 401,
         body: {
           message: "Unauthorized",
@@ -45,10 +46,8 @@ const httpTrigger: AzureFunction = async function (
       };
       return;
     }
-
-    const toBeassignedUserId = req.params.userId;
-
-    const response: { message: string; success: boolean } = await createNewSession(toBeassignedUserId,req.body);
+    const sessionId = req.params.sessionId;
+    const response: { message: string; success: boolean } = await updateSession(sessionId, req.body);
     if (response.success) {
       context.res = {
         status: 200,

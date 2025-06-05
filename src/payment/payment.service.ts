@@ -2,17 +2,12 @@ import mongoose from "mongoose";
 import PaymentModel from "./payment.model";
 import { activePlanForUser } from "../userActivePlans/activePlans.service";
 
-export async function addPaymentItem(userId: string, amount: number, isIndependentSession: boolean, data: { items?: Array<string>, independentSessionCount?: number }) {
+export async function addPaymentItem(userId: string, amount: number,items: Array<string>) {
     try {
-        if (isIndependentSession && (!data.independentSessionCount || data.independentSessionCount <= 0)) {
+        
+        if (items.length === 0) {
             return {
-                message: "independentSessionCount is required and must be greater than 0 for independent sessions",
-                success: true,
-            };
-        }
-        if (data.items && data.items.length === 0) {
-            return {
-                message: "items array cannot be empty",
+                message: "items cannot be empty",
                 success: false,
             };
         }
@@ -20,12 +15,7 @@ export async function addPaymentItem(userId: string, amount: number, isIndepende
             userId: new mongoose.Types.ObjectId(userId),
             amount: amount,
             status: 'pending',
-            isIndependentSession: isIndependentSession
-        }
-        if (isIndependentSession) {
-            paymentObj['independentSessionCount'] = data.independentSessionCount;
-        } else {
-            paymentObj['items'] = data.items.map(item => new mongoose.Types.ObjectId(item));
+            items: items
         }
         const savedPaymentItem = await PaymentModel.create({ ...paymentObj });
         return {
@@ -474,7 +464,7 @@ export async function updatePaymentItem(paymentItemId: string, newStatus: string
             { new: true }
         );
         console.log("paymentItemToBeUpdated[0]", paymentItemToBeUpdated[0]);
-        if (newStatus === 'success' && !paymentItemToBeUpdated[0].isIndependentSession) {
+        if (newStatus === 'success') {
             await activePlanForUser(paymentItemToBeUpdated[0].userId, paymentItemToBeUpdated[0].cartItems);
         }
        

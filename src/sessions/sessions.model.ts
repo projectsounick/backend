@@ -10,12 +10,6 @@ export interface Sessions extends Document {
     sessionAddress: string; // Address for offline sessions
     sessionStatus: "scheduled" | "completed" | "cancelled";
     sessionNotes: string;
-    workoutPlan: Array<{
-        exercise: string;
-        sets: number;
-        reps: number;
-        timer: string;
-    }>;
     sessionAgainstPlan: boolean; // Whether the session is against the user's active plan
     activePlanId: mongoose.Types.ObjectId; // Reference to the active plan if session is against a plan
     activeServiceId: mongoose.Types.ObjectId; // Reference to the active service if session is against a service
@@ -69,28 +63,6 @@ const SessionSchema: Schema<Sessions> = new Schema<Sessions>({
     sessionNotes: {
         type: String,
         required: false,
-    },
-    workoutPlan: {
-        type: [{
-            exercise: {
-                type: String,
-                required: true,
-            },
-            sets: {
-                type: Number,
-                required: true,
-            },
-            reps: {
-                type: Number,
-                required: true,
-            },
-            timer: {
-                type: String,
-                required: false,
-            },
-        }],
-        required: false,
-        _id: false
     },
     sessionAgainstPlan: {
         type: Boolean,

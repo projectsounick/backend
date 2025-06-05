@@ -1,7 +1,7 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 import { init } from "../src/helpers/azure-cosmosdb-mongodb";
 import { checkIfAdmin, getUserRole, verifyAndDecodeToken } from "../src/admin/admin.service";
-import { createNewSession } from "../src/sessions/sessions.service";
+import { deleteSessionWorkout } from "../src/sessionWorkout/sessionWorkout.service";
 
 const httpTrigger: AzureFunction = async function (
   context: Context,
@@ -46,9 +46,9 @@ const httpTrigger: AzureFunction = async function (
       return;
     }
 
-    const toBeassignedUserId = req.params.userId;
+    const workoutId = req.params.workoutId;
 
-    const response: { message: string; success: boolean } = await createNewSession(toBeassignedUserId,req.body);
+    const response: { message: string; success: boolean } = await deleteSessionWorkout(workoutId);
     if (response.success) {
       context.res = {
         status: 200,

@@ -89,7 +89,7 @@ export function generateJWT(userId: string): string {
   };
 
   const secretKey = process.env.secretKey!;
-  const token = jwt.sign(payload, secretKey, { expiresIn: "5h" });
+  const token = jwt.sign(payload, secretKey, { expiresIn: "23h" });
   return token;
 }
 

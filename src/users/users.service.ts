@@ -364,7 +364,7 @@ export async function getAllUsers(query: Record<string, any>) {
     // Fetch all users with their details
     const savedUsers = await UserModel.aggregate([
       {
-        $match: queryObj, // ✅ Apply filters to the query
+        $match: queryObj,
       },
       {
         $lookup: {

@@ -12,10 +12,6 @@ export interface UserActivePlans extends Document {
     totalSessions: number;
     remainingSessions: number;
     trainerId: mongoose.Types.ObjectId;
-    preferredAddress: string;
-    // sun-0, mon-1, tue-2, wed-3, thu-4, fri-5, sat-6
-    preferredDays: Array<number>;
-    preferredTime: string;
     isActive: boolean;
     createdAt: Date;
     updatedAt: Date;
@@ -70,18 +66,6 @@ const UserActivePlansSchema: Schema<UserActivePlans> = new Schema<UserActivePlan
         type: Boolean,
         required: true,
         default: true
-    },
-    preferredAddress: {
-        type: String,
-        required: false,
-    },
-    preferredDays: {
-        type: [Number],
-        required: false,
-    },
-    preferredTime: {
-        type: String,
-        required: false,
     },
     createdAt: {
         type: Date,

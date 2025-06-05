@@ -416,7 +416,7 @@ export async function updateSession(sessionId: string, data: Record<string, any>
         const updatedSession = await SessionModel.findByIdAndUpdate(
             sessionId,
             { ...data, updatedAt: new Date() },
-            { new: true, runValidators: true }
+            { new: true }
         );
 
         if (!updatedSession) {
@@ -425,11 +425,14 @@ export async function updateSession(sessionId: string, data: Record<string, any>
                 success: false,
             };
         }
-
+        const respObj = {...updatedSession.toObject()}
+        if(user){
+            respObj['trainerDetails'] = user.toObject();
+        }
         return {
             message: "Session updated successfully",
             success: true,
-            data: {...updatedSession.toObject(),trainerDetails:user.toObject()},
+            data: respObj,
         };
     } catch (error) {
         throw new Error(error);

@@ -10,7 +10,7 @@ const httpTrigger: AzureFunction = async function (
   req: HttpRequest
 ): Promise<void> {
   try {
-
+    context.log(req)
     const { status, merchantTransactionId } = req.body;
     const response: { message: string; success: boolean } = await validatePayment(req.body);
     if (response.success) {

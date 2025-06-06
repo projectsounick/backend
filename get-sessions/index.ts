@@ -62,9 +62,9 @@ const httpTrigger: AzureFunction = async function (
 
     response = await getUserSessions(
       finalUserId,
+      parsedStatus,
       startDate,
-      endDate,
-      parsedStatus
+      endDate
     );
 
     if (response.success) {

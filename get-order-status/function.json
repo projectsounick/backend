@@ -5,8 +5,8 @@
       "type": "httpTrigger",
       "direction": "in",
       "name": "req",
-      "methods": ["put"],
-      "route": "update-order/{orderId}"
+      "methods": ["get"],
+      "route": "get-order-status/{orderId}"
     },
     {
       "type": "http",
@@ -14,5 +14,5 @@
       "name": "res"
     }
   ],
-  "scriptFile": "../dist/update-order/index.js"
+  "scriptFile": "../dist/get-order-status/index.js"
 }

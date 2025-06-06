@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document } from "mongoose";
 
 export interface Payment extends Document {
+    orderId: string;
     userId: mongoose.Types.ObjectId;
     amount: number;
     status: 'pending' | 'success' | 'failed' | 'fullRefunded' | 'partialRefunded';
@@ -13,6 +14,10 @@ export interface Payment extends Document {
     updatedAt: Date;
 }
 const PaymentSchema: Schema<Payment> = new Schema<Payment>({
+    orderId: {
+        type: String,
+        required: true
+    },
     userId: {
         type: mongoose.SchemaTypes.ObjectId,
         ref: "users",
@@ -33,7 +38,7 @@ const PaymentSchema: Schema<Payment> = new Schema<Payment>({
         required: false,
     },
     // Optional field for refunds
-    refundAmount:{
+    refundAmount: {
         type: Number,
         required: false,
     },

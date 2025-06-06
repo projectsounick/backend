@@ -2,38 +2,39 @@ import mongoose from "mongoose";
 import PaymentModel from "./payment.model";
 import { activePlanForUser } from "../userActivePlans/activePlans.service";
 import axios from "axios";
-import crypto from "crypto";
+import { v4 as uuidv4 } from 'uuid';
 
 const PHONEPE_AUTH_URL = "https://api.phonepe.com/v3/merchant/oauth/token"; 
 
 const PHONEPE_BASE_URL = "https://api.phonepe.com/apis/hermes";
-const CLIENT_ID = "TEST-M23WC6W062GQI_25052";
-const CLIENT_SECRET = "ZGM2NjVlNzMtYjQzMy00NzE1LTg1NjctNzFiZmJkNmExODkw";
 const MERCHANT_ID = "M23WC6W062GQI";
 const CALLBACK_URL = "http://localhost:7071/api/payment-callback";
 
 
 export async function addPaymentItem(userId: string, amount: number,items: Array<string>) {
     try {
-        // const resp = await initiatePayment(100,"anvuvdfd");
-        // console.log("payment resp",resp);
         if (items.length === 0) {
             return {
                 message: "items cannot be empty",
                 success: false,
             };
         }
+        const orderId = uuidv4(); 
+        const redirectUrl = await initiatePayment(amount*100,orderId);
+        console.log("redirectUrl",redirectUrl)
         const paymentObj: any = {
             userId: new mongoose.Types.ObjectId(userId),
             amount: amount,
             status: 'pending',
-            items: items
+            items: items,
+            orderId:orderId
         }
         const savedPaymentItem = await PaymentModel.create({ ...paymentObj });
         return {
             message: "added successfully",
             success: true,
             data: savedPaymentItem,
+            redirectUrl:redirectUrl
         };
     } catch (error) {
         throw new Error(error);
@@ -43,54 +44,53 @@ export async function addPaymentItem(userId: string, amount: number,items: Array
 async function getAuthToken() {
     try {
         const formData = new URLSearchParams();
-        formData.append("client_id",CLIENT_ID);
+        formData.append("client_id",process.env.CLIENT_ID);
         formData.append("client_version", "1");
-        formData.append("client_secret", CLIENT_SECRET);
+        formData.append("client_secret", process.env.CLIENT_SECRET);
         formData.append("grant_type", "client_credentials");
 
-        const response = await axios.post("https://api-preprod.phonepe.com/apis/pg-sandbox/v1/oauth/token", formData.toString(), {
+        const response = await axios.post(process.env.TOKEN_URL, formData.toString(), {
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded"
             }
         });
 
         console.log("Auth Token:", response.data);
-        return response.data;
+        return response.data.access_token;
     } catch (error) {
         console.error("Error fetching token:", error.response?.data || error.message);
         throw new Error(error.message);
     }
 }
 
-async function initiatePayment(amount: number, transactionId: string) {
+async function initiatePayment(amount: number, orderId: string) {
     try {
         const authToken = await getAuthToken();
 
         const requestBody = {
-            merchantOrderId: "TX123rrty34432456",
-            amount: 1000,
+            merchantOrderId: orderId,
+            amount: amount,
+            expireAfter: 3600,
             paymentFlow: {
                 type: "PG_CHECKOUT",
                 message: "Payment message used for collect requests",
                 merchantUrls: {
-                    redirectUrl: CALLBACK_URL
+                    redirectUrl: "https://google.com"
                 }
             }
-        };
+        }
 
-        const response = await axios.post(
-            "https://api-preprod.phonepe.com/apis/pg-sandbox/checkout/v2/pay",
-            requestBody,
+        const response = await axios.post(process.env.PAYMENT_URL,requestBody,
             {
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": "O-Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                    "Authorization": `O-Bearer ${authToken}`
                 }
             }
         );
 
         console.log("Payment Response:", response.data);
-        return response.data;
+        return response.data.redirectUrl;
     } catch (error) {
         console.error("Error initiating payment:", error);
         throw new Error(error.message);

@@ -395,6 +395,7 @@ export async function cartCheckout(userId: string) {
       message: "Items Ordered successfully",
       success: true,
       data: {
+        redirectUrl: paymentResponse.redirectUrl,
         payment: paymentResponse.data,
         cartItems: cartItems,
       },

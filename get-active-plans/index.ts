@@ -35,16 +35,7 @@ const httpTrigger: AzureFunction = async function (
       };
       return;
     }
-    if( (userRoleResponse.role == "admin" || userRoleResponse.role == "trainer" || userRoleResponse.role == "hr") && !req.query.userId) {
-      context.res = {
-        status: 403,
-        body: {
-          message: "User ID is required",
-          success: false,
-        },
-      };
-      return;
-    }
+
     const { isActive, userId } = req.query;
 
     const parsedIsActive =

@@ -61,10 +61,8 @@ const adminLoginOtpEmailTemplate = (otp: any) => `<!DOCTYPE html>
         <div class="container">
             <div class="header">Login otp</div>
             <div class="content">
-                <p><strong>Dear Admin,</strong></p>
-                <p>Your otp for admin panel login is : <strong>${
-                  otp || "N/A"
-                }</strong>.</p>
+                <p><strong>Dear User,</strong></p>
+                <p>Your otp   is : <strong>${otp || "N/A"}</strong>.</p>
                 
               
     

@@ -3,15 +3,10 @@ import PaymentModel from "./payment.model";
 import { activePlanForUser } from "../userActivePlans/activePlans.service";
 import axios from "axios";
 import { v4 as uuidv4 } from 'uuid';
-
-const PHONEPE_AUTH_URL = "https://api.phonepe.com/v3/merchant/oauth/token"; 
-
-const PHONEPE_BASE_URL = "https://api.phonepe.com/apis/hermes";
-const MERCHANT_ID = "M23WC6W062GQI";
-const CALLBACK_URL = "http://localhost:7071/api/payment-callback";
+import CartModel from "../cart/cart.model";
 
 
-export async function addPaymentItem(userId: string, amount: number,items: Array<string>) {
+export async function addPaymentItem(userId: string, amount: number, items: Array<string>) {
     try {
         if (items.length === 0) {
             return {
@@ -19,32 +14,31 @@ export async function addPaymentItem(userId: string, amount: number,items: Array
                 success: false,
             };
         }
-        const orderId = uuidv4(); 
-        const redirectUrl = await initiatePayment(amount*100,orderId);
-        console.log("redirectUrl",redirectUrl)
+        const orderId = uuidv4();
+        const redirectUrl = await initiatePayment(amount * 100, orderId);
+        console.log("redirectUrl", redirectUrl)
         const paymentObj: any = {
             userId: new mongoose.Types.ObjectId(userId),
             amount: amount,
             status: 'pending',
             items: items,
-            orderId:orderId
+            orderId: orderId
         }
         const savedPaymentItem = await PaymentModel.create({ ...paymentObj });
         return {
             message: "added successfully",
             success: true,
             data: savedPaymentItem,
-            redirectUrl:redirectUrl
+            redirectUrl: redirectUrl
         };
     } catch (error) {
         throw new Error(error);
     }
 }
-
 async function getAuthToken() {
     try {
         const formData = new URLSearchParams();
-        formData.append("client_id",process.env.CLIENT_ID);
+        formData.append("client_id", process.env.CLIENT_ID);
         formData.append("client_version", "1");
         formData.append("client_secret", process.env.CLIENT_SECRET);
         formData.append("grant_type", "client_credentials");
@@ -62,7 +56,6 @@ async function getAuthToken() {
         throw new Error(error.message);
     }
 }
-
 async function initiatePayment(amount: number, orderId: string) {
     try {
         const authToken = await getAuthToken();
@@ -75,12 +68,12 @@ async function initiatePayment(amount: number, orderId: string) {
                 type: "PG_CHECKOUT",
                 message: "Payment message used for collect requests",
                 merchantUrls: {
-                    redirectUrl: "https://google.com"
+                    redirectUrl: `myapp://dashboard/paymentsuccess/${orderId}`
                 }
             }
         }
 
-        const response = await axios.post(process.env.PAYMENT_URL,requestBody,
+        const response = await axios.post(process.env.PAYMENT_URL, requestBody,
             {
                 headers: {
                     "Content-Type": "application/json",
@@ -96,11 +89,193 @@ async function initiatePayment(amount: number, orderId: string) {
         throw new Error(error.message);
     }
 }
+async function getPaymentStatus(orderId: string) {
+    try {
+        const authToken = await getAuthToken();
+        const response = await axios.get(`https://api-preprod.phonepe.com/apis/pg-sandbox/checkout/v2/order/${orderId}/status`,
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `O-Bearer ${authToken}`
+                }
+            }
+        );
 
-export async function validatePayment(receivedData:any) {
+        console.log("Payment status Response:", response.data);
+        return response.data.state;
+    } catch (error) {
+        console.error("Error initiating payment:", error);
+        throw new Error(error.message);
+    }
+}
+export async function updatePaymentItem(orderId: string,) {
+    try {
+        const orderStatus = await getPaymentStatus(orderId);
+        const newStatus = (orderStatus == 'FAILED') ? 'failed' : (orderStatus == 'COMPLETED' ? 'success' : 'pending')
+        const paymentItemToBeUpdated = await PaymentModel.aggregate([
+            { $match: { orderId: orderId } },
+            { $sort: { createdAt: -1 } },
+
+            //Lookup cart items linked to payment
+            {
+                $lookup: {
+                    from: "carts",
+                    let: { cartItems: "$items" },
+                    pipeline: [
+                        { $match: { $expr: { $in: ["$_id", "$$cartItems"] } } },
+                        //Lookup product details
+                        {
+                            $lookup: {
+                                from: "products",
+                                localField: "productId",
+                                foreignField: "_id",
+                                as: "productDetails",
+                            },
+                        },
+                        // Lookup diet plan details (if applicable)
+                        {
+                            $lookup: {
+                                from: "dietplans",
+                                localField: "dietPlanId",
+                                foreignField: "_id",
+                                as: "dietPlanDetails",
+                            },
+                        },
+                        //Lookup plan details using the nested `plan.planId`
+                        {
+                            $lookup: {
+                                from: "plans",
+                                let: { planId: "$plan.planId" },
+                                pipeline: [
+                                    { $match: { $expr: { $eq: ["$_id", "$$planId"] } } }
+                                ],
+                                as: "planDetails",
+                            },
+                        },
+                        //Lookup plan item details using the nested `plan.planItemId`
+                        {
+                            $lookup: {
+                                from: "planitems",
+                                let: { planItemId: "$plan.planItemId" },
+                                pipeline: [
+                                    { $match: { $expr: { $eq: ["$_id", "$$planItemId"] } } }
+                                ],
+                                as: "planItemDetails",
+                            },
+                        },
+                        // Lookup diet plan details from `planDetails.dietPlanId`
+                        {
+                            $lookup: {
+                                from: "dietplans",
+                                let: { dietPlanId: { $arrayElemAt: ["$planDetails.dietPlanId", 0] } },
+                                pipeline: [
+                                    { $match: { $expr: { $eq: ["$_id", "$$dietPlanId"] } } }
+                                ],
+                                as: "planDietPlanDetails",
+                            },
+                        },
+                        // Convert `planDetails`, `planItemDetails`, and `planDietPlanDetails` into a structured plan object
+                        {
+                            $addFields: {
+                                plan: {
+                                    $cond: {
+                                        if: { $gt: [{ $size: "$planDetails" }, 0] }, // Only add if plan exists
+                                        then: {
+                                            $mergeObjects: [
+                                                { $arrayElemAt: ["$planDetails", 0] }, // Extract plan object
+                                                {
+                                                    planItem: { $arrayElemAt: ["$planItemDetails", 0] }, //  Nest planItem inside plan
+                                                    dietPlanDetails: { $arrayElemAt: ["$planDietPlanDetails", 0] } //  Nest dietPlanDetails inside plan
+                                                }
+                                            ]
+                                        },
+                                        else: "$$REMOVE" //  Completely remove plan if no data exists
+                                    }
+                                }
+                            }
+                        },
+                        //Ensure final structure
+                        {
+                            $project: {
+                                _id: 1,
+                                userId: 1,
+                                quantity: 1,
+                                isDeleted: 1,
+                                isBought: 1,
+                                createdAt: 1,
+                                updatedAt: 1,
+                                productDetails: { $arrayElemAt: ["$productDetails", 0] },
+                                dietPlanDetails: { $arrayElemAt: ["$dietPlanDetails", 0] },
+                                plan: 1, //Plan object will appear only if data exists
+                            },
+                        },
+                    ],
+                    as: "cartItems",
+                },
+            },
+
+
+            // Projection for clean output
+            {
+                $project: {
+                    _id: 1,
+                    userId: 1,
+                    amount: 1,
+                    status: 1,
+                    isIndependentSession: 1,
+                    independentSessionCount: 1,
+                    refundAmount: 1,
+                    refundReason: 1,
+                    refundedAt: 1,
+                    createdAt: 1,
+                    updatedAt: 1,
+                    cartItems: 1, //Nested cart items including product/plan details
+                },
+            },
+        ]);
+        if (paymentItemToBeUpdated.length === 0) {
+            return {
+                message: "Payment Item with given id is not found",
+                success: false,
+            };
+        }
+        if (paymentItemToBeUpdated[0].status !== 'pending') {
+            return {
+                message: "Payment Item with given id is already updated",
+                success: false,
+            };
+        }
+        const updatedPaymentItem = await PaymentModel.findByIdAndUpdate(
+            paymentItemToBeUpdated[0]._id,
+            { status: newStatus },
+            { new: true }
+        );
+        // Mark all cart items as deleted
+        await CartModel.updateMany(
+            { _id: { $in: updatedPaymentItem.items } },
+            { $set: { isDeleted: true, isBought: true } }
+        );
+        console.log("paymentItemToBeUpdated[0]", paymentItemToBeUpdated[0]);
+        if (newStatus === 'success') {
+            await activePlanForUser(paymentItemToBeUpdated[0].userId, paymentItemToBeUpdated[0].cartItems);
+        }
+
+        return {
+            message: "Payment item updated successfully",
+            success: true,
+            data: updatedPaymentItem,
+        };
+    } catch (error) {
+        throw new Error(error);
+    }
+}
+
+
+
+export async function validatePayment(receivedData: any) {
     try {
         console.log(receivedData);
-         return {
+        return {
             message: "added successfully",
             success: true,
             data: null,
@@ -241,7 +416,7 @@ export async function getPaymentItems(userId: string, status: string, page?: str
                     {
                         $project: {
                             _id: 1,
-                            userId:1,
+                            userId: 1,
                             amount: 1,
                             status: 1,
                             isIndependentSession: 1,
@@ -373,7 +548,7 @@ export async function getPaymentItems(userId: string, status: string, page?: str
                     {
                         $project: {
                             _id: 1,
-                            userId:1,
+                            userId: 1,
                             amount: 1,
                             status: 1,
                             isIndependentSession: 1,
@@ -402,164 +577,3 @@ export async function getPaymentItems(userId: string, status: string, page?: str
     }
 }
 
-export async function updatePaymentItem(paymentItemId: string, newStatus: string) {
-    if (newStatus !== 'success' && newStatus !== 'failed') {
-        return {
-            message: "Invalid status provided",
-            success: false,
-        };
-    }
-    try {
-        // const paymentItemToBeUpdated = await PaymentModel.findById(paymentItemId);
-        const paymentItemToBeUpdated = await PaymentModel.aggregate([
-            { $match: {_id:new mongoose.Types.ObjectId(paymentItemId)} },
-            { $sort: { createdAt: -1 } },
-
-            //Lookup cart items linked to payment
-            {
-                $lookup: {
-                    from: "carts",
-                    let: { cartItems: "$items" },
-                    pipeline: [
-                        { $match: { $expr: { $in: ["$_id", "$$cartItems"] } } },
-                        //Lookup product details
-                        {
-                            $lookup: {
-                                from: "products",
-                                localField: "productId",
-                                foreignField: "_id",
-                                as: "productDetails",
-                            },
-                        },
-                        // Lookup diet plan details (if applicable)
-                        {
-                            $lookup: {
-                                from: "dietplans",
-                                localField: "dietPlanId",
-                                foreignField: "_id",
-                                as: "dietPlanDetails",
-                            },
-                        },
-                        //Lookup plan details using the nested `plan.planId`
-                        {
-                            $lookup: {
-                                from: "plans",
-                                let: { planId: "$plan.planId" },
-                                pipeline: [
-                                    { $match: { $expr: { $eq: ["$_id", "$$planId"] } } }
-                                ],
-                                as: "planDetails",
-                            },
-                        },
-                        //Lookup plan item details using the nested `plan.planItemId`
-                        {
-                            $lookup: {
-                                from: "planitems",
-                                let: { planItemId: "$plan.planItemId" },
-                                pipeline: [
-                                    { $match: { $expr: { $eq: ["$_id", "$$planItemId"] } } }
-                                ],
-                                as: "planItemDetails",
-                            },
-                        },
-                        // Lookup diet plan details from `planDetails.dietPlanId`
-                        {
-                            $lookup: {
-                                from: "dietplans",
-                                let: { dietPlanId: { $arrayElemAt: ["$planDetails.dietPlanId", 0] } },
-                                pipeline: [
-                                    { $match: { $expr: { $eq: ["$_id", "$$dietPlanId"] } } }
-                                ],
-                                as: "planDietPlanDetails",
-                            },
-                        },
-                        // Convert `planDetails`, `planItemDetails`, and `planDietPlanDetails` into a structured plan object
-                        {
-                            $addFields: {
-                                plan: {
-                                    $cond: {
-                                        if: { $gt: [{ $size: "$planDetails" }, 0] }, // Only add if plan exists
-                                        then: {
-                                            $mergeObjects: [
-                                                { $arrayElemAt: ["$planDetails", 0] }, // Extract plan object
-                                                {
-                                                    planItem: { $arrayElemAt: ["$planItemDetails", 0] }, //  Nest planItem inside plan
-                                                    dietPlanDetails: { $arrayElemAt: ["$planDietPlanDetails", 0] } //  Nest dietPlanDetails inside plan
-                                                }
-                                            ]
-                                        },
-                                        else: "$$REMOVE" //  Completely remove plan if no data exists
-                                    }
-                                }
-                            }
-                        },
-                        //Ensure final structure
-                        {
-                            $project: {
-                                _id: 1,
-                                userId: 1,
-                                quantity: 1,
-                                isDeleted: 1,
-                                isBought: 1,
-                                createdAt: 1,
-                                updatedAt: 1,
-                                productDetails: { $arrayElemAt: ["$productDetails", 0] },
-                                dietPlanDetails: { $arrayElemAt: ["$dietPlanDetails", 0] },
-                                plan: 1, //Plan object will appear only if data exists
-                            },
-                        },
-                    ],
-                    as: "cartItems",
-                },
-            },
-
-
-            // Projection for clean output
-            {
-                $project: {
-                    _id: 1,
-                    userId: 1,
-                    amount: 1,
-                    status: 1,
-                    isIndependentSession: 1,
-                    independentSessionCount: 1,
-                    refundAmount: 1,
-                    refundReason: 1,
-                    refundedAt: 1,
-                    createdAt: 1,
-                    updatedAt: 1,
-                    cartItems: 1, //Nested cart items including product/plan details
-                },
-            },
-        ]);
-        if (paymentItemToBeUpdated.length === 0) {
-            return {
-                message: "Payment Item with given id is not found",
-                success: false,
-            };
-        }
-        if( paymentItemToBeUpdated[0].status !== 'pending') {
-            return {
-                message: "Payment Item with given id is already updated",
-                success: false,
-            };
-        }
-        const updatedPaymentItem = await PaymentModel.findByIdAndUpdate(
-            paymentItemId,
-            { status: newStatus },
-            { new: true }
-        );
-        console.log("paymentItemToBeUpdated[0]", paymentItemToBeUpdated[0]);
-        if (newStatus === 'success') {
-            await activePlanForUser(paymentItemToBeUpdated[0].userId, paymentItemToBeUpdated[0].cartItems);
-        }
-       
-        return {
-            message: "Payment item updated successfully",
-            success: true,
-            data: updatedPaymentItem[0],
-        };
-    } catch (error) {
-        throw new Error(error);
-    }
-}

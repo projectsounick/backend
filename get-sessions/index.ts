@@ -54,7 +54,7 @@ const httpTrigger: AzureFunction = async function (
     const finalUserId = userRoleResponse.role === "user" ? userId : id;
     const parsedStatus =isActive === "true" ? true : isActive === "false" ? false : null;
 
-    response = await getUserSessions(finalUserId, startDate, endDate,parsedStatus);
+    response = await getUserSessions(finalUserId,parsedStatus, startDate, endDate);
 
     if (response.success) {
       context.res = {

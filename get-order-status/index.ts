@@ -28,8 +28,7 @@ const httpTrigger: AzureFunction = async function (
 
 
     const orderId = req.params.orderId;
-    const { newStatus } = req.body;
-    const response: { message: string; success: boolean } = await updatePaymentItem(orderId, newStatus);
+    const response: { message: string; success: boolean } = await updatePaymentItem(orderId);
     if (response.success) {
       context.res = {
         status: 200,

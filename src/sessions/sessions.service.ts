@@ -167,7 +167,7 @@ export async function createNewSession(toBeassignedUserId, data: any,) {
     }
 }
 
-export async function getUserSessions(userId: string, startDate: string, endDate: string, status: boolean | null) {
+export async function getUserSessions(userId: string, status: boolean | null, startDate?: string, endDate?: string,) {
     try {
         if (!userId || !startDate || !endDate) {
             return {
@@ -176,16 +176,22 @@ export async function getUserSessions(userId: string, startDate: string, endDate
                 data: null,
             };
         }
-        const start = new Date(startDate);
-        start.setHours(0, 0, 0, 0);
 
-        const end = new Date(endDate);
-        end.setHours(23, 59, 59, 999);
+
 
 
         const queryObj = {
             userId: new mongoose.Types.ObjectId(userId),
-            sessionDate: { $gte: start, $lte: end }
+            // sessionDate: { $gte: start, $lte: end }
+        }
+
+        if (startDate && endDate) {
+            const start = new Date(startDate);
+            start.setHours(0, 0, 0, 0);
+
+            const end = new Date(endDate);
+            end.setHours(23, 59, 59, 999);
+            queryObj['sessionDate'] = { $gte: start, $lte: end };
         }
         if (status !== null) {
             queryObj["isActive"] = status;
@@ -425,8 +431,8 @@ export async function updateSession(sessionId: string, data: Record<string, any>
                 success: false,
             };
         }
-        const respObj = {...updatedSession.toObject()}
-        if(user){
+        const respObj = { ...updatedSession.toObject() }
+        if (user) {
             respObj['trainerDetails'] = user.toObject();
         }
         return {

@@ -384,11 +384,11 @@ export async function cartCheckout(userId: string) {
       };
     }
 
-    // Mark all cart items as deleted
-    await CartModel.updateMany(
-      { _id: { $in: cartItemsId } },
-      { $set: { isDeleted: true, isBought: true } }
-    );
+    // // Mark all cart items as deleted
+    // await CartModel.updateMany(
+    //   { _id: { $in: cartItemsId } },
+    //   { $set: { isDeleted: true, isBought: true } }
+    // );
 
 
     return {

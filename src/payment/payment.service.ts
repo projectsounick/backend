@@ -4,6 +4,8 @@ import { activePlanForUser } from "../userActivePlans/activePlans.service";
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
 import CartModel from "../cart/cart.model";
+import { generateReceiptPdf } from "./ReciptUtils";
+import { uploadUserReceiptPdfWithSas } from "../azure/azureService";
 
 export async function addPaymentItem(
   userId: string,
@@ -78,7 +80,7 @@ async function initiatePayment(amount: number, orderId: string) {
         type: "PG_CHECKOUT",
         message: "Payment message used for collect requests",
         merchantUrls: {
-          redirectUrl: `myapp://dashboard/paymentsuccess/${orderId}`,
+          redirectUrl: `myapp://dashboard/paymentsuccess?orderId=${orderId}`,
         },
       },
     };
@@ -607,5 +609,165 @@ export async function getPaymentItems(
     }
   } catch (error) {
     throw new Error(error);
+  }
+}
+
+//// Funciton for getting the payment details -------------------------------/
+export async function getPaymentReceipt(orderId: string, userId: string) {
+  try {
+    const response = await PaymentModel.aggregate([
+      {
+        $match: { orderId: orderId },
+      },
+      {
+        $lookup: {
+          from: "carts",
+          let: { cartItemIds: "$items" },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $in: ["$_id", "$$cartItemIds"] },
+              },
+            },
+            // Lookup diet plan (direct dietPlanId)
+            {
+              $lookup: {
+                from: "dietplans",
+                localField: "dietPlanId",
+                foreignField: "_id",
+                as: "dietPlanDetails",
+              },
+            },
+            {
+              $unwind: {
+                path: "$dietPlanDetails",
+                preserveNullAndEmptyArrays: true,
+              },
+            },
+            // Lookup plan (plan.planId)
+            {
+              $lookup: {
+                from: "plans",
+                localField: "plan.planId",
+                foreignField: "_id",
+                as: "planDetails",
+              },
+            },
+            {
+              $unwind: {
+                path: "$planDetails",
+                preserveNullAndEmptyArrays: true,
+              },
+            },
+            // Lookup plan item (plan.planItemId)
+            {
+              $lookup: {
+                from: "planitems",
+                localField: "plan.planItemId",
+                foreignField: "_id",
+                as: "planItemDetails",
+              },
+            },
+            {
+              $unwind: {
+                path: "$planItemDetails",
+                preserveNullAndEmptyArrays: true,
+              },
+            },
+            // Lookup dietPlanId inside planDetails
+            {
+              $lookup: {
+                from: "dietplans",
+                localField: "planDetails.dietPlanId",
+                foreignField: "_id",
+                as: "planDietPlanDetails",
+              },
+            },
+            {
+              $unwind: {
+                path: "$planDietPlanDetails",
+                preserveNullAndEmptyArrays: true,
+              },
+            },
+            // Structure the final `plan` object
+            {
+              $addFields: {
+                plan: {
+                  $cond: [
+                    { $gt: ["$planDetails", null] },
+                    {
+                      $mergeObjects: [
+                        "$planDetails",
+                        {
+                          planItem: "$planItemDetails",
+                          dietPlan: "$planDietPlanDetails",
+                        },
+                      ],
+                    },
+                    null,
+                  ],
+                },
+              },
+            },
+            {
+              $project: {
+                _id: 1,
+                quantity: 1,
+                dietPlanDetails: 1,
+                plan: 1,
+              },
+            },
+          ],
+          as: "cartItems",
+        },
+      },
+      // Lookup user details
+      {
+        $lookup: {
+          from: "users",
+          localField: "userId",
+          foreignField: "_id",
+          as: "userDetails",
+        },
+      },
+      {
+        $unwind: {
+          path: "$userDetails",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      // Final output shape
+      {
+        $project: {
+          _id: 1,
+          orderId: 1,
+          userId: 1,
+          amount: 1,
+          status: 1,
+          createdAt: 1,
+          updatedAt: 1,
+          cartItems: 1,
+          userDetails: {
+            _id: 1,
+            name: 1,
+            email: 1,
+            phone: 1,
+          },
+        },
+      },
+    ]);
+    const pdfBuffer = await generateReceiptPdf(response);
+    const reciptUrl = await uploadUserReceiptPdfWithSas(pdfBuffer, userId);
+    return {
+      success: true,
+      message: "Receipt data fetched successfully",
+      receipt: reciptUrl,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: error.message,
+      receipt: null,
+    };
   }
 }

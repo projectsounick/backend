@@ -50,6 +50,8 @@ export async function sendPushNotifications(title, body, expoPushTokens) {
 
     try {
       const tickets = await expo.sendPushNotificationsAsync(messages);
+      console.log(tickets);
+
       // Check tickets for errors (optional)
       tickets.forEach((ticket, i) => {
         if (ticket.status === "error") {

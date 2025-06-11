@@ -1,17 +1,20 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 import { init } from "../src/helpers/azure-cosmosdb-mongodb";
 import { getUserRole, verifyAndDecodeToken } from "../src/admin/admin.service";
-import { getUserSessions } from "../src/sessions/sessions.service";
+import {
+  getPaymentItems,
+  getPaymentReceipt,
+} from "../src/payment/payment.service";
 
 const httpTrigger: AzureFunction = async function (
   context: Context,
   req: HttpRequest
 ): Promise<void> {
   try {
-    let userId: string;
+    let callingUserId: string;
     const authResponse = await verifyAndDecodeToken(req);
     if (authResponse) {
-      userId = authResponse;
+      callingUserId = authResponse;
     } else {
       context.res = {
         status: 401,
@@ -22,11 +25,9 @@ const httpTrigger: AzureFunction = async function (
       };
       return;
     }
-
     await init(context);
-    console.log(userId);
 
-    const userRoleResponse = await getUserRole(userId);
+    const userRoleResponse = await getUserRole(callingUserId);
     if (!userRoleResponse.status) {
       context.res = {
         status: 401,
@@ -37,40 +38,9 @@ const httpTrigger: AzureFunction = async function (
       };
       return;
     }
-    console.log(userRoleResponse.role);
 
-    // if (
-    //   (userRoleResponse.role == "admin" ||
-    //     userRoleResponse.role == "trainer" ||
-    //     userRoleResponse.role == "hr") &&
-    //   !req.query.id
-    // ) {
-    //   context.res = {
-    //     status: 403,
-    //     body: {
-    //       message: "User ID is required",
-    //       success: false,
-    //     },
-    //   };
-    //   return;
-    // }
-
-    const { startDate, endDate, id, isActive } = req.query;
-
-    let response: { message: string; success: boolean };
-
-    const finalUserId = userRoleResponse.role === "user" ? userId : id;
-    const parsedStatus =
-      isActive === "true" ? true : isActive === "false" ? false : null;
-
-    response = await getUserSessions(
-      finalUserId,
-      parsedStatus,
-      startDate,
-      endDate
-    );
-    console.log(response);
-
+    const response: { message: string; success: boolean } =
+      await getPaymentReceipt(req.query.orderId, callingUserId);
     if (response.success) {
       context.res = {
         status: 200,
@@ -83,8 +53,6 @@ const httpTrigger: AzureFunction = async function (
       };
     }
   } catch (error) {
-    console.log(error.message);
-
     context.res = {
       status: 500,
       body: {

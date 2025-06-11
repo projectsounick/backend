@@ -263,6 +263,7 @@ export async function userOtpVerify(
       };
     }
   } catch (error: any) {
+    context.log(error.message)
     console.error(error);
     return {
       message: "Unable to verify the otp",

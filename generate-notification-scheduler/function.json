@@ -1,0 +1,11 @@
+{
+  "bindings": [
+    {
+      "name": "myTimer",
+      "type": "timerTrigger",
+      "direction": "in",
+      "schedule": "0 0 */4 * * *"
+    }
+  ],
+  "scriptFile": "../dist/generate-notification-scheduler/index.js"
+}

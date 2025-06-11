@@ -37,8 +37,11 @@ export async function fetchWebsiteContent(): Promise<{
   data: WebsiteContent;
 }> {
   try {
+    console.log("funciton called");
+
     // Create new content
     const websiteContent = await WebsiteContentModel.findOne();
+    console.log(websiteContent);
 
     return {
       success: true,

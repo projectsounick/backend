@@ -192,45 +192,55 @@ export async function userOtpVerify(
     const userResponse: any = await UserModel.findOne({ email: email });
     if (Number(otp) === userResponse.otp) {
       // OTP is correct
-
-      let userDetails = await UserDetailsModel.findOne({
-        userId: userResponse._id,
-      });
-
-      if (expoPushToken) {
-        /// Update call for the expoPushToken update in user table ------------------/
+      if (userResponse.role === "admin" && userResponse.role === "trainer") {
         await UserModel.findOneAndUpdate(
-          { _id: userResponse._id },
-          { $set: { expoPushToken: expoPushToken } }
+          { email: email },
+          { $set: { otp: null } }
         );
-      }
+        return {
+          message: "Login successful",
+          success: true,
+          data: { ...userResponse },
+        };
+      } else {
+        let userDetails = await UserDetailsModel.findOne({
+          userId: userResponse._id,
+        });
 
-      /// Generating the jwt token ---------------------------/
-      const jwtToken = generateJWT(userResponse._id);
-      // Convert Mongoose Document to plain object to safely add custom properties
-      const userData = userResponse.toObject();
-      const userDetailsData = userDetails ? userDetails.toObject() : {};
-
-      // Attach jwt token
-      userData.jwtToken = jwtToken;
-
-      // Merge userDetails fields into userData (excluding _id and __v if desired)
-      Object.entries(userDetailsData).forEach(([key, value]) => {
-        if (key !== "_id" && key !== "__v" && key !== "userId") {
-          userData[key] = value;
+        if (expoPushToken) {
+          /// Update call for the expoPushToken update in user table ------------------/
+          await UserModel.findOneAndUpdate(
+            { _id: userResponse._id },
+            { $set: { expoPushToken: expoPushToken } }
+          );
         }
-      });
-      /// Setting the otp to null --------------------------/
-      await UserModel.findOneAndUpdate(
-        { email: email },
-        { $set: { otp: null } }
-      );
 
-      return {
-        message: "Login successful",
-        success: true,
-        data: { ...userData, accessToken: jwtToken },
-      };
+        /// Generating the jwt token ---------------------------/
+        const jwtToken = generateJWT(userResponse._id);
+        // Convert Mongoose Document to plain object to safely add custom properties
+        const userData = userResponse.toObject();
+        const userDetailsData = userDetails ? userDetails.toObject() : {};
+
+        // Attach jwt token
+        userData.jwtToken = jwtToken;
+
+        // Merge userDetails fields into userData (excluding _id and __v if desired)
+        Object.entries(userDetailsData).forEach(([key, value]) => {
+          if (key !== "_id" && key !== "__v" && key !== "userId") {
+            userData[key] = value;
+          }
+        });
+        /// Setting the otp to null --------------------------/
+        await UserModel.findOneAndUpdate(
+          { email: email },
+          { $set: { otp: null } }
+        );
+        return {
+          message: "Login successful",
+          success: true,
+          data: { ...userData, accessToken: jwtToken },
+        };
+      }
     } else {
       return {
         message: "Invalid or expired OTP",

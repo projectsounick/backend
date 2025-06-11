@@ -199,16 +199,22 @@ export async function userOtpVerify(
     //// Email based otp login setup -------------------------------------/
     const userResponse: any = await UserModel.findOne({ email: email });
     if (Number(otp) === userResponse.otp) {
+      console.log("went for matching");
+
       // OTP is correct
       if (userResponse.role === "admin" || userResponse.role === "trainer") {
+        console.log("went for admin");
+
         await UserModel.findOneAndUpdate(
           { email: email },
           { $set: { otp: null } }
         );
+        /// Generating the jwt token ---------------------------/
+        const jwtToken = generateJWT(userResponse._id);
         return {
           message: "Login successful",
           success: true,
-          data: { ...userResponse },
+          data: { ...userResponse, accessToken: jwtToken },
         };
       } else {
         let userDetails = await UserDetailsModel.findOne({

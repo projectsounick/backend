@@ -16,7 +16,8 @@ export interface Payment extends Document {
 const PaymentSchema: Schema<Payment> = new Schema<Payment>({
     orderId: {
         type: String,
-        required: true
+        required: true,
+        unique:true
     },
     userId: {
         type: mongoose.SchemaTypes.ObjectId,

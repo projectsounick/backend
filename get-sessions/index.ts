@@ -24,6 +24,7 @@ const httpTrigger: AzureFunction = async function (
     }
 
     await init(context);
+    console.log(userId);
 
     const userRoleResponse = await getUserRole(userId);
     if (!userRoleResponse.status) {
@@ -36,25 +37,39 @@ const httpTrigger: AzureFunction = async function (
       };
       return;
     }
-    if ((userRoleResponse.role == "admin" || userRoleResponse.role == "trainer" || userRoleResponse.role == "hr") && !req.query.id) {
-      context.res = {
-        status: 403,
-        body: {
-          message: "User ID is required",
-          success: false,
-        },
-      };
-      return;
-    }
+    console.log(userRoleResponse.role);
+
+    // if (
+    //   (userRoleResponse.role == "admin" ||
+    //     userRoleResponse.role == "trainer" ||
+    //     userRoleResponse.role == "hr") &&
+    //   !req.query.id
+    // ) {
+    //   context.res = {
+    //     status: 403,
+    //     body: {
+    //       message: "User ID is required",
+    //       success: false,
+    //     },
+    //   };
+    //   return;
+    // }
 
     const { startDate, endDate, id, isActive } = req.query;
 
     let response: { message: string; success: boolean };
 
     const finalUserId = userRoleResponse.role === "user" ? userId : id;
-    const parsedStatus =isActive === "true" ? true : isActive === "false" ? false : null;
+    const parsedStatus =
+      isActive === "true" ? true : isActive === "false" ? false : null;
 
-    response = await getUserSessions(finalUserId, startDate, endDate,parsedStatus);
+    response = await getUserSessions(
+      finalUserId,
+      parsedStatus,
+      startDate,
+      endDate
+    );
+    console.log(response);
 
     if (response.success) {
       context.res = {
@@ -68,6 +83,8 @@ const httpTrigger: AzureFunction = async function (
       };
     }
   } catch (error) {
+    console.log(error.message);
+
     context.res = {
       status: 500,
       body: {

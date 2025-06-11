@@ -250,7 +250,7 @@ export async function userOtpVerify(
   } catch (error: any) {
     console.error(error);
     return {
-      message: "Unable to verify the otp",
+      message: `Unable to verify the otp${error.message}`,
       success: false,
       data: null,
     };

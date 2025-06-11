@@ -117,15 +117,13 @@ export async function loginUserApp(email: string): Promise<{
       user = await new UserModel({ email: email, role: "user" }).save();
     }
 
-    if (email === 'test@gmail.com') {
+    if (email === "test@gmail.com") {
       return {
         success: true,
         message: "OTP sent successfully",
         data: user,
       };
     }
-
-   
 
     // Send OTP using Twilio
     // const otpResponse = await sendOtpUsingTwilio(user._id, number);
@@ -202,7 +200,7 @@ export async function userOtpVerify(
     const userResponse: any = await UserModel.findOne({ email: email });
     if (Number(otp) === userResponse.otp) {
       // OTP is correct
-      if (userResponse.role === "admin" && userResponse.role === "trainer") {
+      if (userResponse.role === "admin" || userResponse.role === "trainer") {
         await UserModel.findOneAndUpdate(
           { email: email },
           { $set: { otp: null } }

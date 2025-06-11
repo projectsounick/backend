@@ -175,7 +175,8 @@ export async function userOtpVerify(
   message: string;
   success: boolean;
 }> {
-  try {
+ 
+ try {
     // const accountSid = process.env.TWILIO_ACCOUNT_SID!;
     // const authToken = process.env.TWILIO_AUTH_TOKEN!;
     // const verifyServiceSid = process.env.TWILIO_VERIFY_SERVICE_SID!;
@@ -199,62 +200,46 @@ export async function userOtpVerify(
     //// Email based otp login setup -------------------------------------/
     const userResponse: any = await UserModel.findOne({ email: email });
     if (Number(otp) === userResponse.otp) {
-      console.log("went for matching");
-
       // OTP is correct
-      if (userResponse.role === "admin" || userResponse.role === "trainer") {
-        console.log("went for admin");
 
+      let userDetails = await UserDetailsModel.findOne({
+        userId: userResponse._id,
+      });
+
+      if (expoPushToken) {
+        /// Update call for the expoPushToken update in user table ------------------/
         await UserModel.findOneAndUpdate(
-          { email: email },
-          { $set: { otp: null } }
+          { _id: userResponse._id },
+          { $set: { expoPushToken: expoPushToken } }
         );
-        /// Generating the jwt token ---------------------------/
-        const jwtToken = generateJWT(userResponse._id);
-        return {
-          message: "Login successful",
-          success: true,
-          data: { ...userResponse, accessToken: jwtToken },
-        };
-      } else {
-        let userDetails = await UserDetailsModel.findOne({
-          userId: userResponse._id,
-        });
-
-        if (expoPushToken) {
-          /// Update call for the expoPushToken update in user table ------------------/
-          await UserModel.findOneAndUpdate(
-            { _id: userResponse._id },
-            { $set: { expoPushToken: expoPushToken } }
-          );
-        }
-
-        /// Generating the jwt token ---------------------------/
-        const jwtToken = generateJWT(userResponse._id);
-        // Convert Mongoose Document to plain object to safely add custom properties
-        const userData = userResponse.toObject();
-        const userDetailsData = userDetails ? userDetails.toObject() : {};
-
-        // Attach jwt token
-        userData.jwtToken = jwtToken;
-
-        // Merge userDetails fields into userData (excluding _id and __v if desired)
-        Object.entries(userDetailsData).forEach(([key, value]) => {
-          if (key !== "_id" && key !== "__v" && key !== "userId") {
-            userData[key] = value;
-          }
-        });
-        /// Setting the otp to null --------------------------/
-        await UserModel.findOneAndUpdate(
-          { email: email },
-          { $set: { otp: null } }
-        );
-        return {
-          message: "Login successful",
-          success: true,
-          data: { ...userData, accessToken: jwtToken },
-        };
       }
+
+      /// Generating the jwt token ---------------------------/
+      const jwtToken = generateJWT(userResponse._id);
+      // Convert Mongoose Document to plain object to safely add custom properties
+      const userData = userResponse.toObject();
+      const userDetailsData = userDetails ? userDetails.toObject() : {};
+
+      // Attach jwt token
+      userData.jwtToken = jwtToken;
+
+      // Merge userDetails fields into userData (excluding _id and __v if desired)
+      Object.entries(userDetailsData).forEach(([key, value]) => {
+        if (key !== "_id" && key !== "__v" && key !== "userId") {
+          userData[key] = value;
+        }
+      });
+      /// Setting the otp to null --------------------------/
+      await UserModel.findOneAndUpdate(
+        { email: email },
+        { $set: { otp: null } }
+      );
+
+      return {
+        message: "Login successful",
+        success: true,
+        data: { ...userData, accessToken: jwtToken },
+      };
     } else {
       return {
         message: "Invalid or expired OTP",
@@ -263,7 +248,6 @@ export async function userOtpVerify(
       };
     }
   } catch (error: any) {
-    context.log(error.message)
     console.error(error);
     return {
       message: "Unable to verify the otp",

@@ -103,7 +103,7 @@ async function getPaymentStatus(orderId: string) {
   try {
     const authToken = await getAuthToken();
     const response = await axios.get(
-      `https://api-preprod.phonepe.com/apis/pg-sandbox/checkout/v2/order/${orderId}/status`,
+      process.env.STAUS_URL,
       {
         headers: {
           "Content-Type": "application/json",

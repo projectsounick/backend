@@ -103,7 +103,7 @@ async function getPaymentStatus(orderId: string) {
   try {
     const authToken = await getAuthToken();
     const response = await axios.get(
-      process.env.STAUS_URL,
+      process.env.STAUS_URL.replace(':merchantOrderId',orderId),
       {
         headers: {
           "Content-Type": "application/json",

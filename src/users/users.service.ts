@@ -117,15 +117,13 @@ export async function loginUserApp(email: string): Promise<{
       user = await new UserModel({ email: email, role: "user" }).save();
     }
 
-    if (email === 'test@gmail.com') {
+    if (email === "test@gmail.com") {
       return {
         success: true,
         message: "OTP sent successfully",
         data: user,
       };
     }
-
-   
 
     // Send OTP using Twilio
     // const otpResponse = await sendOtpUsingTwilio(user._id, number);
@@ -177,7 +175,8 @@ export async function userOtpVerify(
   message: string;
   success: boolean;
 }> {
-  try {
+ 
+ try {
     // const accountSid = process.env.TWILIO_ACCOUNT_SID!;
     // const authToken = process.env.TWILIO_AUTH_TOKEN!;
     // const verifyServiceSid = process.env.TWILIO_VERIFY_SERVICE_SID!;
@@ -251,7 +250,7 @@ export async function userOtpVerify(
   } catch (error: any) {
     console.error(error);
     return {
-      message: "Unable to verify the otp",
+      message: `Unable to verify the otp${error.message}`,
       success: false,
       data: null,
     };

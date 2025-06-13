@@ -16,9 +16,7 @@ export const getBlogs = async (
 }> => {
   try {
     if (id) {
-      const blog = await BlogModel.findById(id)
-        .populate("createdBy")
-        .populate("updatedBy");
+      const blog = await BlogModel.findById(id);
 
       return {
         message: "Blogs has been fetched",
@@ -26,9 +24,8 @@ export const getBlogs = async (
         data: [blog],
       };
     } else {
-      const blogs = await BlogModel.find()
-        .populate("createdBy")
-        .populate("updatedBy");
+      const blogs = await BlogModel.find();
+
       return {
         message: "Blogs has been fetched",
         success: true,

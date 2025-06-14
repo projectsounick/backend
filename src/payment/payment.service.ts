@@ -103,12 +103,15 @@ async function initiatePayment(amount: number, orderId: string) {
 async function getPaymentStatus(orderId: string) {
   try {
     const authToken = await getAuthToken();
-    const response = await axios.get(process.env.STAUS_URL, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `O-Bearer ${authToken}`,
-      },
-    });
+    const response = await axios.get(
+      process.env.STAUS_URL.replace(":merchantOrderId", orderId),
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `O-Bearer ${authToken}`,
+        },
+      }
+    );
 
     console.log("Payment status Response:", response.data);
     return response.data.state;

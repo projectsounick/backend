@@ -81,6 +81,7 @@ async function initiatePayment(amount: number, orderId: string) {
         message: "Payment message used for collect requests",
         merchantUrls: {
           redirectUrl: `myapp://dashboard/paymentsuccess?orderId=${orderId}`,
+          callbackUrl: `https://iness-backend.azurewebsites.net/api/update-json-data`,
         },
       },
     };
@@ -103,7 +104,7 @@ async function getPaymentStatus(orderId: string) {
   try {
     const authToken = await getAuthToken();
     const response = await axios.get(
-      process.env.STAUS_URL.replace(':merchantOrderId',orderId),
+      process.env.STAUS_URL.replace(":merchantOrderId", orderId),
       {
         headers: {
           "Content-Type": "application/json",

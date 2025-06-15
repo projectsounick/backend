@@ -7,39 +7,39 @@ import CartModel from "../cart/cart.model";
 import { generateReceiptPdf } from "./ReciptUtils";
 import { uploadUserReceiptPdfWithSas } from "../azure/azureService";
 import crypto from "crypto";
-// export async function addPaymentItem(
-//   userId: string,
-//   amount: number,
-//   items: Array<string>
-// ) {
-//   try {
-//     if (items.length === 0) {
-//       return {
-//         message: "items cannot be empty",
-//         success: false,
-//       };
-//     }
-//     const orderId = uuidv4();
-//     const redirectUrl = await initiatePayment(amount * 100, orderId);
-//     console.log("redirectUrl", redirectUrl);
-//     const paymentObj: any = {
-//       userId: new mongoose.Types.ObjectId(userId),
-//       amount: amount,
-//       status: "pending",
-//       items: items,
-//       orderId: orderId,
-//     };
-//     const savedPaymentItem = await PaymentModel.create({ ...paymentObj });
-//     return {
-//       message: "added successfully",
-//       success: true,
-//       data: savedPaymentItem,
-//       redirectUrl: redirectUrl,
-//     };
-//   } catch (error) {
-//     throw new Error(error);
-//   }
-// }
+export async function addPaymentItem(
+  userId: string,
+  amount: number,
+  items: Array<string>
+) {
+  try {
+    if (items.length === 0) {
+      return {
+        message: "items cannot be empty",
+        success: false,
+      };
+    }
+    const orderId = uuidv4();
+    const orderObj = await createOrder(amount, orderId);
+    const paymentObj: any = {
+      userId: new mongoose.Types.ObjectId(userId),
+      amount: amount,
+      status: "pending",
+      items: items,
+      orderId: orderId,
+    };
+    const savedPaymentItem = await PaymentModel.create({ ...paymentObj });
+    return {
+      message: "added successfully",
+      success: true,
+      data: savedPaymentItem,
+      orderId: orderObj.orderId,
+      orderToken: orderObj.token,
+    };
+  } catch (error) {
+    throw new Error(error);
+  }
+}
 async function getAuthToken() {
   try {
     const formData = new URLSearchParams();
@@ -68,6 +68,56 @@ async function getAuthToken() {
     throw new Error(error.message);
   }
 }
+async function createOrder(amount: number, orderId: string) {
+  try {
+    const authToken = await getAuthToken();
+
+    const requestBody = {
+      merchantOrderId: orderId,
+      amount: amount * 100,
+      expireAfter: 3600,
+      paymentFlow: {
+        type: "PG_CHECKOUT",
+        paymentModeConfig: {
+          enabledPaymentModes: [
+            {
+              type: "UPI_INTENT",
+            },
+            {
+              type: "UPI_COLLECT",
+            },
+            {
+              type: "UPI_QR",
+            },
+            {
+              type: "NET_BANKING",
+            },
+            {
+              type: "CARD",
+              cardTypes: ["DEBIT_CARD", "CREDIT_CARD"],
+            },
+          ],
+        },
+      },
+    };
+    const devURl =
+      "https://api-preprod.phonepe.com/apis/pg-sandbox/checkout/v2/sdk/order";
+    const prodURL = "https://api.phonepe.com/apis/pg/checkout/v2/sdk/order";
+    const response = await axios.post(prodURL, requestBody, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `O-Bearer ${authToken}`,
+      },
+    });
+
+    console.log("Payment Response:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error initiating payment:", error);
+    throw new Error(error.message);
+  }
+}
+
 // async function initiatePayment(amount: number, orderId: string) {
 //   try {
 //     const authToken = await getAuthToken();

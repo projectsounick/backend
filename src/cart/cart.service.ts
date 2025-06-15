@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import PlanModel, { DietPlanModel, PlanItemModel } from "../Plans/plan.model";
 import CartModel from "./cart.model";
-import { getTransactionData } from "../payment/payment.service";
+import { addPaymentItem, getTransactionData } from "../payment/payment.service";
 
 export async function addCart(userId: string, data: Record<string, any>) {
   try {
@@ -253,7 +253,7 @@ export const deleteCartItem = async (cartItemId: string) => {
   }
 };
 
-export async function cartCheckout(userId: string, phoneNumber) {
+export async function cartCheckout(userId: string) {
   try {
     const queryObj: any = {
       userId: new mongoose.Types.ObjectId(userId),
@@ -376,10 +376,15 @@ export async function cartCheckout(userId: string, phoneNumber) {
     console.log(totalAmount);
     console.log(cartItemsId);
 
-    const paymentResponse = await getTransactionData(
+    // const paymentResponse = await getTransactionData(
+    //   userId,
+    //   totalAmount,
+    //   phoneNumber,
+    //   cartItemsId
+    // );
+     const paymentResponse = await addPaymentItem(
       userId,
       totalAmount,
-      phoneNumber,
       cartItemsId
     );
     if (paymentResponse.success) {

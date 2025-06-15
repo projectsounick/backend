@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import PlanModel, { DietPlanModel, PlanItemModel } from "../Plans/plan.model";
 import CartModel from "./cart.model";
-import { addPaymentItem } from "../payment/payment.service";
+import { getTransactionData } from "../payment/payment.service";
 
 export async function addCart(userId: string, data: Record<string, any>) {
   try {
@@ -253,7 +253,7 @@ export const deleteCartItem = async (cartItemId: string) => {
   }
 };
 
-export async function cartCheckout(userId: string) {
+export async function cartCheckout(userId: string, phoneNumber) {
   try {
     const queryObj: any = {
       userId: new mongoose.Types.ObjectId(userId),
@@ -373,33 +373,28 @@ export async function cartCheckout(userId: string) {
       }
       cartItemsId.push(item._id);
     });
+    console.log(totalAmount);
+    console.log(cartItemsId);
 
-
-
-    const paymentResponse = await addPaymentItem(userId, totalAmount,cartItemsId);
-    if (!paymentResponse.success) {
+    const paymentResponse = await getTransactionData(
+      userId,
+      totalAmount,
+      phoneNumber,
+      cartItemsId
+    );
+    if (paymentResponse.success) {
+      return paymentResponse;
+    } else
       return {
-        message: paymentResponse.message,
         success: false,
+        message: "Some error has happened",
       };
-    }
 
     // // Mark all cart items as deleted
     // await CartModel.updateMany(
     //   { _id: { $in: cartItemsId } },
     //   { $set: { isDeleted: true, isBought: true } }
     // );
-
-
-    return {
-      message: "Items Ordered successfully",
-      success: true,
-      data: {
-        redirectUrl: paymentResponse.redirectUrl,
-        payment: paymentResponse.data,
-        cartItems: cartItems,
-      },
-    };
   } catch (error) {
     throw new Error(error);
   }

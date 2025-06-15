@@ -6,40 +6,40 @@ import { v4 as uuidv4 } from "uuid";
 import CartModel from "../cart/cart.model";
 import { generateReceiptPdf } from "./ReciptUtils";
 import { uploadUserReceiptPdfWithSas } from "../azure/azureService";
-
-export async function addPaymentItem(
-  userId: string,
-  amount: number,
-  items: Array<string>
-) {
-  try {
-    if (items.length === 0) {
-      return {
-        message: "items cannot be empty",
-        success: false,
-      };
-    }
-    const orderId = uuidv4();
-    const redirectUrl = await initiatePayment(amount * 100, orderId);
-    console.log("redirectUrl", redirectUrl);
-    const paymentObj: any = {
-      userId: new mongoose.Types.ObjectId(userId),
-      amount: amount,
-      status: "pending",
-      items: items,
-      orderId: orderId,
-    };
-    const savedPaymentItem = await PaymentModel.create({ ...paymentObj });
-    return {
-      message: "added successfully",
-      success: true,
-      data: savedPaymentItem,
-      redirectUrl: redirectUrl,
-    };
-  } catch (error) {
-    throw new Error(error);
-  }
-}
+import crypto from "crypto";
+// export async function addPaymentItem(
+//   userId: string,
+//   amount: number,
+//   items: Array<string>
+// ) {
+//   try {
+//     if (items.length === 0) {
+//       return {
+//         message: "items cannot be empty",
+//         success: false,
+//       };
+//     }
+//     const orderId = uuidv4();
+//     const redirectUrl = await initiatePayment(amount * 100, orderId);
+//     console.log("redirectUrl", redirectUrl);
+//     const paymentObj: any = {
+//       userId: new mongoose.Types.ObjectId(userId),
+//       amount: amount,
+//       status: "pending",
+//       items: items,
+//       orderId: orderId,
+//     };
+//     const savedPaymentItem = await PaymentModel.create({ ...paymentObj });
+//     return {
+//       message: "added successfully",
+//       success: true,
+//       data: savedPaymentItem,
+//       redirectUrl: redirectUrl,
+//     };
+//   } catch (error) {
+//     throw new Error(error);
+//   }
+// }
 async function getAuthToken() {
   try {
     const formData = new URLSearchParams();
@@ -68,37 +68,106 @@ async function getAuthToken() {
     throw new Error(error.message);
   }
 }
-async function initiatePayment(amount: number, orderId: string) {
-  try {
-    const authToken = await getAuthToken();
+// async function initiatePayment(amount: number, orderId: string) {
+//   try {
+//     const authToken = await getAuthToken();
 
-    const requestBody = {
-      merchantOrderId: orderId,
-      amount: amount,
-      expireAfter: 3600,
-      paymentFlow: {
-        type: "PG_CHECKOUT",
-        message: "Payment message used for collect requests",
-        merchantUrls: {
-          redirectUrl: `myapp://dashboard/paymentsuccess?orderId=${orderId}`,
-          callbackUrl: `https://iness-backend.azurewebsites.net/api/update-json-data`,
-        },
-      },
-    };
+//     const requestBody = {
+//       merchantOrderId: orderId,
+//       amount: amount,
+//       expireAfter: 3600,
+//       paymentFlow: {
+//         type: "PG_CHECKOUT",
+//         message: "Payment message used for collect requests",
+//         merchantUrls: {
+//           redirectUrl: `myapp://dashboard/paymentsuccess?orderId=${orderId}`,
+//           callbackUrl: `https://iness-backend.azurewebsites.net/api/payment-success`,
+//         },
+//       },
+//     };
 
-    const response = await axios.post(process.env.PAYMENT_URL, requestBody, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `O-Bearer ${authToken}`,
-      },
-    });
+//     const response = await axios.post(process.env.PAYMENT_URL, requestBody, {
+//       headers: {
+//         "Content-Type": "application/json",
+//         Authorization: `O-Bearer ${authToken}`,
+//       },
+//     });
 
-    console.log("Payment Response:", response.data);
-    return response.data.redirectUrl;
-  } catch (error) {
-    console.error("Error initiating payment:", error);
-    throw new Error(error.message);
-  }
+//     console.log("Payment Response:", response.data);
+//     return response.data.redirectUrl;
+//   } catch (error) {
+//     console.error("Error initiating payment:", error);
+//     throw new Error(error.message);
+//   }
+// }
+
+export async function getTransactionData(
+  userId: string,
+  amount: number,
+  phoneNumber: string,
+  items: any
+) {
+  const MERCHANT_ID = process.env.MERCHENT_ID!;
+  const CLIENT_ID = process.env.CLIENT_ID!;
+  const SALT_KEY = process.env.CLIENT_SECRET!;
+  const SALT_INDEX = "1";
+  const orderId = uuidv4();
+  console.log(SALT_KEY);
+  console.log(SALT_INDEX);
+  console.log(MERCHANT_ID);
+  console.log(userId);
+  console.log(orderId);
+
+  const requestBody = {
+    merchantId: MERCHANT_ID,
+    merchantTransactionId: "transaction_123",
+    merchantUserId: "90223250",
+    amount: amount * 100, // in paise
+    callbackUrl: "https://iness-backend.azurewebsites.net/api/payment-callback",
+
+    mobileNumber: phoneNumber.replace(/\D/g, "").slice(-10),
+    paymentInstrument: {
+      type: "UPI_INTENT",
+      targetApp: "com.phonepe.app",
+    },
+    deviceContext: {
+      deviceOS: "ANDROID",
+    },
+  };
+  console.log(requestBody);
+
+  const base64Body = Buffer.from(JSON.stringify(requestBody)).toString(
+    "base64"
+  );
+  const apiEndPoint = "/pg/v1/pay";
+  // Raw string to hash: base64Body + apiEndPoint + salt
+  const rawChecksumString = base64Body + apiEndPoint + SALT_KEY;
+
+  // Generate SHA-256 hash of the raw string
+  const checksumHash = crypto
+    .createHash("sha256")
+    .update(rawChecksumString)
+    .digest("hex");
+
+  // Final checksum with salt index
+  const checksum = `${checksumHash}###${SALT_INDEX}`;
+  const paymentObj: any = {
+    userId: new mongoose.Types.ObjectId(userId),
+    amount: amount,
+    status: "pending",
+    items: items,
+    orderId: orderId,
+  };
+  let response = await PaymentModel.create({ ...paymentObj });
+
+  return {
+    success: true,
+    body: base64Body,
+    checksum,
+    orderId,
+    merchantId: MERCHANT_ID,
+    message: "Order placed successfully",
+  };
 }
 async function getPaymentStatus(orderId: string) {
   try {

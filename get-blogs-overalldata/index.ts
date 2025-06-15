@@ -1,10 +1,17 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 import { init } from "../src/helpers/azure-cosmosdb-mongodb";
+import { verifyAndDecodeToken } from "../src/admin/admin.service";
 import {
-  checkIfNormalUser,
-  verifyAndDecodeToken,
-} from "../src/admin/admin.service";
-import { cartCheckout, getCart } from "../src/cart/cart.service";
+  getSleepTracking,
+  getWalkTracking,
+  getWaterTracking,
+} from "../src/tracking/tracking.service";
+import {
+  addTransformationImages,
+  getTransformationImagesByUserId,
+} from "../src/TransformationImages.tsx/transformationImages.service";
+import { postSupportChat } from "../src/SupportChat/supportchat.service";
+import { fetchBlogOverallData } from "../src/Blogs/blogs.service";
 
 const httpTrigger: AzureFunction = async function (
   context: Context,
@@ -25,25 +32,10 @@ const httpTrigger: AzureFunction = async function (
       };
       return;
     }
+
     await init(context);
 
-    if (!checkIfNormalUser(userId)) {
-      context.res = {
-        status: 401,
-        body: {
-          message: "Unauthorized",
-          success: false,
-        },
-      };
-      return;
-    }
-    console.log(userId);
-    console.log(req.body.phoneNumber);
-
-    const response: { message: string; success: boolean } = await cartCheckout(
-      userId,
-      req.body.phoneNumber
-    );
+    let response = await fetchBlogOverallData();
     if (response.success) {
       context.res = {
         status: 200,

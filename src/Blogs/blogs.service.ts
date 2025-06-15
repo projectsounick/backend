@@ -37,6 +37,21 @@ export const getBlogs = async (
   }
 };
 
+/////Funciton for fetching the blog overall data ------------------------------/
+export async function fetchBlogOverallData() {
+  try {
+    const blogs = await BlogModel.find().select("coverImage title");
+
+    return {
+      message: "Blogs has been fetched",
+      success: true,
+      data: blogs,
+    };
+  } catch (error) {
+    throw new Error("Error fetching blog(s): " + error);
+  }
+}
+
 // 2. Create a new blog
 export const createBlog = async (
   data: CreateBlogInput

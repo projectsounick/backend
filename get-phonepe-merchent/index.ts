@@ -1,20 +1,17 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 import { init } from "../src/helpers/azure-cosmosdb-mongodb";
-import {
-  checkIfNormalUser,
-  verifyAndDecodeToken,
-} from "../src/admin/admin.service";
-import { cartCheckout, getCart } from "../src/cart/cart.service";
+import { getUserRole, verifyAndDecodeToken } from "../src/admin/admin.service";
+import { getPaymentItems } from "../src/payment/payment.service";
 
 const httpTrigger: AzureFunction = async function (
   context: Context,
   req: HttpRequest
 ): Promise<void> {
   try {
-    let userId: string;
+    let callingUserId: string;
     const authResponse = await verifyAndDecodeToken(req);
     if (authResponse) {
-      userId = authResponse;
+      callingUserId = authResponse;
     } else {
       context.res = {
         status: 401,
@@ -27,7 +24,8 @@ const httpTrigger: AzureFunction = async function (
     }
     await init(context);
 
-    if (!checkIfNormalUser(userId)) {
+    const userRoleResponse = await getUserRole(callingUserId);
+    if (!userRoleResponse.status) {
       context.res = {
         status: 401,
         body: {
@@ -37,24 +35,16 @@ const httpTrigger: AzureFunction = async function (
       };
       return;
     }
-    console.log(userId);
-    console.log(req.body.phoneNumber);
 
-    const response: { message: string; success: boolean } = await cartCheckout(
-      userId,
-      req.body.phoneNumber
-    );
-    if (response.success) {
-      context.res = {
-        status: 200,
-        body: response,
-      };
-    } else {
-      context.res = {
-        status: 500,
-        body: response,
-      };
-    }
+    context.res = {
+      status: 200,
+      body: {
+        message: "Merchent key fetched successfully",
+        success: true,
+        clientId: process.env.CLIENT_ID,
+        merchentId: process.env.MERCHENT_ID,
+      },
+    };
   } catch (error) {
     context.res = {
       status: 500,

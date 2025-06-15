@@ -34,7 +34,7 @@ export async function addPaymentItem(
       success: true,
       data: savedPaymentItem,
       orderId: orderObj.orderId,
-      orderToken:orderObj.token
+      orderToken: orderObj.token,
     };
   } catch (error) {
     throw new Error(error);
@@ -81,31 +81,29 @@ async function createOrder(amount: number, orderId: string) {
         paymentModeConfig: {
           enabledPaymentModes: [
             {
-              type: "UPI_INTENT"
+              type: "UPI_INTENT",
             },
             {
-              type: "UPI_COLLECT"
+              type: "UPI_COLLECT",
             },
             {
-              type: "UPI_QR"
+              type: "UPI_QR",
             },
             {
-              type: "NET_BANKING"
+              type: "NET_BANKING",
             },
             {
               type: "CARD",
-              cardTypes: [
-                "DEBIT_CARD",
-                "CREDIT_CARD"
-              ]
-            }
-          ]
-        }
+              cardTypes: ["DEBIT_CARD", "CREDIT_CARD"],
+            },
+          ],
+        },
       },
     };
-    const devURl = "https://api-preprod.phonepe.com/apis/pg-sandbox/checkout/v2/sdk/order";
-    const prodURL = "https://api.phonepe.com/apis/pg/checkout/v2/sdk/order"
-    const response = await axios.post(devURl, requestBody, {
+    const devURl =
+      "https://api-preprod.phonepe.com/apis/pg-sandbox/checkout/v2/sdk/order";
+    const prodURL = "https://api.phonepe.com/apis/pg/checkout/v2/sdk/order";
+    const response = await axios.post(prodURL, requestBody, {
       headers: {
         "Content-Type": "application/json",
         Authorization: `O-Bearer ${authToken}`,
@@ -248,8 +246,8 @@ export async function updatePaymentItem(orderId: string) {
       orderStatus == "FAILED"
         ? "failed"
         : orderStatus == "COMPLETED"
-          ? "success"
-          : "pending";
+        ? "success"
+        : "pending";
     const paymentItemToBeUpdated = await PaymentModel.aggregate([
       { $match: { orderId: orderId } },
       { $sort: { createdAt: -1 } },

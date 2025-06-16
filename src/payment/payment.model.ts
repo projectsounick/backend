@@ -12,6 +12,7 @@ export interface Payment extends Document {
     refundedAt?: Date;
     createdAt: Date;
     updatedAt: Date;
+    paymentUrl:string;
 }
 const PaymentSchema: Schema<Payment> = new Schema<Payment>({
     orderId: {
@@ -64,6 +65,10 @@ const PaymentSchema: Schema<Payment> = new Schema<Payment>({
             return Date.now();
         },
     },
+    paymentUrl:{
+        type: String,
+        required: false,
+    }
 });
 const PaymentModel = mongoose.model<Payment>("payments", PaymentSchema);
 export default PaymentModel;

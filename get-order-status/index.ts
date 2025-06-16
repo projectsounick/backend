@@ -10,25 +10,25 @@ const httpTrigger: AzureFunction = async function (
   req: HttpRequest
 ): Promise<void> {
   try {
-    let userId: string;
-    const authResponse = await verifyAndDecodeToken(req);
-    if (authResponse) {
-      userId = authResponse;
-    } else {
-      context.res = {
-        status: 401,
-        body: {
-          message: "Unauthorized",
-          success: false,
-        },
-      };
-      return;
-    }
-    await init(context);
-
+    // let userId: string;
+    // const authResponse = await verifyAndDecodeToken(req);
+    // if (authResponse) {
+    //   userId = authResponse;
+    // } else {
+    //   context.res = {
+    //     status: 401,
+    //     body: {
+    //       message: "Unauthorized",
+    //       success: false,
+    //     },
+    //   };
+    //   return;
+    // }
+    // await init(context);
 
     const orderId = req.params.orderId;
-    const response: { message: string; success: boolean } = await getUpdatePaymentStatus(orderId);
+    const response: { message: string; success: boolean } =
+      await getUpdatePaymentStatus(orderId);
     if (response.success) {
       context.res = {
         status: 200,

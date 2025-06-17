@@ -28,7 +28,7 @@ export async function addPaymentItem(
       status: "pending",
       items: items,
       orderId: orderId,
-      paymentUrl: redirectUrl
+      paymentUrl: redirectUrl,
     };
     const savedPaymentItem = await PaymentModel.create({ ...paymentObj });
     return {
@@ -131,7 +131,7 @@ async function initiatePayment(amount: number, orderId: string) {
         type: "PG_CHECKOUT",
         message: "Payment message used for collect requests",
         merchantUrls: {
-          redirectUrl: `http://localhost:3000/paystatus/${orderId}`,
+          redirectUrl: `https://iness.fitness/paystatus/${orderId}`,
           callbackUrl: `https://iness-backend.azurewebsites.net/api/payment-success`,
         },
       },
@@ -247,8 +247,8 @@ export async function getUpdatePaymentStatus(orderId: string) {
       orderStatus == "FAILED"
         ? "failed"
         : orderStatus == "COMPLETED"
-          ? "success"
-          : "pending";
+        ? "success"
+        : "pending";
     const paymentItemToBeUpdated = await PaymentModel.aggregate([
       { $match: { orderId: orderId } },
       { $sort: { createdAt: -1 } },
@@ -857,7 +857,7 @@ export async function getPaymentItem(orderId: string) {
           createdAt: 1,
           updatedAt: 1,
           cartItems: 1, //Nested cart items including product/plan details
-          paymentUrl: 1
+          paymentUrl: 1,
         },
       },
     ]);
@@ -871,7 +871,6 @@ export async function getPaymentItem(orderId: string) {
   } catch (error) {
     throw new Error(error);
   }
-
 }
 
 //// Funciton for getting the payment details -------------------------------/

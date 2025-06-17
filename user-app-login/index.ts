@@ -13,7 +13,7 @@ const httpTrigger: AzureFunction = async function (
     await init(context);
 
     /// replace this query _id with jsonwebtoken _id later on
-
+    console.log(req.body);
     /// Calling the service function ----------------------/
     const response: {
       message: string;

@@ -20,6 +20,8 @@ const userSchema: Schema<User> = new Schema<User>({
   phoneNumber: {
     type: String,
     required: false,
+    unique: true,
+  sparse: true, // <-- only enforces uniqueness when phoneNumber is present
   },
   expoPushToken: {
     type: String,

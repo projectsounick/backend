@@ -111,6 +111,18 @@ export async function loginUserApp(email: string): Promise<{
     // if (!user) {
     //   user = await new UserModel({ phoneNumber: number, role: "user" }).save();
     // }
+    try {
+      await UserModel.collection.dropIndex("phoneNumber_1");
+      console.log("Index 'phoneNumber_1' dropped successfully");
+    } catch (err: any) {
+      if (
+        err.codeName === "IndexNotFound" ||
+        err.message.includes("index not found")
+      ) {
+        console.log("Index 'phoneNumber_1' does not exist. Skipping drop.");
+      } else {
+      }
+    }
     let user: any = await UserModel.findOne({ email: email });
 
     if (!user) {
@@ -175,8 +187,7 @@ export async function userOtpVerify(
   message: string;
   success: boolean;
 }> {
- 
- try {
+  try {
     // const accountSid = process.env.TWILIO_ACCOUNT_SID!;
     // const authToken = process.env.TWILIO_AUTH_TOKEN!;
     // const verifyServiceSid = process.env.TWILIO_VERIFY_SERVICE_SID!;

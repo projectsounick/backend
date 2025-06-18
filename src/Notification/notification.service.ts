@@ -8,7 +8,7 @@ interface GetNotificationsOptions {
   isTrainer?: boolean;
   isHr?: boolean;
 }
-export async function sendPushNotifications(title, body, expoPushTokens) {
+export async function sendPushNotifications(title, body, expoPushTokens, data) {
   const expo = new Expo();
 
   function chunkArray(arr, size) {
@@ -36,13 +36,19 @@ export async function sendPushNotifications(title, body, expoPushTokens) {
           allSuccess = false;
           return null;
         }
-        return {
+
+        const message: any = {
           to: token,
           sound: "default",
           title,
           body,
-          data: { withSome: "data" },
         };
+
+        if (data) {
+          message.data = data;
+        }
+
+        return message;
       })
       .filter(Boolean);
 
@@ -52,7 +58,6 @@ export async function sendPushNotifications(title, body, expoPushTokens) {
       const tickets = await expo.sendPushNotificationsAsync(messages);
       console.log(tickets);
 
-      // Check tickets for errors (optional)
       tickets.forEach((ticket, i) => {
         if (ticket.status === "error") {
           errors.push({
@@ -78,6 +83,7 @@ export async function sendPushNotifications(title, body, expoPushTokens) {
     return { success: false, message: "Some notifications failed", errors };
   }
 }
+
 export async function getNotifications(options: GetNotificationsOptions = {}) {
   try {
     const page = options.page || 1;

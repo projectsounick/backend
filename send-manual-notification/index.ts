@@ -30,10 +30,10 @@ const httpTrigger: AzureFunction = async function (
       };
       return;
     }
-    let { title, body, expoPushTokens } = req.body;
+    let { title, body, expoPushTokens, data } = req.body;
     /// Calling the service function ----------------------/
     const response: { message: string; success: boolean } =
-      await sendPushNotifications(title, body, expoPushTokens);
+      await sendPushNotifications(title, body, expoPushTokens, data);
     if (response.success) {
       context.res = {
         status: 200,

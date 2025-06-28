@@ -25,9 +25,12 @@ const httpTrigger: AzureFunction = async function (
       return;
     }
     await init(context);
+    console.log("called");
 
-    const videoCallId = req.params.videoCallId;
-    const response: { message: string; success: boolean } = await getVideoCallDetails(videoCallId,userId);
+    const response: { message: string; success: boolean } =
+      await getVideoCallDetails(userId);
+    console.log(response);
+
     if (response.success) {
       context.res = {
         status: 200,

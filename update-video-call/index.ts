@@ -1,10 +1,10 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 import { init } from "../src/helpers/azure-cosmosdb-mongodb";
+import { getPaymentItem } from "../src/payment/payment.service";
 import { getUserRole, verifyAndDecodeToken } from "../src/admin/admin.service";
+import { getVideoCallDetails, updateVideoCallDetails } from "../src/videocall/videoCall.service";
 
-import { getTransformationImagesByUserId } from "../src/TransformationImages.tsx/transformationImages.service";
-import { createVideoCallRoom } from "../src/videocall/videoCall.service";
-
+//// Main login function ------------------------------------------------------------------------------/
 const httpTrigger: AzureFunction = async function (
   context: Context,
   req: HttpRequest
@@ -25,7 +25,6 @@ const httpTrigger: AzureFunction = async function (
       return;
     }
     await init(context);
-
     const userRoleResponse = await getUserRole(userId);
     if (!userRoleResponse.status) {
       context.res = {
@@ -37,9 +36,19 @@ const httpTrigger: AzureFunction = async function (
       };
       return;
     }
+    if (userRoleResponse.role != "admin" && userRoleResponse.role != "trainer") {
+      context.res = {
+        status: 401,
+        body: {
+          message: "Unauthorized",
+          success: false,
+        },
+      };
+      return;
+    }
 
-    let response = await createVideoCallRoom(req.body, userId);
-
+    const videoCallId = req.params.videoCallId;
+    const response: { message: string; success: boolean } = await updateVideoCallDetails(videoCallId, userId);
     if (response.success) {
       context.res = {
         status: 200,

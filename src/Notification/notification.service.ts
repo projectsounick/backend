@@ -8,76 +8,94 @@ interface GetNotificationsOptions {
   isTrainer?: boolean;
   isHr?: boolean;
 }
-export async function sendPushNotifications(title, body, expoPushTokens) {
-  const expo = new Expo();
+export async function sendPushNotifications(title, body, expoPushTokens, data) {
+  try {
+    const expo = new Expo();
 
-  function chunkArray(arr, size) {
-    const chunks = [];
-    for (let i = 0; i < arr.length; i += size) {
-      chunks.push(arr.slice(i, i + size));
+    function chunkArray(arr, size) {
+      const chunks = [];
+      for (let i = 0; i < arr.length; i += size) {
+        chunks.push(arr.slice(i, i + size));
+      }
+      return chunks;
     }
-    return chunks;
-  }
 
-  const batches = chunkArray(expoPushTokens, 100);
+    const batches = chunkArray(expoPushTokens, 100);
 
-  let allSuccess = true;
-  const errors = [];
+    let allSuccess = true;
+    const errors = [];
 
-  for (const [index, batch] of batches.entries()) {
-    const messages = batch
-      .map((token) => {
-        if (!Expo.isExpoPushToken(token)) {
-          errors.push({
-            batch: index + 1,
-            token,
-            error: "Invalid Expo push token",
-          });
-          allSuccess = false;
-          return null;
-        }
-        return {
-          to: token,
-          sound: "default",
-          title,
-          body,
-          data: { withSome: "data" },
-        };
-      })
-      .filter(Boolean);
+    for (const [index, batch] of batches.entries()) {
+      const messages = batch
+        .map((token) => {
+          if (!Expo.isExpoPushToken(token)) {
+            errors.push({
+              batch: index + 1,
+              token,
+              error: "Invalid Expo push token",
+            });
+            allSuccess = false;
+            return null;
+          }
 
-    if (messages.length === 0) continue;
+          const message: any = {
+            to: token,
+            sound: "default",
+            title,
+            body,
+          };
 
-    try {
-      const tickets = await expo.sendPushNotificationsAsync(messages);
-      console.log(tickets);
+          if (data) {
+            message.data = data;
+          }
 
-      // Check tickets for errors (optional)
-      tickets.forEach((ticket, i) => {
-        if (ticket.status === "error") {
-          errors.push({
-            batch: index + 1,
-            token: messages[i].to,
-            error: ticket.message,
-          });
-          allSuccess = false;
-        }
-      });
-    } catch (error) {
-      errors.push({
-        batch: index + 1,
-        error: error.message || error.toString(),
-      });
-      allSuccess = false;
+          return message;
+        })
+        .filter(Boolean);
+      console.log("this is message");
+      console.log(messages);
+
+      if (messages.length === 0) continue;
+
+      try {
+        const tickets = await expo.sendPushNotificationsAsync(messages);
+        console.log(tickets);
+
+        tickets.forEach((ticket, i) => {
+          if (ticket.status === "error") {
+            errors.push({
+              batch: index + 1,
+              token: messages[i].to,
+              error: ticket.message,
+            });
+            allSuccess = false;
+          }
+        });
+      } catch (error) {
+        errors.push({
+          batch: index + 1,
+          error: error.message || error.toString(),
+        });
+        allSuccess = false;
+      }
     }
-  }
 
-  if (allSuccess) {
-    return { success: true, message: "All notifications sent successfully" };
-  } else {
-    return { success: false, message: "Some notifications failed", errors };
+    if (allSuccess) {
+      console.log("went for all success");
+
+      return { success: true, message: "All notifications sent successfully" };
+    } else {
+      console.log("went for failed");
+
+      return { success: false, message: "Some notifications failed", errors };
+    }
+  } catch (error) {
+    console.log(error.message);
+
+    return { success: false, message: "Some notifications failed", error };
   }
 }
+
 export async function getNotifications(options: GetNotificationsOptions = {}) {
   try {
     const page = options.page || 1;

@@ -8,12 +8,7 @@ interface ImageItem {
 
 // Get transformation images for a user
 export const getTransformationImagesByUserId = async (userId: string) => {
-  if (!mongoose.Types.ObjectId.isValid(userId)) {
-    return {
-      success: false,
-      message: "Invalid user ID",
-    };
-  }
+
 
   const transformationImages = await TransformationImageModel.findOne({
     userId,

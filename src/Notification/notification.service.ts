@@ -143,6 +143,10 @@ export async function getNotifications(options: GetNotificationsOptions = {}) {
 /// Funciton for adding new notification -------------------------------------------------/
 export async function postNotification(input: any, userId: string) {
   try {
+    console.log("this is input");
+
+    console.log(input);
+
     const newNotification = new NotificationModel({
       title: input.title,
       body: input.body,

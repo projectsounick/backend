@@ -13,7 +13,7 @@ export interface AdminNotification extends Document {
   senderId: mongoose.Types.ObjectId;
   receiverId: mongoose.Types.ObjectId;
   data: AdminNotificationData;
-  read: boolean;
+
   createdAt: Date;
 }
 
@@ -63,10 +63,7 @@ const AdminNotificationSchema = new Schema<AdminNotification>({
     type: AdminNotificationDataSchema,
     required: false,
   },
-  read: {
-    type: Boolean,
-    default: false,
-  },
+
   createdAt: {
     type: Date,
     default: () => Date.now(),

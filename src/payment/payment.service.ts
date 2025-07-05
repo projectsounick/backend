@@ -390,13 +390,14 @@ export async function getUpdatePaymentStatus(orderId: string) {
       { status: newStatus },
       { new: true }
     );
-    // Mark all cart items as deleted
-    await CartModel.updateMany(
-      { _id: { $in: updatedPaymentItem.items } },
-      { $set: { isDeleted: true, isBought: true } }
-    );
+
     console.log("paymentItemToBeUpdated[0]", paymentItemToBeUpdated[0]);
     if (newStatus === "success") {
+      // Mark all cart items as deleted
+      await CartModel.updateMany(
+        { _id: { $in: updatedPaymentItem.items } },
+        { $set: { isDeleted: true, isBought: true } }
+      );
       await activePlanForUser(
         paymentItemToBeUpdated[0].userId,
         paymentItemToBeUpdated[0].cartItems

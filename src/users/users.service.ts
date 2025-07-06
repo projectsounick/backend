@@ -546,6 +546,10 @@ export async function getTrainerAssignedUsers(
 //// Function for adding a new Trainer
 export async function addTrainer(data: Record<string, any>) {
   try {
+    console.log("this is data");
+
+    console.log(data);
+
     const achievements = data.achievements || [];
     delete data.achievements;
 
@@ -615,6 +619,7 @@ export async function getAllTrainers(
           email: 1,
           name: 1,
           dob: 1,
+          profilePic: 1,
           sex: 1,
           isActive: 1,
           createdAt: 1,
@@ -649,6 +654,9 @@ export async function updateTrainers(
   data: Record<string, any>
 ) {
   try {
+    console.log("this is data");
+    console.log(data);
+
     const achievements = data.achievements || [];
     delete data.achievements;
 

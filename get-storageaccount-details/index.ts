@@ -1,8 +1,10 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 import {
   generateSasToken,
+  generateSasTokenForAnyContainer,
   verifyAndDecodeToken,
 } from "../src/admin/admin.service";
+import { generateAccountSASQueryParameters } from "@azure/storage-blob";
 
 const httpTrigger: AzureFunction = async function (
   context: Context,
@@ -27,6 +29,9 @@ const httpTrigger: AzureFunction = async function (
       };
       return;
     }
+    console.log(req.query);
+
+    let contName = req.query.contName;
     context.res = {
       status: 200,
       body: {
@@ -34,7 +39,7 @@ const httpTrigger: AzureFunction = async function (
         success: true,
         data: {
           storageAccountName: process.env.storageAccountName,
-          sasToken: generateSasToken(req.query.container),
+          sasToken: generateSasToken(req.query.container, req.query.contName),
         },
       },
     };

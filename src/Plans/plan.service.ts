@@ -111,6 +111,9 @@ export async function addPlan(data: Record<string, any>) {
       descItems: data.descItems,
       imgUrl: data.imgUrl,
     };
+    if(data.otherImages){
+      planObj['otherImages'] = data.otherImages;
+    }
     if (data.dietPlanId) {
       planObj['dietPlanId'] = new mongoose.Types.ObjectId(data.dietPlanId);
     }
@@ -364,6 +367,9 @@ export async function addDietPlan(data: Record<string, any>) {
       durationType: data.durationType,
       price: data.price
     };
+    if(data.otherImages){
+      dietPlanObj['otherImages'] = data.otherImages;
+    }
     const savedDietPlan = await DietPlanModel.create(dietPlanObj);
     return {
       message: "Diet plan added successfully",

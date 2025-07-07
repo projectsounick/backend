@@ -32,6 +32,7 @@ const httpTrigger: AzureFunction = async function (
     const planItemStatusArr = [];
     if (planItemStatus === undefined || planItemStatus === null) {
       planItemStatusArr.push(true)
+      planItemStatusArr.push(false)
     } else if (planItemStatus === "false") {
       planItemStatusArr.push(false);
     } else {

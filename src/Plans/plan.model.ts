@@ -45,6 +45,7 @@ export interface Plan extends Document {
   title: string;
   descItems: Array<string>;
   imgUrl: string;
+  otherImages?: Array<string>;
   // if diet plan is included
   dietPlanId: mongoose.Types.ObjectId;
   isActive: boolean;
@@ -69,6 +70,10 @@ const planSchema: Schema<Plan> = new Schema<Plan>({
   imgUrl: {
     type: String,
     required: true,
+  },
+  otherImages: {
+    type: [String],
+    required: false,
   },
   // if diet plan is included
   dietPlanId: {
@@ -169,11 +174,12 @@ export interface DietPlan extends Document {
   title: string;
   descItems: Array<string>;
   imgUrl: string;
+  otherImages?: Array<string>;
   duration: number;
   durationType: "day" | "week" | "month" | "year";
   price: number;
   isActive: boolean;
-  desc: string;
+  desc?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -184,7 +190,7 @@ const dietPlanSchema: Schema<DietPlan> = new Schema<DietPlan>({
   },
   desc: {
     type: String,
-    required: true,
+    required: false,
   },
   descItems: {
     type: [String],
@@ -193,6 +199,10 @@ const dietPlanSchema: Schema<DietPlan> = new Schema<DietPlan>({
   imgUrl: {
     type: String,
     required: true,
+  },
+  otherImages: {
+    type: [String],
+    required: false,
   },
   duration: {
     type: Number,

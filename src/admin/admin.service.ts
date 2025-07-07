@@ -2,13 +2,14 @@ import {
   generateBlobSASQueryParameters,
   BlobSASPermissions,
   StorageSharedKeyCredential,
+  SASProtocol,
 } from "@azure/storage-blob";
 import jwt from "jsonwebtoken";
 import UserModel from "../users/user.model";
 import axios from "axios";
 ////// Function for generating the sastoken -------------------------------------/
 /// takes container name and generate sastoken for accessing that ----/
-export function generateSasToken(folderName: string) {
+export function generateSasToken(folderName: string, contName?: string) {
   try {
     // ✅ Load Storage Account credentials from environment variables
     const storageAccountName = process.env.storageAccountName;
@@ -20,11 +21,14 @@ export function generateSasToken(folderName: string) {
     );
 
     const sasOptions = {
-      containerName: "admin-data",
+      containerName: contName ? contName : "admin-data",
       blobNameStartsWith: `${folderName}/`,
       permissions: BlobSASPermissions.parse("rwd"), // Read and write permissions
       expiresOn: new Date("2099-12-31"),
     };
+    console.log("this is sasoptions");
+
+    console.log(sasOptions);
 
     const sasToken = generateBlobSASQueryParameters(
       sasOptions,
@@ -37,8 +41,41 @@ export function generateSasToken(folderName: string) {
     throw new Error("Unable to generate the sastoken");
   }
 }
+export function generateSasTokenForAnyContainer(
+  blobPath: string, // full blob path e.g., "folder/file.jpg" or "file.jpg"
+  containerName: string
+) {
+  try {
+    const storageAccountName = process.env.storageAccountName!;
+    const storageAccountKey = process.env.inessStorageAccountKey!;
 
-//// Function to verify and decode JWT token ----------------------------------/
+    const sharedKeyCredential = new StorageSharedKeyCredential(
+      storageAccountName,
+      storageAccountKey
+    );
+    // ⏱️ Set expiry time to 10 minutes from now
+    const expiresOn = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+    const sasOptions = {
+      containerName,
+      blobName: blobPath, // can be 'file.jpg' or 'folder/file.jpg'
+      permissions: BlobSASPermissions.parse("rwd"), // Read, Write, Delete
+      expiresOn: expiresOn,
+      protocol: SASProtocol.HttpsAndHttp,
+    };
+    console.log("this are sasoptions");
+    console.log(sasOptions);
+
+    const sasToken = generateBlobSASQueryParameters(
+      sasOptions,
+      sharedKeyCredential
+    ).toString();
+
+    return sasToken;
+  } catch (error) {
+    throw new Error("Unable to generate the SAS token");
+  }
+} //// Function to verify and decode JWT token ----------------------------------/
 export function verifyAndDecodeToken(req: any): string | null {
   try {
     const authHeader = req.headers["authorization"];
@@ -217,5 +254,49 @@ export async function uploadSlotsJson(
   } catch (err) {
     console.error("Error uploading JSON to Azure Blob:", err);
     throw err;
+  }
+}
+
+///// Funciton to  update video promotion json file -------------------------------------------/
+export async function updatePromotionVideosJson({
+  fileData,
+  containerName,
+  blobName,
+}: any) {
+  try {
+    console.log(fileData);
+
+    // 1. Generate SAS token
+    const sasToken = generateSasTokenForAnyContainer(blobName, containerName);
+
+    // 2. Construct full blob URL with SAS
+    const blobUrl = `https://inessstorage.blob.core.windows.net/${containerName}/${blobName}?${sasToken}`;
+
+    // 3. Upload JSON using PUT request
+    const response = await axios.put(blobUrl, JSON.stringify(fileData), {
+      headers: {
+        "x-ms-blob-type": "BlockBlob",
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (response.status === 201) {
+      return {
+        success: true,
+        message: "Promotion Videos.json updated successfully",
+      };
+    } else {
+      return {
+        success: false,
+        message: `Unexpected status code: ${response.status}`,
+      };
+    }
+  } catch (error: any) {
+    console.log(error.message);
+
+    return {
+      success: false,
+      message: error.message || "Failed to upload promotionVideos.json",
+    };
   }
 }

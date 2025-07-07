@@ -28,7 +28,7 @@ const CompanySchema: Schema<Company> = new Schema<Company>({
     isActive:{
         type:Boolean,
         required:true,
-        default:false
+        default:true
     },
     createdAt: {
         type: Date,

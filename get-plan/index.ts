@@ -8,20 +8,20 @@ const httpTrigger: AzureFunction = async function (
   req: HttpRequest
 ): Promise<void> {
   try {
-    // let userId: string;
-    // const authResponse = await verifyAndDecodeToken(req);
-    // if (authResponse) {
-    //   userId = authResponse;
-    // } else {
-    //   context.res = {
-    //     status: 401,
-    //     body: {
-    //       message: "Unauthorized",
-    //       success: false,
-    //     },
-    //   };
-    //   return;
-    // }
+    let userId: string;
+    const authResponse = await verifyAndDecodeToken(req);
+    if (authResponse) {
+      userId = authResponse;
+    } else {
+      context.res = {
+        status: 401,
+        body: {
+          message: "Unauthorized",
+          success: false,
+        },
+      };
+      return;
+    }
 
     await init(context);
     const { isActive, planItemStatus, page, limit } = req.query;
@@ -31,8 +31,8 @@ const httpTrigger: AzureFunction = async function (
 
     const planItemStatusArr = [];
     if (planItemStatus === undefined || planItemStatus === null) {
-      planItemStatusArr.push(true)
-      planItemStatusArr.push(false)
+      planItemStatusArr.push(true);
+      planItemStatusArr.push(false);
     } else if (planItemStatus === "false") {
       planItemStatusArr.push(false);
     } else {

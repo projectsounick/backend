@@ -13,7 +13,7 @@ export async function addExercise(data: Record<string, any>) {
     throw new Error(error);
   }
 }
-export async function getExercise(status: boolean, page?: string, limit?: string) {
+export async function getExercise(status?: any, page?: string, limit?: string) {
   try {
     let savedExercise;
     let paginationInfo = null;
@@ -59,7 +59,10 @@ export async function getExercise(status: boolean, page?: string, limit?: string
     throw new Error(error);
   }
 }
-export async function updateExercise(ExerciseId: string, data: Record<string, any>) {
+export async function updateExercise(
+  ExerciseId: string,
+  data: Record<string, any>
+) {
   try {
     const exerciseToBeUpdated = await ExerciseModel.findById(ExerciseId);
     if (!exerciseToBeUpdated) {
@@ -83,40 +86,57 @@ export async function updateExercise(ExerciseId: string, data: Record<string, an
   }
 }
 
-
-
-
-
-
-
 export async function addWorkoutPLan(data: Record<string, any>) {
   try {
     if (!data.planName) {
       return {
         message: "Plan name is required",
         success: false,
+        data: null,
       };
     }
-    if (!data.sun || !data.mon || !data.tue || !data.wed || !data.thu || !data.fri || !data.sat) {
+    if (
+      !data.sun ||
+      !data.mon ||
+      !data.tue ||
+      !data.wed ||
+      !data.thu ||
+      !data.fri ||
+      !data.sat
+    ) {
       return {
         message: "Plan days are required",
         success: false,
+        data: null,
       };
     }
     const planObj = { ...data };
     const savedWorkoutPlan = await WorkoutPlanModel.create(planObj);
 
+    const populatedPlan = await WorkoutPlanModel.findById(savedWorkoutPlan._id)
+      .populate("sun.exercise")
+      .populate("mon.exercise")
+      .populate("tue.exercise")
+      .populate("wed.exercise")
+      .populate("thu.exercise")
+      .populate("fri.exercise")
+      .populate("sat.exercise");
+
     return {
       message: "Plan added successfully",
       success: true,
-      data: savedWorkoutPlan,
+      data: populatedPlan,
     };
   } catch (error) {
     console.log(error.message);
     throw new Error(error);
   }
 }
-export async function getPlans(status: boolean, page?: string, limit?: string) {
+export async function getPlans(
+  status?: boolean,
+  page?: string,
+  limit?: string
+) {
   try {
     let savedPlan;
     let paginationInfo = null;
@@ -143,56 +163,56 @@ export async function getPlans(status: boolean, page?: string, limit?: string) {
             from: "exercises",
             localField: "sun.exercise",
             foreignField: "_id",
-            as: "sun.exerciseDetails"
-          }
+            as: "sun.exerciseDetails",
+          },
         },
         {
           $lookup: {
             from: "exercises",
             localField: "mon.exercise",
             foreignField: "_id",
-            as: "mon.exerciseDetails"
-          }
+            as: "mon.exerciseDetails",
+          },
         },
         {
           $lookup: {
             from: "exercises",
             localField: "tue.exercise",
             foreignField: "_id",
-            as: "tue.exerciseDetails"
-          }
+            as: "tue.exerciseDetails",
+          },
         },
         {
           $lookup: {
             from: "exercises",
             localField: "wed.exercise",
             foreignField: "_id",
-            as: "wed.exerciseDetails"
-          }
+            as: "wed.exerciseDetails",
+          },
         },
         {
           $lookup: {
             from: "exercises",
             localField: "thu.exercise",
             foreignField: "_id",
-            as: "thu.exerciseDetails"
-          }
+            as: "thu.exerciseDetails",
+          },
         },
         {
           $lookup: {
             from: "exercises",
             localField: "fri.exercise",
             foreignField: "_id",
-            as: "fri.exerciseDetails"
-          }
+            as: "fri.exerciseDetails",
+          },
         },
         {
           $lookup: {
             from: "exercises",
             localField: "sat.exercise",
             foreignField: "_id",
-            as: "sat.exerciseDetails"
-          }
+            as: "sat.exerciseDetails",
+          },
         },
 
         // Optionally, project the fields you want
@@ -208,9 +228,9 @@ export async function getPlans(status: boolean, page?: string, limit?: string) {
             wed: 1,
             thu: 1,
             fri: 1,
-            sat: 1
-          }
-        }
+            sat: 1,
+          },
+        },
       ]);
 
       const totalItems = await WorkoutPlanModel.countDocuments(queryObj);
@@ -222,83 +242,16 @@ export async function getPlans(status: boolean, page?: string, limit?: string) {
         totalPages,
       };
     } else {
-      savedPlan = await WorkoutPlanModel.aggregate([
-        { $match: queryObj },
-        { $sort: { createdAt: -1, isActive: -1 } },
-        {
-          $lookup: {
-            from: "exercises",
-            localField: "sun.exercise",
-            foreignField: "_id",
-            as: "sun.exerciseDetails"
-          }
-        },
-        {
-          $lookup: {
-            from: "exercises",
-            localField: "mon.exercise",
-            foreignField: "_id",
-            as: "mon.exerciseDetails"
-          }
-        },
-        {
-          $lookup: {
-            from: "exercises",
-            localField: "tue.exercise",
-            foreignField: "_id",
-            as: "tue.exerciseDetails"
-          }
-        },
-        {
-          $lookup: {
-            from: "exercises",
-            localField: "wed.exercise",
-            foreignField: "_id",
-            as: "wed.exerciseDetails"
-          }
-        },
-        {
-          $lookup: {
-            from: "exercises",
-            localField: "thu.exercise",
-            foreignField: "_id",
-            as: "thu.exerciseDetails"
-          }
-        },
-        {
-          $lookup: {
-            from: "exercises",
-            localField: "fri.exercise",
-            foreignField: "_id",
-            as: "fri.exerciseDetails"
-          }
-        },
-        {
-          $lookup: {
-            from: "exercises",
-            localField: "sat.exercise",
-            foreignField: "_id",
-            as: "sat.exerciseDetails"
-          }
-        },
+      savedPlan = await WorkoutPlanModel.find(queryObj)
+        .sort({ createdAt: -1, isActive: -1 })
 
-        // Optionally, project the fields you want
-        {
-          $project: {
-            planName: 1,
-            isActive: 1,
-            createdAt: 1,
-            updatedAt: 1,
-            sun: 1,
-            mon: 1,
-            tue: 1,
-            wed: 1,
-            thu: 1,
-            fri: 1,
-            sat: 1
-          }
-        }
-      ]);
+        .populate("sun.exercise")
+        .populate("mon.exercise")
+        .populate("tue.exercise")
+        .populate("wed.exercise")
+        .populate("thu.exercise")
+        .populate("fri.exercise")
+        .populate("sat.exercise");
     }
 
     return {
@@ -308,29 +261,50 @@ export async function getPlans(status: boolean, page?: string, limit?: string) {
       pagination: paginationInfo,
     };
   } catch (error) {
+    console.log(error.message);
+
     throw new Error(error);
   }
 }
 export async function updatePlan(planId: string, data: Record<string, any>) {
   try {
-    const planToBeUpdated = await WorkoutPlanModel.findById(planId);
+    console.log(planId);
+
+    const planToBeUpdated = await WorkoutPlanModel.findOne({ _id: planId });
+    console.log(planToBeUpdated);
+
     if (!planToBeUpdated) {
       return {
         message: "Plan with given id is not found",
         success: false,
       };
     }
-    const updatedPlan = await WorkoutPlanModel.findByIdAndUpdate(
-      planId,
-      { ...data },
-      { new: true }
-    );
+    console.log("wen till here");
+
+    // Only update the fields provided in `data`
+    await WorkoutPlanModel.findByIdAndUpdate(planId, data, {
+      new: true,
+      runValidators: true,
+    });
+
+    // Fetch updated plan with population
+    const updatedPlan = await WorkoutPlanModel.findById(planId)
+      .populate("sun.exerciseId")
+      .populate("mon.exerciseId")
+      .populate("tue.exerciseId")
+      .populate("wed.exerciseId")
+      .populate("thu.exerciseId")
+      .populate("fri.exerciseId")
+      .populate("sat.exerciseId");
+
     return {
       message: "Plan updated successfully",
       success: true,
       data: updatedPlan,
     };
-  } catch (error) {
-    throw new Error(error);
+  } catch (error: any) {
+    console.log(error.messsage);
+
+    throw new Error(error.message || "Error updating plan");
   }
 }

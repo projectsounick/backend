@@ -1,7 +1,9 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 import { init } from "../src/helpers/azure-cosmosdb-mongodb";
 import { verifyAndDecodeToken } from "../src/admin/admin.service";
-import { getPlan } from "../src/Plans/plan.service";
+
+import { getNotificationsByUser } from "../src/AdminNotification/adminNotificationService";
+import { getActiveManualWorkoutPlans } from "../src/ActiveManualWorkoutPlan/activemanualworkoutplan.service";
 
 const httpTrigger: AzureFunction = async function (
   context: Context,
@@ -10,6 +12,9 @@ const httpTrigger: AzureFunction = async function (
   try {
     let userId: string;
     const authResponse = await verifyAndDecodeToken(req);
+    console.log("this is authreposne");
+    console.log(authResponse);
+
     if (authResponse) {
       userId = authResponse;
     } else {
@@ -24,27 +29,21 @@ const httpTrigger: AzureFunction = async function (
     }
 
     await init(context);
-    const { isActive, planItemStatus, page, limit } = req.query;
 
-    const parsedIsActive =
-      isActive === "true" ? true : isActive === "false" ? false : null;
+    const query: Record<string, any> = {
+      userId: req.query.userId,
+    };
 
-    const planItemStatusArr = [];
-    if (planItemStatus === undefined || planItemStatus === null) {
-      planItemStatusArr.push(true);
-      planItemStatusArr.push(false);
-    } else if (planItemStatus === "false") {
-      planItemStatusArr.push(false);
-    } else {
-      planItemStatusArr.push(true);
+    // ✅ If "isActive" is passed in query string, include it
+    if (req.query?.isActive !== undefined) {
+      query.isActive = req.query.isActive === "true";
     }
+    console.log("this is query");
+    console.log(query);
 
-    const response: { message: string; success: boolean } = await getPlan(
-      parsedIsActive,
-      planItemStatusArr,
-      page,
-      limit
-    );
+    // 📦 Fetch active manual workout plans
+    const response = await getActiveManualWorkoutPlans(query);
+
     if (response.success) {
       context.res = {
         status: 200,

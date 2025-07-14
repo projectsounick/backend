@@ -1,8 +1,11 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 import { init } from "../src/helpers/azure-cosmosdb-mongodb";
 import { verifyAndDecodeToken } from "../src/admin/admin.service";
-import { getPlan } from "../src/Plans/plan.service";
+import { updateCartItem } from "../src/cart/cart.service";
+import { updateExercise, updatePlan } from "../src/workout/workout.service";
+import { updateActiveManualWorkoutPlan } from "../src/ActiveManualWorkoutPlan/activemanualworkoutplan.service";
 
+//// Main login function ------------------------------------------------------------------------------/
 const httpTrigger: AzureFunction = async function (
   context: Context,
   req: HttpRequest
@@ -24,27 +27,12 @@ const httpTrigger: AzureFunction = async function (
     }
 
     await init(context);
-    const { isActive, planItemStatus, page, limit } = req.query;
+    console.log("called");
 
-    const parsedIsActive =
-      isActive === "true" ? true : isActive === "false" ? false : null;
+    console.log(req.body);
 
-    const planItemStatusArr = [];
-    if (planItemStatus === undefined || planItemStatus === null) {
-      planItemStatusArr.push(true);
-      planItemStatusArr.push(false);
-    } else if (planItemStatus === "false") {
-      planItemStatusArr.push(false);
-    } else {
-      planItemStatusArr.push(true);
-    }
-
-    const response: { message: string; success: boolean } = await getPlan(
-      parsedIsActive,
-      planItemStatusArr,
-      page,
-      limit
-    );
+    const response: { message: string; success: boolean } =
+      await updateActiveManualWorkoutPlan(req.body.planId, req.body.data);
     if (response.success) {
       context.res = {
         status: 200,
@@ -57,6 +45,8 @@ const httpTrigger: AzureFunction = async function (
       };
     }
   } catch (error) {
+    console.log(error.message);
+
     context.res = {
       status: 500,
       body: {

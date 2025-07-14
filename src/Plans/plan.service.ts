@@ -136,7 +136,7 @@ export async function addPlan(data: Record<string, any>) {
     throw new Error(error);
   }
 }
-export async function getPlan(status: boolean, planItemStatus: Array<boolean>, page?: string, limit?: string) {
+export async function getPlan(status: any, planItemStatus: Array<boolean>, page?: string, limit?: string) {
   try {
     let savedPlan;
     let paginationInfo = null;

@@ -1,7 +1,9 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
+import { addTrainer } from "../src/users/users.service";
 import { init } from "../src/helpers/azure-cosmosdb-mongodb";
-import { verifyAndDecodeToken } from "../src/admin/admin.service";
-import { getPlan } from "../src/Plans/plan.service";
+import { checkIfAdmin, verifyAndDecodeToken } from "../src/admin/admin.service";
+import { isUserPresent } from "../src/utils/usersUtils";
+import { createActiveManualWorkoutPlan } from "../src/ActiveManualWorkoutPlan/activemanualworkoutplan.service";
 
 const httpTrigger: AzureFunction = async function (
   context: Context,
@@ -22,29 +24,21 @@ const httpTrigger: AzureFunction = async function (
       };
       return;
     }
-
     await init(context);
-    const { isActive, planItemStatus, page, limit } = req.query;
 
-    const parsedIsActive =
-      isActive === "true" ? true : isActive === "false" ? false : null;
-
-    const planItemStatusArr = [];
-    if (planItemStatus === undefined || planItemStatus === null) {
-      planItemStatusArr.push(true);
-      planItemStatusArr.push(false);
-    } else if (planItemStatus === "false") {
-      planItemStatusArr.push(false);
-    } else {
-      planItemStatusArr.push(true);
+    if (!checkIfAdmin(userId)) {
+      context.res = {
+        status: 401,
+        body: {
+          message: "Unauthorized",
+          success: false,
+        },
+      };
+      return;
     }
 
-    const response: { message: string; success: boolean } = await getPlan(
-      parsedIsActive,
-      planItemStatusArr,
-      page,
-      limit
-    );
+    const response: { message: string; success: boolean; data: any } =
+      await createActiveManualWorkoutPlan(req.body);
     if (response.success) {
       context.res = {
         status: 200,

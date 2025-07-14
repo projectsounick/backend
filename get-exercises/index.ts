@@ -1,15 +1,18 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 import { init } from "../src/helpers/azure-cosmosdb-mongodb";
-import { verifyAndDecodeToken } from "../src/admin/admin.service";
-import { getPlan } from "../src/Plans/plan.service";
+import { checkIfAdmin, verifyAndDecodeToken } from "../src/admin/admin.service";
+import { updatePlan } from "../src/Plans/plan.service";
+import { getUpdatePaymentStatus } from "../src/payment/payment.service";
+import { getExercise } from "../src/workout/workout.service";
 
+//// Main login function ------------------------------------------------------------------------------/
 const httpTrigger: AzureFunction = async function (
   context: Context,
   req: HttpRequest
 ): Promise<void> {
   try {
     let userId: string;
-    const authResponse = await verifyAndDecodeToken(req);
+    const authResponse = verifyAndDecodeToken(req);
     if (authResponse) {
       userId = authResponse;
     } else {
@@ -22,28 +25,20 @@ const httpTrigger: AzureFunction = async function (
       };
       return;
     }
-
     await init(context);
-    const { isActive, planItemStatus, page, limit } = req.query;
-
-    const parsedIsActive =
-      isActive === "true" ? true : isActive === "false" ? false : null;
-
-    const planItemStatusArr = [];
-    if (planItemStatus === undefined || planItemStatus === null) {
-      planItemStatusArr.push(true);
-      planItemStatusArr.push(false);
-    } else if (planItemStatus === "false") {
-      planItemStatusArr.push(false);
+    let status;
+    if (req.query.status === "true") {
+      status = true;
+    } else if (req.query.status === "false") {
+      status = false;
     } else {
-      planItemStatusArr.push(true);
+      status = null;
     }
 
-    const response: { message: string; success: boolean } = await getPlan(
-      parsedIsActive,
-      planItemStatusArr,
-      page,
-      limit
+    const response: { message: string; success: boolean } = await getExercise(
+      status,
+      req.query.page,
+      req.query.limit
     );
     if (response.success) {
       context.res = {

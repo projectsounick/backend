@@ -1,15 +1,23 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
-import { init } from "../src/helpers/azure-cosmosdb-mongodb";
-import { verifyAndDecodeToken } from "../src/admin/admin.service";
-import { getPlan } from "../src/Plans/plan.service";
 
+import { init } from "../src/helpers/azure-cosmosdb-mongodb";
+import { createBlog } from "../src/Blogs/blogs.service";
+import { Blog } from "../src/Blogs/blogs.model";
+import { verifyAndDecodeToken } from "../src/admin/admin.service";
+import { addUserPodcastInteraction } from "../src/Podcast/podcast.service";
+import { postUserNotifications } from "../src/AdminNotification/adminNotificationService";
+import { addExercise } from "../src/workout/workout.service";
+
+//// Main login function ------------------------------------------------------------------------------/
 const httpTrigger: AzureFunction = async function (
   context: Context,
   req: HttpRequest
 ): Promise<void> {
   try {
+    /// Building connection with the cosmos database -----------------/
+    await init(context);
     let userId: string;
-    const authResponse = await verifyAndDecodeToken(req);
+    const authResponse = verifyAndDecodeToken(req);
     if (authResponse) {
       userId = authResponse;
     } else {
@@ -22,29 +30,11 @@ const httpTrigger: AzureFunction = async function (
       };
       return;
     }
+    /// replace this query _id with jsonwebtoken _id later on
 
-    await init(context);
-    const { isActive, planItemStatus, page, limit } = req.query;
-
-    const parsedIsActive =
-      isActive === "true" ? true : isActive === "false" ? false : null;
-
-    const planItemStatusArr = [];
-    if (planItemStatus === undefined || planItemStatus === null) {
-      planItemStatusArr.push(true);
-      planItemStatusArr.push(false);
-    } else if (planItemStatus === "false") {
-      planItemStatusArr.push(false);
-    } else {
-      planItemStatusArr.push(true);
-    }
-
-    const response: { message: string; success: boolean } = await getPlan(
-      parsedIsActive,
-      planItemStatusArr,
-      page,
-      limit
-    );
+    /// Calling the service function ----------------------/
+    const response: { message: string; success: boolean; data: any } =
+      await addExercise(req.body);
     if (response.success) {
       context.res = {
         status: 200,

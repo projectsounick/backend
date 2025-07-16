@@ -32,12 +32,9 @@ const httpTrigger: AzureFunction = async function (
     }
 
     await init(context);
-    console.log("this is userId");
-    console.log(userId);
+    let finalUserId = req.query.userId ? req.query.userId : userId;
 
-    let response = await getTransformationImagesByUserId(userId);
-    console.log(response);
-    console.log(response);
+    let response = await getTransformationImagesByUserId(finalUserId);
 
     if (response.success) {
       context.res = {

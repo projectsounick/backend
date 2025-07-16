@@ -37,12 +37,6 @@ export const getTransformationImagesByUserId = async (userId: string) => {
         },
       },
       {
-        $sort: {
-          date: 1, // Sort days ascending
-          originalDate: -1, // ✅ Sort images within each day (latest first)
-        },
-      },
-      {
         $group: {
           _id: "$date",
           images: {
@@ -55,20 +49,27 @@ export const getTransformationImagesByUserId = async (userId: string) => {
       },
       {
         $sort: {
-          _id: 1, // Optional: sort days ascending (use -1 for descending)
+          _id: 1, // Sort date groups ascending
         },
       },
     ]);
 
+    // ✅ Manually sort the images within each group by date descending
+    const sortedGroupedData = groupedImages
+      .map((group) => ({
+        date: group._id,
+        images: group.images.sort(
+          (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+        ),
+      }))
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()); // 🔥 sort groups DESC
+
     return {
       success: true,
-      message: groupedImages.length
+      message: sortedGroupedData.length
         ? "Transformation images grouped by date"
         : "No transformation images found",
-      data: groupedImages.map((group) => ({
-        date: group._id,
-        images: group.images,
-      })),
+      data: sortedGroupedData,
     };
   } catch (error) {
     console.error("Error fetching transformation images:", error);

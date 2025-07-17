@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import UserActivePlansModel from "./activePlans.model";
 import dayjs from "dayjs";
 import UserModel from "../users/user.model";
+import PlanModel, { PlanItemModel, DietPlanModel } from "../Plans/plan.model";
 export async function activePlanForUser(userId: string, plans: Array<any>) {
   try {
     const useractiveplansObj = plans.map((item) => {
@@ -442,4 +443,126 @@ export async function updateDietPlanPdf(
       },
     };
   }
+}
+
+
+export async function assignPlanToUser(userId: string, planId: string, planItemId: string) {
+  try {
+    const alreadyActivePlans = await UserActivePlansModel.findOne({userId:new mongoose.Types.ObjectId(userId), 'plan.planId': new mongoose.Types.ObjectId(planId)})
+    if(alreadyActivePlans){
+      return {
+        message: "Plan already assigned to user",
+        success: false,
+      };
+    }
+    const user = await UserModel.findById(userId);
+    if (!user) {
+      return {
+        message: "User with given id is not found",
+        success: false,
+      };
+    }
+    if (user.role !== "user") {
+      return {
+        message: "Not a valid user",
+        success: false,
+      };
+    }
+    const plan = await PlanModel.findById(planId);
+    if(!plan){
+      return {
+        message: "Plan with given id is not found",
+        success: false,
+      };
+    }
+
+
+
+    const planItem = await PlanItemModel.findById(planItemId);
+    if(!planItem){
+      return {
+        message: "Plan Item with given id is not found",
+        success: false,
+      };
+    }
+
+    const respObj = {
+      userId: new mongoose.Types.ObjectId(userId),
+      plan: {
+        planId: new mongoose.Types.ObjectId(planId),
+        planItemId: new mongoose.Types.ObjectId(planItemId)
+      }
+    };
+    respObj["planStartDate"] = new Date();
+    respObj["planEndDate"] = getEndDate(
+      planItem.duration,
+      planItem.durationType
+    );
+    respObj["totalSessions"] = planItem.sessionCount;
+    respObj["remainingSessions"] = planItem.sessionCount;
+
+    const userActivePlan = await UserActivePlansModel.insertOne(respObj);
+    return {
+      message: "Plans activated successfully",
+      success: true,
+      data: userActivePlan,
+    };
+
+  } catch (error) {
+  throw new Error(error);
+}
+
+}
+
+export async function assignDietPlanToUser(userId: string, dietPlanId: string) {
+  try {
+    const alreadyActivePlans = await UserActivePlansModel.findOne({userId:new mongoose.Types.ObjectId(userId), dietPlanId: new mongoose.Types.ObjectId(dietPlanId)})
+    if(alreadyActivePlans){
+      return {
+        message: "Plan already assigned to user",
+        success: false,
+      };
+    }
+    const user = await UserModel.findById(userId);
+    if (!user) {
+      return {
+        message: "User with given id is not found",
+        success: false,
+      };
+    }
+    if (user.role !== "user") {
+      return {
+        message: "Not a valid user",
+        success: false,
+      };
+    }
+    const dietPlan = await DietPlanModel.findById(dietPlanId);
+    if(!dietPlan){
+      return {
+        message: "Diet Plan with given id is not found",
+        success: false,
+      };
+    }
+
+    const respObj = {
+      userId: new mongoose.Types.ObjectId(userId),
+      dietPlanId: new mongoose.Types.ObjectId(dietPlanId)
+    };
+    respObj["planStartDate"] = new Date();
+    respObj["planEndDate"] = getEndDate(
+      dietPlan.duration,
+      dietPlan.durationType
+    );
+
+    const userActivePlan = await UserActivePlansModel.insertOne(respObj);
+    return {
+      message: "Plans activated successfully",
+      success: true,
+      data: userActivePlan,
+    };
+
+  } catch (error) {
+  throw new Error(error);
+}
+
 }

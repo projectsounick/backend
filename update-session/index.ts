@@ -1,6 +1,10 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 import { init } from "../src/helpers/azure-cosmosdb-mongodb";
-import { checkIfAdmin, getUserRole, verifyAndDecodeToken } from "../src/admin/admin.service";
+import {
+  checkIfAdmin,
+  getUserRole,
+  verifyAndDecodeToken,
+} from "../src/admin/admin.service";
 import { updateSession } from "../src/sessions/sessions.service";
 
 //// Main login function ------------------------------------------------------------------------------/
@@ -36,18 +40,12 @@ const httpTrigger: AzureFunction = async function (
       };
       return;
     }
-    if (userRoleResponse.role != "admin" && userRoleResponse.role != "trainer") {
-      context.res = {
-        status: 401,
-        body: {
-          message: "Unauthorized",
-          success: false,
-        },
-      };
-      return;
-    }
+
     const sessionId = req.params.sessionId;
-    const response: { message: string; success: boolean } = await updateSession(sessionId, req.body);
+    const response: { message: string; success: boolean } = await updateSession(
+      sessionId,
+      req.body
+    );
     if (response.success) {
       context.res = {
         status: 200,

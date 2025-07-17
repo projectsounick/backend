@@ -388,6 +388,7 @@ export async function getUserSessions(
           sessionDuration: 1,
           sessionAddress: 1,
           sessionStatus: 1,
+          sessionFeedback: 1,
           sessionNotes: 1,
           sessionAgainstPlan: 1,
           activePlanId: 1,
@@ -426,6 +427,10 @@ export async function updateSession(
   sessionId: string,
   data: Record<string, any>
 ) {
+  console.log("this is sessionid");
+  console.log(data);
+  console.log(sessionId);
+
   try {
     let user;
     if (data.trainerId) {

@@ -1,11 +1,7 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 import { init } from "../src/helpers/azure-cosmosdb-mongodb";
-import {
-  checkIfAdmin,
-  getUserRole,
-  verifyAndDecodeToken,
-} from "../src/admin/admin.service";
-import { updateSession } from "../src/sessions/sessions.service";
+import { checkIfAdmin, verifyAndDecodeToken } from "../src/admin/admin.service";
+import { assignDietPlanToUser, assignPlanToUser } from "../src/userActivePlans/activePlans.service";
 
 //// Main login function ------------------------------------------------------------------------------/
 const httpTrigger: AzureFunction = async function (
@@ -29,8 +25,7 @@ const httpTrigger: AzureFunction = async function (
     }
     await init(context);
 
-    const userRoleResponse = await getUserRole(userId);
-    if (!userRoleResponse.status) {
+    if (!checkIfAdmin(userId)) {
       context.res = {
         status: 401,
         body: {
@@ -40,12 +35,15 @@ const httpTrigger: AzureFunction = async function (
       };
       return;
     }
-
-    const sessionId = req.params.sessionId;
-    const response: { message: string; success: boolean } = await updateSession(
-      sessionId,
-      req.body
-    );
+    const userToGetAssigendId = req.params.userId;
+    const planType = req.body.type;
+    console.log(planType)
+    let response: { message: string; success: boolean };
+    if(planType === 'plan'){
+      response = await assignPlanToUser(userToGetAssigendId, req.body.planId, req.body.planItemId);
+    }else{
+      response = await assignDietPlanToUser(userToGetAssigendId, req.body.dietPlanId)
+    }
     if (response.success) {
       context.res = {
         status: 200,

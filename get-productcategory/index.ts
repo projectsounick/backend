@@ -1,13 +1,8 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 import { init } from "../src/helpers/azure-cosmosdb-mongodb";
-import {
-  checkIfAdmin,
-  getUserRole,
-  verifyAndDecodeToken,
-} from "../src/admin/admin.service";
-import { updateSession } from "../src/sessions/sessions.service";
+import { getProductCategory } from "../src/products/category.service";
+import { verifyAndDecodeToken } from "../src/admin/admin.service";
 
-//// Main login function ------------------------------------------------------------------------------/
 const httpTrigger: AzureFunction = async function (
   context: Context,
   req: HttpRequest
@@ -27,25 +22,15 @@ const httpTrigger: AzureFunction = async function (
       };
       return;
     }
+
     await init(context);
+    const { isActive, page, limit } = req.query;
 
-    const userRoleResponse = await getUserRole(userId);
-    if (!userRoleResponse.status) {
-      context.res = {
-        status: 401,
-        body: {
-          message: "Unauthorized",
-          success: false,
-        },
-      };
-      return;
-    }
+    const parsedIsActive =
+      isActive === "true" ? true : isActive === "false" ? false : null;
 
-    const sessionId = req.params.sessionId;
-    const response: { message: string; success: boolean } = await updateSession(
-      sessionId,
-      req.body
-    );
+    const response: { message: string; success: boolean } =
+      await getProductCategory(parsedIsActive, page, limit);
     if (response.success) {
       context.res = {
         status: 200,

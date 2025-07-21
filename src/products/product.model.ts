@@ -3,6 +3,7 @@ import mongoose, { Schema, Document, Types } from "mongoose";
 export interface Category extends Document {
   name: string;
   description?: string;
+  image: string;
   isActive: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -11,10 +12,14 @@ const CategorySchema: Schema<Category> = new Schema<Category>({
   name: {
     type: String,
     required: true,
-    unique: true
+    unique: true,
   },
   description: {
-    type: String
+    type: String,
+  },
+  image: {
+    type: String,
+    required: true,
   },
   isActive: {
     type: Boolean,
@@ -24,18 +29,16 @@ const CategorySchema: Schema<Category> = new Schema<Category>({
   createdAt: {
     type: Date,
     default: Date.now,
-    immutable: true
+    immutable: true,
   },
   updatedAt: {
     type: Date,
-    default: Date.now
-  }
+    default: Date.now,
+  },
 });
-const CategoryModel = mongoose.model<Category>('categories', CategorySchema);
+const CategoryModel = mongoose.model<Category>("categories", CategorySchema);
 
-
-
-export type ProductVariationType = 'weight' | 'size' | 'none';
+export type ProductVariationType = "weight" | "size" | "none";
 export interface ProductVariation extends Document {
   productId: mongoose.Types.ObjectId; // Reference to Product
   label: string;
@@ -44,36 +47,40 @@ export interface ProductVariation extends Document {
   createdAt: Date;
   updatedAt: Date;
 }
-const ProductVariationSchema: Schema<ProductVariation> = new Schema<ProductVariation>({
-  productId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'products',
-    required: true
-  },
-  label: {
-    type: String,
-    required: true
-  },
-  price: {
-    type: Number,
-    required: true
-  },
-  isActive: {
-    type: Boolean,
-    required: false,
-    default: true,
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-    immutable: true
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now
-  }
-});
-const ProductVariationModel = mongoose.model<ProductVariation>('productvariations', ProductVariationSchema);
+const ProductVariationSchema: Schema<ProductVariation> =
+  new Schema<ProductVariation>({
+    productId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "products",
+      required: true,
+    },
+    label: {
+      type: String,
+      required: true,
+    },
+    price: {
+      type: Number,
+      required: true,
+    },
+    isActive: {
+      type: Boolean,
+      required: false,
+      default: true,
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now,
+      immutable: true,
+    },
+    updatedAt: {
+      type: Date,
+      default: Date.now,
+    },
+  });
+const ProductVariationModel = mongoose.model<ProductVariation>(
+  "productvariations",
+  ProductVariationSchema
+);
 
 export interface Product extends Document {
   name: string;
@@ -92,20 +99,20 @@ const ProductSchema: Schema<Product> = new Schema<Product>({
   images: [{ type: String }],
   category: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'categories',
-    required: true
+    ref: "categories",
+    required: true,
   },
   variationType: {
     type: String,
-    enum: ['weight', 'size', 'none'],
+    enum: ["weight", "size", "none"],
     required: true,
-    default: 'none'
+    default: "none",
   },
   basePrice: {
     type: Number,
     required: function () {
-      return this.variationType === 'none';
-    }
+      return this.variationType === "none";
+    },
   },
   isActive: {
     type: Boolean,
@@ -113,10 +120,10 @@ const ProductSchema: Schema<Product> = new Schema<Product>({
     default: true,
   },
   createdAt: { type: Date, default: Date.now, immutable: true },
-  updatedAt: { type: Date, default: Date.now }
+  updatedAt: { type: Date, default: Date.now },
 });
 
-const ProductModel = mongoose.model<Product>('products', ProductSchema);
+const ProductModel = mongoose.model<Product>("products", ProductSchema);
 
 export default ProductModel;
 export { CategoryModel, ProductVariationModel };

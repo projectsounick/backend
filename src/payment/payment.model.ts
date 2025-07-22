@@ -13,6 +13,7 @@ export interface Payment extends Document {
     createdAt: Date;
     updatedAt: Date;
     paymentUrl:string;
+    couponCode:string;
 }
 const PaymentSchema: Schema<Payment> = new Schema<Payment>({
     orderId: {
@@ -66,6 +67,10 @@ const PaymentSchema: Schema<Payment> = new Schema<Payment>({
         },
     },
     paymentUrl:{
+        type: String,
+        required: false,
+    },
+    couponCode:{
         type: String,
         required: false,
     }

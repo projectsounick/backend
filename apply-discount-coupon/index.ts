@@ -1,11 +1,13 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 import { init } from "../src/helpers/azure-cosmosdb-mongodb";
 import {
-  checkIfNormalUser,
+  checkIfAdmin,
+  getUserRole,
   verifyAndDecodeToken,
 } from "../src/admin/admin.service";
-import { cartCheckout, getCart } from "../src/cart/cart.service";
+import { getDiscountCouponDetails } from "../src/DiscountCoupon/discoutCoupon.service";
 
+//// Main login function ------------------------------------------------------------------------------/
 const httpTrigger: AzureFunction = async function (
   context: Context,
   req: HttpRequest
@@ -27,7 +29,8 @@ const httpTrigger: AzureFunction = async function (
     }
     await init(context);
 
-    if (!checkIfNormalUser(userId)) {
+    const userRoleResponse = await getUserRole(userId);
+    if (!userRoleResponse.status) {
       context.res = {
         status: 401,
         body: {
@@ -37,17 +40,9 @@ const httpTrigger: AzureFunction = async function (
       };
       return;
     }
-    console.log(userId);
-    // console.log(req.body.phoneNumber);
 
-    // const response: { message: string; success: boolean } = await cartCheckout(
-    //   userId,
-    //   req.body.phoneNumber
-    // );
-    const response: { message: string; success: boolean } = await cartCheckout(
-      userId,
-      req.body.couponCode ? req.body.couponCode : ''
-    );
+    const couponCode = req.params.couponCode;
+    const response: { message: string; success: boolean } = await getDiscountCouponDetails(couponCode,userId);
     if (response.success) {
       context.res = {
         status: 200,

@@ -46,7 +46,8 @@ const httpTrigger: AzureFunction = async function (
     // );
     const response: { message: string; success: boolean } = await cartCheckout(
       userId,
-      req.body.couponCode ? req.body.couponCode : ''
+      req.body.couponCode ? req.body.couponCode : '',
+      req.body.address ? req.body.address : ''
     );
     if (response.success) {
       context.res = {

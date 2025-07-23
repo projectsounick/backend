@@ -14,6 +14,7 @@ export interface Payment extends Document {
     updatedAt: Date;
     paymentUrl:string;
     couponCode:string;
+    deliveryAddess: string;
 }
 const PaymentSchema: Schema<Payment> = new Schema<Payment>({
     orderId: {
@@ -71,6 +72,10 @@ const PaymentSchema: Schema<Payment> = new Schema<Payment>({
         required: false,
     },
     couponCode:{
+        type: String,
+        required: false,
+    },
+    deliveryAddess:{
         type: String,
         required: false,
     }

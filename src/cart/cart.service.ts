@@ -320,7 +320,7 @@ export const deleteCartItem = async (cartItemId: string) => {
   }
 };
 
-export async function cartCheckout(userId: string, couponCode: string) {
+export async function cartCheckout(userId: string, couponCode: string, deliveryAddess:string) {
   try {
     let couponDetails = null;
     if (couponCode) {
@@ -502,7 +502,8 @@ export async function cartCheckout(userId: string, couponCode: string) {
       userId,
       totalAmount,
       cartItemsId,
-      couponDetails ? couponDetails.code : ''
+      couponDetails ? couponDetails.code : '',
+      deliveryAddess ? deliveryAddess : ''
     );
     if (paymentResponse.success) {
       return paymentResponse;

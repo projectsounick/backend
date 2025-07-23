@@ -23,11 +23,11 @@ const SessionWorkoutSchema: Schema<SessionWorkout> = new Schema<SessionWorkout>(
     },
     sets: {
         type: Number,
-        required: true,
+        required: false,
     },
     reps: {
         type: Number,
-        required: true,
+        required: false,
     },
     timer: {
         type: String,

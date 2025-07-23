@@ -12,7 +12,8 @@ export async function addPaymentItem(
   userId: string,
   amount: number,
   items: Array<string>,
-  couponCode: string
+  couponCode: string,
+  deliveryAddess: string
 ) {
   try {
     if (items.length === 0) {
@@ -36,6 +37,9 @@ export async function addPaymentItem(
     };
     if (couponCode) {
       paymentObj['couponCode'] = couponCode;
+    }
+    if(deliveryAddess){
+      paymentObj['deliveryAddess'] = deliveryAddess;
     }
     const savedPaymentItem = await PaymentModel.create({ ...paymentObj });
     return {

@@ -66,7 +66,7 @@ const EachexerciseItemSchema = new Schema<EachexerciseItem>(
   {
     sets: [
       {
-        repRange: { type: Number, required: true },
+        repRange: { type: Number, required: false },
         timer: { type: String, required: false },
       },
     ],

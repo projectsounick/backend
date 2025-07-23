@@ -7,10 +7,13 @@ import CartModel from "../cart/cart.model";
 import { generateReceiptPdf } from "./ReciptUtils";
 import { uploadUserReceiptPdfWithSas } from "../azure/azureService";
 import crypto from "crypto";
+import { addUserUsage } from "../DiscountCoupon/discoutCoupon.service";
 export async function addPaymentItem(
   userId: string,
   amount: number,
-  items: Array<string>
+  items: Array<string>,
+  couponCode: string,
+  deliveryAddess: string
 ) {
   try {
     if (items.length === 0) {
@@ -20,8 +23,10 @@ export async function addPaymentItem(
       };
     }
     const orderId = uuidv4();
+    console.log(orderId)
     // const orderObj = await createOrder(amount, orderId);
     const redirectUrl = await initiatePayment(amount, orderId);
+    console.log(redirectUrl)
     const paymentObj: any = {
       userId: new mongoose.Types.ObjectId(userId),
       amount: amount,
@@ -30,6 +35,12 @@ export async function addPaymentItem(
       orderId: orderId,
       paymentUrl: redirectUrl,
     };
+    if (couponCode) {
+      paymentObj['couponCode'] = couponCode;
+    }
+    if(deliveryAddess){
+      paymentObj['deliveryAddess'] = deliveryAddess;
+    }
     const savedPaymentItem = await PaymentModel.create({ ...paymentObj });
     return {
       message: "added successfully",
@@ -247,8 +258,8 @@ export async function getUpdatePaymentStatus(orderId: string) {
       orderStatus == "FAILED"
         ? "failed"
         : orderStatus == "COMPLETED"
-        ? "success"
-        : "pending";
+          ? "success"
+          : "pending";
     const paymentItemToBeUpdated = await PaymentModel.aggregate([
       { $match: { orderId: orderId } },
       { $sort: { createdAt: -1 } },
@@ -260,15 +271,6 @@ export async function getUpdatePaymentStatus(orderId: string) {
           let: { cartItems: "$items" },
           pipeline: [
             { $match: { $expr: { $in: ["$_id", "$$cartItems"] } } },
-            //Lookup product details
-            {
-              $lookup: {
-                from: "products",
-                localField: "productId",
-                foreignField: "_id",
-                as: "productDetails",
-              },
-            },
             // Lookup diet plan details (if applicable)
             {
               $lookup: {
@@ -335,6 +337,45 @@ export async function getUpdatePaymentStatus(orderId: string) {
                 },
               },
             },
+            //Lookup product details using the nested `product.productId`
+            {
+              $lookup: {
+                from: "products",
+                let: { productId: "$product.productId" },
+                pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$productId"] } } }],
+                as: "productDetails",
+              },
+            },
+
+            //Lookup variation item details using the nested `product.variationId`
+            {
+              $lookup: {
+                from: "productvariations",
+                let: { variationId: "$product.variationId" },
+                pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$variationId"] } } }],
+                as: "variationDetails",
+              },
+            },
+            // Convert `productDetails`, and `variationDetails` into a structured product object
+            {
+              $addFields: {
+                product: {
+                  $cond: {
+                    if: { $gt: [{ $size: "$productDetails" }, 0] }, // Only add if product exists
+                    then: {
+                      $mergeObjects: [
+                        { $arrayElemAt: ["$productDetails", 0] }, // Extract product object
+                        {
+                          variation: { $arrayElemAt: ["$variationDetails", 0] }, //  Nest variation inside plan
+                        },
+                      ],
+                    },
+                    else: "$$REMOVE", //  Completely remove product if no data exists
+                  },
+                },
+              },
+            },
+
             //Ensure final structure
             {
               $project: {
@@ -345,13 +386,22 @@ export async function getUpdatePaymentStatus(orderId: string) {
                 isBought: 1,
                 createdAt: 1,
                 updatedAt: 1,
-                productDetails: { $arrayElemAt: ["$productDetails", 0] },
                 dietPlanDetails: { $arrayElemAt: ["$dietPlanDetails", 0] },
                 plan: 1, //Plan object will appear only if data exists
+                product: 1
               },
             },
           ],
           as: "cartItems",
+        },
+      },
+      // LookUp Coupon Details
+      {
+        $lookup: {
+          from: "discountcoupon",
+          localField: "couponCode",
+          foreignField: "code",
+          as: "couponDetails",
         },
       },
 
@@ -370,6 +420,7 @@ export async function getUpdatePaymentStatus(orderId: string) {
           createdAt: 1,
           updatedAt: 1,
           cartItems: 1, //Nested cart items including product/plan details
+          couponDetails: 1
         },
       },
     ]);
@@ -402,6 +453,7 @@ export async function getUpdatePaymentStatus(orderId: string) {
         paymentItemToBeUpdated[0].userId,
         paymentItemToBeUpdated[0].cartItems
       );
+      await addUserUsage(paymentItemToBeUpdated[0].couponDetails.code, paymentItemToBeUpdated[0].userId)
     }
 
     return {
@@ -463,15 +515,6 @@ export async function getPaymentItems(
             let: { cartItems: "$items" },
             pipeline: [
               { $match: { $expr: { $in: ["$_id", "$$cartItems"] } } },
-              //Lookup product details
-              {
-                $lookup: {
-                  from: "products",
-                  localField: "productId",
-                  foreignField: "_id",
-                  as: "productDetails",
-                },
-              },
               // Lookup diet plan details (if applicable)
               {
                 $lookup: {
@@ -542,6 +585,44 @@ export async function getPaymentItems(
                   },
                 },
               },
+              //Lookup product details using the nested `product.productId`
+              {
+                $lookup: {
+                  from: "products",
+                  let: { productId: "$product.productId" },
+                  pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$productId"] } } }],
+                  as: "productDetails",
+                },
+              },
+
+              //Lookup variation item details using the nested `product.variationId`
+              {
+                $lookup: {
+                  from: "productvariations",
+                  let: { variationId: "$product.variationId" },
+                  pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$variationId"] } } }],
+                  as: "variationDetails",
+                },
+              },
+              // Convert `productDetails`, and `variationDetails` into a structured product object
+              {
+                $addFields: {
+                  product: {
+                    $cond: {
+                      if: { $gt: [{ $size: "$productDetails" }, 0] }, // Only add if product exists
+                      then: {
+                        $mergeObjects: [
+                          { $arrayElemAt: ["$productDetails", 0] }, // Extract product object
+                          {
+                            variation: { $arrayElemAt: ["$variationDetails", 0] }, //  Nest variation inside plan
+                          },
+                        ],
+                      },
+                      else: "$$REMOVE", //  Completely remove product if no data exists
+                    },
+                  },
+                },
+              },
               //Ensure final structure
               {
                 $project: {
@@ -552,9 +633,9 @@ export async function getPaymentItems(
                   isBought: 1,
                   createdAt: 1,
                   updatedAt: 1,
-                  productDetails: { $arrayElemAt: ["$productDetails", 0] },
                   dietPlanDetails: { $arrayElemAt: ["$dietPlanDetails", 0] },
                   plan: 1, //Plan object will appear only if data exists
+                  product: 1
                 },
               },
             ],
@@ -601,15 +682,6 @@ export async function getPaymentItems(
             let: { cartItems: "$items" },
             pipeline: [
               { $match: { $expr: { $in: ["$_id", "$$cartItems"] } } },
-              //Lookup product details
-              {
-                $lookup: {
-                  from: "products",
-                  localField: "productId",
-                  foreignField: "_id",
-                  as: "productDetails",
-                },
-              },
               // Lookup diet plan details (if applicable)
               {
                 $lookup: {
@@ -680,6 +752,44 @@ export async function getPaymentItems(
                   },
                 },
               },
+              //Lookup product details using the nested `product.productId`
+              {
+                $lookup: {
+                  from: "products",
+                  let: { productId: "$product.productId" },
+                  pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$productId"] } } }],
+                  as: "productDetails",
+                },
+              },
+
+              //Lookup variation item details using the nested `product.variationId`
+              {
+                $lookup: {
+                  from: "productvariations",
+                  let: { variationId: "$product.variationId" },
+                  pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$variationId"] } } }],
+                  as: "variationDetails",
+                },
+              },
+              // Convert `productDetails`, and `variationDetails` into a structured product object
+              {
+                $addFields: {
+                  product: {
+                    $cond: {
+                      if: { $gt: [{ $size: "$productDetails" }, 0] }, // Only add if product exists
+                      then: {
+                        $mergeObjects: [
+                          { $arrayElemAt: ["$productDetails", 0] }, // Extract product object
+                          {
+                            variation: { $arrayElemAt: ["$variationDetails", 0] }, //  Nest variation inside plan
+                          },
+                        ],
+                      },
+                      else: "$$REMOVE", //  Completely remove product if no data exists
+                    },
+                  },
+                },
+              },
               //Ensure final structure
               {
                 $project: {
@@ -690,9 +800,9 @@ export async function getPaymentItems(
                   isBought: 1,
                   createdAt: 1,
                   updatedAt: 1,
-                  productDetails: { $arrayElemAt: ["$productDetails", 0] },
                   dietPlanDetails: { $arrayElemAt: ["$dietPlanDetails", 0] },
                   plan: 1, //Plan object will appear only if data exists
+                  product: 1
                 },
               },
             ],
@@ -744,15 +854,6 @@ export async function getPaymentItem(orderId: string) {
           let: { cartItems: "$items" },
           pipeline: [
             { $match: { $expr: { $in: ["$_id", "$$cartItems"] } } },
-            //Lookup product details
-            {
-              $lookup: {
-                from: "products",
-                localField: "productId",
-                foreignField: "_id",
-                as: "productDetails",
-              },
-            },
             // Lookup diet plan details (if applicable)
             {
               $lookup: {
@@ -823,6 +924,44 @@ export async function getPaymentItem(orderId: string) {
                 },
               },
             },
+            //Lookup product details using the nested `product.productId`
+            {
+              $lookup: {
+                from: "products",
+                let: { productId: "$product.productId" },
+                pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$productId"] } } }],
+                as: "productDetails",
+              },
+            },
+
+            //Lookup variation item details using the nested `product.variationId`
+            {
+              $lookup: {
+                from: "productvariations",
+                let: { variationId: "$product.variationId" },
+                pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$variationId"] } } }],
+                as: "variationDetails",
+              },
+            },
+            // Convert `productDetails`, and `variationDetails` into a structured product object
+            {
+              $addFields: {
+                product: {
+                  $cond: {
+                    if: { $gt: [{ $size: "$productDetails" }, 0] }, // Only add if product exists
+                    then: {
+                      $mergeObjects: [
+                        { $arrayElemAt: ["$productDetails", 0] }, // Extract product object
+                        {
+                          variation: { $arrayElemAt: ["$variationDetails", 0] }, //  Nest variation inside plan
+                        },
+                      ],
+                    },
+                    else: "$$REMOVE", //  Completely remove product if no data exists
+                  },
+                },
+              },
+            },
             //Ensure final structure
             {
               $project: {
@@ -833,9 +972,9 @@ export async function getPaymentItem(orderId: string) {
                 isBought: 1,
                 createdAt: 1,
                 updatedAt: 1,
-                productDetails: { $arrayElemAt: ["$productDetails", 0] },
                 dietPlanDetails: { $arrayElemAt: ["$dietPlanDetails", 0] },
                 plan: 1, //Plan object will appear only if data exists
+                product: 1
               },
             },
           ],
@@ -971,12 +1110,51 @@ export async function getPaymentReceipt(orderId: string, userId: string) {
                 },
               },
             },
+            //Lookup product details using the nested `product.productId`
+            {
+              $lookup: {
+                from: "products",
+                let: { productId: "$product.productId" },
+                pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$productId"] } } }],
+                as: "productDetails",
+              },
+            },
+
+            //Lookup variation item details using the nested `product.variationId`
+            {
+              $lookup: {
+                from: "productvariations",
+                let: { variationId: "$product.variationId" },
+                pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$variationId"] } } }],
+                as: "variationDetails",
+              },
+            },
+            // Convert `productDetails`, and `variationDetails` into a structured product object
+            {
+              $addFields: {
+                product: {
+                  $cond: {
+                    if: { $gt: [{ $size: "$productDetails" }, 0] }, // Only add if product exists
+                    then: {
+                      $mergeObjects: [
+                        { $arrayElemAt: ["$productDetails", 0] }, // Extract product object
+                        {
+                          variation: { $arrayElemAt: ["$variationDetails", 0] }, //  Nest variation inside plan
+                        },
+                      ],
+                    },
+                    else: "$$REMOVE", //  Completely remove product if no data exists
+                  },
+                },
+              },
+            },
             {
               $project: {
                 _id: 1,
                 quantity: 1,
                 dietPlanDetails: 1,
                 plan: 1,
+                product: 1
               },
             },
           ],

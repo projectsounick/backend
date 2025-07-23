@@ -1,18 +1,23 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
-import { init } from "../src/helpers/azure-cosmosdb-mongodb";
-import {
-  checkIfNormalUser,
-  verifyAndDecodeToken,
-} from "../src/admin/admin.service";
-import { cartCheckout, getCart } from "../src/cart/cart.service";
 
+import { init } from "../src/helpers/azure-cosmosdb-mongodb";
+import { createBlog } from "../src/Blogs/blogs.service";
+import { Blog } from "../src/Blogs/blogs.model";
+import { verifyAndDecodeToken } from "../src/admin/admin.service";
+import { addUserPodcastInteraction } from "../src/Podcast/podcast.service";
+import { postUserNotifications } from "../src/AdminNotification/adminNotificationService";
+import { addOrUpdateUserMeasurement } from "../src/MeasurementUnits/measurementUnits.service";
+
+//// Main login function ------------------------------------------------------------------------------/
 const httpTrigger: AzureFunction = async function (
   context: Context,
   req: HttpRequest
 ): Promise<void> {
   try {
+    /// Building connection with the cosmos database -----------------/
+    await init(context);
     let userId: string;
-    const authResponse = await verifyAndDecodeToken(req);
+    const authResponse = verifyAndDecodeToken(req);
     if (authResponse) {
       userId = authResponse;
     } else {
@@ -25,30 +30,10 @@ const httpTrigger: AzureFunction = async function (
       };
       return;
     }
-    await init(context);
+    /// replace this query _id with jsonwebtoken _id later on
 
-    if (!checkIfNormalUser(userId)) {
-      context.res = {
-        status: 401,
-        body: {
-          message: "Unauthorized",
-          success: false,
-        },
-      };
-      return;
-    }
-    console.log(userId);
-    // console.log(req.body.phoneNumber);
-
-    // const response: { message: string; success: boolean } = await cartCheckout(
-    //   userId,
-    //   req.body.phoneNumber
-    // );
-    const response: { message: string; success: boolean } = await cartCheckout(
-      userId,
-      req.body.couponCode ? req.body.couponCode : '',
-      req.body.address ? req.body.address : ''
-    );
+    /// Calling the service function ----------------------/
+    const response = await addOrUpdateUserMeasurement(userId, req.body);
     if (response.success) {
       context.res = {
         status: 200,

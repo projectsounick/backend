@@ -2,14 +2,16 @@ import mongoose from "mongoose";
 import PlanModel, { DietPlanModel, PlanItemModel } from "../Plans/plan.model";
 import CartModel from "./cart.model";
 import { addPaymentItem, getTransactionData } from "../payment/payment.service";
+import ProductModel, { ProductVariationModel } from "../products/product.model";
+import DiscountCouponModel from "../DiscountCoupon/discountCoupon.model";
 
 export async function addCart(userId: string, data: Record<string, any>) {
   try {
     console.log(data);
 
-    if (!data.productId && !data.dietPlanId && !data.plan) {
+    if (!data.product && !data.dietPlanId && !data.plan) {
       return {
-        message: "Either product id, diet plan id or plan detail is required",
+        message: "Either product details, diet plan id or plan detail is required",
         success: false,
       };
     }
@@ -20,14 +22,50 @@ export async function addCart(userId: string, data: Record<string, any>) {
         success: false,
       };
     }
+
+    if (data.product && (!data.product.productId || !data.product.variationId)) {
+      return {
+        message: "Product details must include productId and variationId",
+        success: false,
+      };
+    }
+
     const cartObj: any = {
       userId: userId,
     };
-    if (data.productId) {
-      cartObj["productId"] = new mongoose.Types.ObjectId(data.productId);
-    } else if (data.dietPlanId) {
-      console.log("should went here");
+    if (data.product) {
+      const productObj = data.product;
+      cartObj["product"] = {};
 
+      const productToBeAdded = await ProductModel.findById(productObj.productId);
+      if (!productToBeAdded) {
+        return {
+          message: "Product with given id is not found",
+          success: false,
+        };
+      }
+      cartObj.product["productId"] = productToBeAdded._id;
+
+      const variationToBeAdded = await ProductVariationModel.findById(
+        productObj.variationId
+      );
+      if (!variationToBeAdded) {
+        return {
+          message: "Variation with given id is not found",
+          success: false,
+        };
+      }
+
+      if (
+        variationToBeAdded.productId.toString() !== productToBeAdded._id.toString()
+      ) {
+        return {
+          message: "Variation item does not belong to the given product",
+          success: false,
+        };
+      }
+      cartObj.product["variationId"] = variationToBeAdded._id;
+    } else if (data.dietPlanId) {
       const dietPlanToBeAdded = await DietPlanModel.findById(data.dietPlanId);
       if (!dietPlanToBeAdded) {
         return {
@@ -95,16 +133,6 @@ export async function getCart(userId: string, status: boolean | null) {
       { $match: queryObj },
       { $sort: { createdAt: -1 } },
 
-      //Lookup product details
-      {
-        $lookup: {
-          from: "products",
-          localField: "productId",
-          foreignField: "_id",
-          as: "productDetails",
-        },
-      },
-
       // Lookup diet plan details (if applicable)
       {
         $lookup: {
@@ -167,6 +195,45 @@ export async function getCart(userId: string, status: boolean | null) {
         },
       },
 
+      //Lookup product details using the nested `product.productId`
+      {
+        $lookup: {
+          from: "products",
+          let: { productId: "$product.productId" },
+          pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$productId"] } } }],
+          as: "productDetails",
+        },
+      },
+
+      //Lookup variation item details using the nested `product.variationId`
+      {
+        $lookup: {
+          from: "productvariations",
+          let: { variationId: "$product.variationId" },
+          pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$variationId"] } } }],
+          as: "variationDetails",
+        },
+      },
+      // Convert `productDetails`, and `variationDetails` into a structured product object
+      {
+        $addFields: {
+          product: {
+            $cond: {
+              if: { $gt: [{ $size: "$productDetails" }, 0] }, // Only add if product exists
+              then: {
+                $mergeObjects: [
+                  { $arrayElemAt: ["$productDetails", 0] }, // Extract product object
+                  {
+                    variation: { $arrayElemAt: ["$variationDetails", 0] }, //  Nest variation inside plan
+                  },
+                ],
+              },
+              else: "$$REMOVE", //  Completely remove product if no data exists
+            },
+          },
+        },
+      },
+
       //Ensure final structure
       {
         $project: {
@@ -177,9 +244,9 @@ export async function getCart(userId: string, status: boolean | null) {
           isBought: 1,
           createdAt: 1,
           updatedAt: 1,
-          productDetails: { $arrayElemAt: ["$productDetails", 0] },
           dietPlanDetails: { $arrayElemAt: ["$dietPlanDetails", 0] },
           plan: 1, //Plan object will appear only if data exists
+          product: 1
         },
       },
     ]);
@@ -253,8 +320,18 @@ export const deleteCartItem = async (cartItemId: string) => {
   }
 };
 
-export async function cartCheckout(userId: string) {
+export async function cartCheckout(userId: string, couponCode: string, deliveryAddess:string) {
   try {
+    let couponDetails = null;
+    if (couponCode) {
+      couponDetails = await DiscountCouponModel.findOne({ code: couponCode });
+      if (!couponDetails) {
+        return {
+          message: "Coupon details not found",
+          success: false,
+        };
+      }
+    }
     const queryObj: any = {
       userId: new mongoose.Types.ObjectId(userId),
       isDeleted: false,
@@ -263,16 +340,6 @@ export async function cartCheckout(userId: string) {
     const cartItems = await CartModel.aggregate([
       { $match: queryObj },
       { $sort: { createdAt: -1 } },
-
-      //Lookup product details
-      {
-        $lookup: {
-          from: "products",
-          localField: "productId",
-          foreignField: "_id",
-          as: "productDetails",
-        },
-      },
 
       // Lookup diet plan details (if applicable)
       {
@@ -336,6 +403,45 @@ export async function cartCheckout(userId: string) {
         },
       },
 
+      //Lookup product details using the nested `product.productId`
+      {
+        $lookup: {
+          from: "products",
+          let: { productId: "$product.productId" },
+          pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$productId"] } } }],
+          as: "productDetails",
+        },
+      },
+
+      //Lookup variation item details using the nested `product.variationId`
+      {
+        $lookup: {
+          from: "productvariations",
+          let: { variationId: "$product.variationId" },
+          pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$variationId"] } } }],
+          as: "variationDetails",
+        },
+      },
+      // Convert `productDetails`, and `variationDetails` into a structured product object
+      {
+        $addFields: {
+          product: {
+            $cond: {
+              if: { $gt: [{ $size: "$productDetails" }, 0] }, // Only add if product exists
+              then: {
+                $mergeObjects: [
+                  { $arrayElemAt: ["$productDetails", 0] }, // Extract product object
+                  {
+                    variation: { $arrayElemAt: ["$variationDetails", 0] }, //  Nest variation inside plan
+                  },
+                ],
+              },
+              else: "$$REMOVE", //  Completely remove product if no data exists
+            },
+          },
+        },
+      },
+
       //Ensure final structure
       {
         $project: {
@@ -346,9 +452,9 @@ export async function cartCheckout(userId: string) {
           isBought: 1,
           createdAt: 1,
           updatedAt: 1,
-          productDetails: { $arrayElemAt: ["$productDetails", 0] },
           dietPlanDetails: { $arrayElemAt: ["$dietPlanDetails", 0] },
           plan: 1, //Plan object will appear only if data exists
+          product: 1
         },
       },
     ]);
@@ -364,8 +470,12 @@ export async function cartCheckout(userId: string) {
     const cartItemsId = [];
 
     cartItems.forEach((item: any) => {
-      if (item.productDetails) {
-        totalAmount += item.productDetails.price * item.quantity;
+      if (item.product) {
+        if (item.product.variation) {
+          totalAmount += item.product.variation.price * item.quantity;
+        } else {
+          totalAmount += item.product.basePrice * item.quantity;
+        }
       } else if (item.dietPlanDetails) {
         totalAmount += item.dietPlanDetails.price * item.quantity;
       } else {
@@ -375,6 +485,12 @@ export async function cartCheckout(userId: string) {
     });
     console.log(totalAmount);
     console.log(cartItemsId);
+    console.log(couponDetails);
+
+
+    if(couponDetails){
+      totalAmount = Math.max((totalAmount-couponDetails.discountPrice),0)
+    }
 
     // const paymentResponse = await getTransactionData(
     //   userId,
@@ -382,10 +498,12 @@ export async function cartCheckout(userId: string) {
     //   phoneNumber,
     //   cartItemsId
     // );
-     const paymentResponse = await addPaymentItem(
+    const paymentResponse = await addPaymentItem(
       userId,
       totalAmount,
-      cartItemsId
+      cartItemsId,
+      couponDetails ? couponDetails.code : '',
+      deliveryAddess ? deliveryAddess : ''
     );
     if (paymentResponse.success) {
       return paymentResponse;

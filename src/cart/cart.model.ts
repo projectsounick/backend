@@ -7,6 +7,10 @@ export interface Cart extends Document {
     plan: {
         planId: mongoose.Types.ObjectId;
         planItemId: mongoose.Types.ObjectId;
+    },
+    product: {
+        productId: mongoose.Types.ObjectId;
+        variationId: mongoose.Types.ObjectId;
     }
     quantity: number;
     isDeleted: boolean;
@@ -39,6 +43,20 @@ const CartSchema: Schema<Cart> = new Schema<Cart>({
             planItemId: {
                 type: mongoose.SchemaTypes.ObjectId,
                 ref: "planitems"
+            },
+        },
+        required: false,
+        _id: false
+    },
+    product: {
+        type: {
+            productId: {
+                type: mongoose.SchemaTypes.ObjectId,
+                ref: "products"
+            },
+            variationId: {
+                type: mongoose.SchemaTypes.ObjectId,
+                ref: "productvariations"
             },
         },
         required: false,

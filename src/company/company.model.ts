@@ -1,16 +1,16 @@
 import mongoose, { Schema, Document } from "mongoose";
 
 export interface Company extends Document {
-    name:string;
-    email?:string;
-    phone?:string;
-    address:string;
-    contactPerson:string;
-    contactPersonEmail?:string;
-    contactPersonPhone?:string;
+    name: string;
+    email?: string;
+    phone?: string;
+    address: string;
+    contactPerson: string;
+    contactPersonEmail?: string;
+    contactPersonPhone?: string;
     allowedEmployees: number;
     allowedDomains: string[];
-    isActive:boolean;
+    isActive: boolean;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -22,13 +22,40 @@ const CompanySchema: Schema<Company> = new Schema<Company>({
     },
     email: {
         type: String,
-        required: false,
-        unique: true,
+        required: false
     },
-    isActive:{
-        type:Boolean,
-        required:true,
-        default:true
+    phone: {
+        type: String,
+        required: false
+    },
+    address: {
+        type: String,
+        required: true
+    },
+    contactPerson: {
+        type: String,
+        required: true
+    },
+    contactPersonEmail: {
+        type: String,
+        required: false
+    },
+    contactPersonPhone: {
+        type: String,
+        required: false
+    },
+    allowedEmployees: {
+        type: Number,
+        required: true
+    },
+    allowedDomains: {
+        type: [String],
+        required: true
+    },
+    isActive: {
+        type: Boolean,
+        required: true,
+        default: true
     },
     createdAt: {
         type: Date,

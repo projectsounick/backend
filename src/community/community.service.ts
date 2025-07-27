@@ -339,7 +339,7 @@ export async function getCommunityPosts(communityId: string, userId: string, pag
     }
 }
 
-export async function getCommentsForPost(postId: string, userId: string, page: string, limit: string) {
+export async function getCommentsForPost(postId: string, page: string, limit: string) {
     try {
         const parsedPage = page ? parseInt(page, 10) : 1;
         const parsedLimit = limit ? parseInt(limit, 10) : 10;

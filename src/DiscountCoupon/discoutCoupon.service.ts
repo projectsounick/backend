@@ -86,17 +86,23 @@ export const getAllDiscountCoupons = async (): Promise<
   }
 };
 
-
-export const getDiscountCouponDetails = async (couponCode: string, userId: string): Promise<any> => {
+export const getDiscountCouponDetails = async (
+  couponCode: string,
+  userId: string
+): Promise<any> => {
   try {
-    const couponDetails = await DiscountCouponModel.findOne({ code: couponCode }); // Fetches all coupons
+    const couponDetails = await DiscountCouponModel.findOne({
+      code: couponCode,
+    }); // Fetches all coupons
     if (!couponDetails) {
       return {
         message: "Coupon details not found",
         success: false,
       };
     }
-    const totalUsage = await DiscountCouponUsageModel.find({ couponCode: couponCode }).countDocuments();
+    const totalUsage = await DiscountCouponUsageModel.find({
+      couponCode: couponCode,
+    }).countDocuments();
     if (totalUsage >= couponDetails.totalUsage) {
       return {
         message: "Max redeem reached for this coupon",
@@ -104,8 +110,11 @@ export const getDiscountCouponDetails = async (couponCode: string, userId: strin
       };
     }
 
-    const userUsage = await DiscountCouponUsageModel.findOne({ couponCode: couponCode, userId: new mongoose.Types.ObjectId(userId) });
-    console.log(userUsage)
+    const userUsage = await DiscountCouponUsageModel.findOne({
+      couponCode: couponCode,
+      userId: new mongoose.Types.ObjectId(userId),
+    });
+    console.log(userUsage);
     if (userUsage) {
       return {
         message: "You have already redeemed this coupon",
@@ -127,11 +136,16 @@ export const getDiscountCouponDetails = async (couponCode: string, userId: strin
   }
 };
 
-
-export const addUserUsage = async (couponCode: string, userId: string): Promise<any> => {
+export const addUserUsage = async (
+  couponCode: string,
+  userId: string
+): Promise<any> => {
   try {
-    const userUsage = await DiscountCouponUsageModel.create({ couponCode: couponCode, userId: new mongoose.Types.ObjectId(userId) });
-    
+    const userUsage = await DiscountCouponUsageModel.create({
+      couponCode: couponCode,
+      userId: new mongoose.Types.ObjectId(userId),
+    });
+
     return {
       success: true,
       message: "User usage counted",

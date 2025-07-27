@@ -2,60 +2,71 @@ import ProductModel, { ProductVariationModel } from "./product.model";
 import mongoose from "mongoose";
 
 export async function addProduct(data: Record<string, any>) {
-    try {
-        if (!data.variationType) {
-            return {
-                message: "Variation Type is required",
-                success: false,
-            };
-        }
-        if (data.variationType === 'none' && !data.basePrice) {
-            return {
-                message: "Base Price is required",
-                success: false,
-            };
-        }
-        if (data.variationType !== 'none' && (!data.variations || data.variations.length === 0)) {
-            return {
-                message: "Variations are required",
-                success: false,
-            };
-        }
-
-        const productObj = {
-            category: new mongoose.Types.ObjectId(data.categoryId),
-            name: data.name,
-            description: data.description,
-            images: data.images,
-            variationType: data.variationType
-        };
-        if (data.basePrice) {
-            productObj['basePrice'] = data.basePrice;
-        }
-        const savedProduct = await ProductModel.create(productObj);
-
-        let savedVariations = [];
-        if (savedProduct.variationType !== 'none') {
-            const variations = data.variations.map((item: any) => ({
-                productId: savedProduct._id,
-                ...item,
-            }));
-
-            savedVariations = await ProductVariationModel.insertMany(variations);
-        }
-
-        return {
-            message: "Product added successfully",
-            success: true,
-            data: { ...savedProduct.toObject(), ...(savedVariations.length > 0 ? {variations: savedVariations} : {}) },
-        };
-    } catch (error) {
-        console.log(error.message);
-        throw new Error(error);
+  try {
+    if (!data.variationType) {
+      return {
+        message: "Variation Type is required",
+        success: false,
+      };
     }
+    if (data.variationType === "none" && !data.basePrice) {
+      return {
+        message: "Base Price is required",
+        success: false,
+      };
+    }
+    if (
+      data.variationType !== "none" &&
+      (!data.variations || data.variations.length === 0)
+    ) {
+      return {
+        message: "Variations are required",
+        success: false,
+      };
+    }
+
+    const productObj = {
+      category: new mongoose.Types.ObjectId(data.categoryId),
+      name: data.name,
+      description: data.description,
+      images: data.images,
+      variationType: data.variationType,
+    };
+    if (data.basePrice) {
+      productObj["basePrice"] = data.basePrice;
+    }
+    const savedProduct = await ProductModel.create(productObj);
+
+    let savedVariations = [];
+    if (savedProduct.variationType !== "none") {
+      const variations = data.variations.map((item: any) => ({
+        productId: savedProduct._id,
+        ...item,
+      }));
+
+      savedVariations = await ProductVariationModel.insertMany(variations);
+    }
+
+    return {
+      message: "Product added successfully",
+      success: true,
+      data: {
+        ...savedProduct.toObject(),
+        ...(savedVariations.length > 0 ? { variations: savedVariations } : {}),
+      },
+    };
+  } catch (error) {
+    console.log(error.message);
+    throw new Error(error);
+  }
 }
 
-export async function getProduct(status: any, variationsStatus: Array<boolean>, page?: string, limit?: string) {
+export async function getProduct(
+  status: any,
+  variationsStatus: Array<boolean>,
+  page?: string,
+  limit?: string
+) {
   try {
     let savedProduct;
     let paginationInfo = null;
@@ -87,8 +98,8 @@ export async function getProduct(status: any, variationsStatus: Array<boolean>, 
         },
         {
           $set: {
-            category: { $arrayElemAt: ["$category", 0] }
-          }
+            category: { $arrayElemAt: ["$category", 0] },
+          },
         },
         // Lookup plan items **WITH STATUS FILTER**
         {
@@ -102,10 +113,10 @@ export async function getProduct(status: any, variationsStatus: Array<boolean>, 
                     $and: [
                       { $eq: ["$productId", "$$productId"] },
                       { $in: ["$isActive", [...variationsStatus]] },
-                    ]
-                  }
-                }
-              }
+                    ],
+                  },
+                },
+              },
             ],
             as: "variations",
           },
@@ -134,8 +145,8 @@ export async function getProduct(status: any, variationsStatus: Array<boolean>, 
         },
         {
           $set: {
-            category: { $arrayElemAt: ["$category", 0] }
-          }
+            category: { $arrayElemAt: ["$category", 0] },
+          },
         },
         // Lookup plan items **WITH STATUS FILTER**
         {
@@ -149,16 +160,17 @@ export async function getProduct(status: any, variationsStatus: Array<boolean>, 
                     $and: [
                       { $eq: ["$productId", "$$productId"] },
                       { $in: ["$isActive", [...variationsStatus]] },
-                    ]
-                  }
-                }
-              }
+                    ],
+                  },
+                },
+              },
             ],
             as: "variations",
           },
         },
       ]);
     }
+    console.log(savedProduct);
 
     return {
       message: "Product fetched successfully",
@@ -171,7 +183,10 @@ export async function getProduct(status: any, variationsStatus: Array<boolean>, 
   }
 }
 
-export async function updateProduct(productId: string, data: Record<string, any>) {
+export async function updateProduct(
+  productId: string,
+  data: Record<string, any>
+) {
   try {
     const productToBeUpdated = await ProductModel.findById(productId);
     if (!productToBeUpdated) {

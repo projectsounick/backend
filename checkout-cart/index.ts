@@ -38,16 +38,12 @@ const httpTrigger: AzureFunction = async function (
       return;
     }
     console.log(userId);
-    // console.log(req.body.phoneNumber);
+    console.log(req.body);
 
-    // const response: { message: string; success: boolean } = await cartCheckout(
-    //   userId,
-    //   req.body.phoneNumber
-    // );
     const response: { message: string; success: boolean } = await cartCheckout(
       userId,
-      req.body.couponCode ? req.body.couponCode : '',
-      req.body.address ? req.body.address : ''
+      req.body.couponCode ? req.body.couponCode : "",
+      req.body.address ? req.body.address : ""
     );
     if (response.success) {
       context.res = {

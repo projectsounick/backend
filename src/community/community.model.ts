@@ -8,6 +8,7 @@ export interface Community extends Document {
     isActive: boolean;
     isCorporate: boolean;
     company: mongoose.Types.ObjectId;
+    isDefault: boolean;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -18,6 +19,7 @@ const CommunitySchema: Schema<Community> = new Schema<Community>({
     admins: [{ type: mongoose.Schema.Types.ObjectId, ref: 'users' }],
     isActive: { type: Boolean, required: true, default: true },
     isCorporate: { type: Boolean, required: true, default: false },
+    isDefault: { type: Boolean, required: true, default: false },
     company: { type: mongoose.Schema.Types.ObjectId, ref: 'companies' },
     createdAt: { type: Date, default: Date.now, immutable: true },
     updatedAt: { type: Date, default: Date.now }
@@ -43,7 +45,7 @@ const PostSchema: Schema<Post> = new Schema<Post>({
     media: { type: String },
     type: { type: String, enum: ['text', 'image', 'video'], default: 'text' },
     isActive: { type: Boolean, required: true, default: true },
-    isApproved: { type: Boolean, default: false },
+    isApproved: { type: Boolean, default: true },
     createdAt: { type: Date, default: Date.now, immutable: true },
     updatedAt: { type: Date, default: Date.now }
 });

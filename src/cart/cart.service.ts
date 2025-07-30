@@ -11,7 +11,8 @@ export async function addCart(userId: string, data: Record<string, any>) {
 
     if (!data.product && !data.dietPlanId && !data.plan) {
       return {
-        message: "Either product details, diet plan id or plan detail is required",
+        message:
+          "Either product details, diet plan id or plan detail is required",
         success: false,
       };
     }
@@ -23,7 +24,10 @@ export async function addCart(userId: string, data: Record<string, any>) {
       };
     }
 
-    if (data.product && (!data.product.productId || !data.product.variationId)) {
+    if (
+      data.product &&
+      (!data.product.productId || !data.product.variationId)
+    ) {
       return {
         message: "Product details must include productId and variationId",
         success: false,
@@ -37,7 +41,9 @@ export async function addCart(userId: string, data: Record<string, any>) {
       const productObj = data.product;
       cartObj["product"] = {};
 
-      const productToBeAdded = await ProductModel.findById(productObj.productId);
+      const productToBeAdded = await ProductModel.findById(
+        productObj.productId
+      );
       if (!productToBeAdded) {
         return {
           message: "Product with given id is not found",
@@ -45,6 +51,7 @@ export async function addCart(userId: string, data: Record<string, any>) {
         };
       }
       cartObj.product["productId"] = productToBeAdded._id;
+      console.log("went pass this");
 
       const variationToBeAdded = await ProductVariationModel.findById(
         productObj.variationId
@@ -55,16 +62,21 @@ export async function addCart(userId: string, data: Record<string, any>) {
           success: false,
         };
       }
+      console.log("here");
 
       if (
-        variationToBeAdded.productId.toString() !== productToBeAdded._id.toString()
+        variationToBeAdded.productId.toString() !==
+        productToBeAdded._id.toString()
       ) {
         return {
           message: "Variation item does not belong to the given product",
           success: false,
         };
       }
+      console.log("got here");
+
       cartObj.product["variationId"] = variationToBeAdded._id;
+      console.log(cartObj);
     } else if (data.dietPlanId) {
       const dietPlanToBeAdded = await DietPlanModel.findById(data.dietPlanId);
       if (!dietPlanToBeAdded) {
@@ -107,6 +119,8 @@ export async function addCart(userId: string, data: Record<string, any>) {
       }
       cartObj.plan["planItemId"] = planItemToBeAdded._id;
     }
+    console.log(cartObj);
+
     const savedCart = await CartModel.create({ ...cartObj });
     return {
       message: "Item added to cart successfully",
@@ -114,6 +128,8 @@ export async function addCart(userId: string, data: Record<string, any>) {
       data: savedCart,
     };
   } catch (error) {
+    console.log(error.message);
+
     throw new Error(error);
   }
 }
@@ -246,7 +262,7 @@ export async function getCart(userId: string, status: boolean | null) {
           updatedAt: 1,
           dietPlanDetails: { $arrayElemAt: ["$dietPlanDetails", 0] },
           plan: 1, //Plan object will appear only if data exists
-          product: 1
+          product: 1,
         },
       },
     ]);
@@ -452,7 +468,12 @@ export async function updateCartItem(
   action: "increment" | "decrement"
 ) {
   try {
+    console.log(cartItemId);
+    console.log(action);
+
     const cartItemToBeUpdated = await CartModel.findById(cartItemId);
+    console.log(cartItemToBeUpdated);
+
     if (!cartItemToBeUpdated) {
       return {
         message: "cart item with given id is not found",
@@ -471,6 +492,9 @@ export async function updateCartItem(
         };
       }
     }
+    console.log("this is cartitems to saved");
+    console.log(cartItemToBeUpdated);
+
     const updatedCartItem = await cartItemToBeUpdated.save();
 
     return {
@@ -506,7 +530,11 @@ export const deleteCartItem = async (cartItemId: string) => {
   }
 };
 
-export async function cartCheckout(userId: string, couponCode: string, deliveryAddess:string) {
+export async function cartCheckout(
+  userId: string,
+  couponCode: string,
+  deliveryAddess: string
+) {
   try {
     let couponDetails = null;
     if (couponCode) {
@@ -640,7 +668,7 @@ export async function cartCheckout(userId: string, couponCode: string, deliveryA
           updatedAt: 1,
           dietPlanDetails: { $arrayElemAt: ["$dietPlanDetails", 0] },
           plan: 1, //Plan object will appear only if data exists
-          product: 1
+          product: 1,
         },
       },
     ]);
@@ -673,9 +701,8 @@ export async function cartCheckout(userId: string, couponCode: string, deliveryA
     console.log(cartItemsId);
     console.log(couponDetails);
 
-
-    if(couponDetails){
-      totalAmount = Math.max((totalAmount-couponDetails.discountPrice),0)
+    if (couponDetails) {
+      totalAmount = Math.max(totalAmount - couponDetails.discountPrice, 0);
     }
 
     // const paymentResponse = await getTransactionData(
@@ -688,8 +715,8 @@ export async function cartCheckout(userId: string, couponCode: string, deliveryA
       userId,
       totalAmount,
       cartItemsId,
-      couponDetails ? couponDetails.code : '',
-      deliveryAddess ? deliveryAddess : ''
+      couponDetails ? couponDetails.code : "",
+      deliveryAddess ? deliveryAddess : ""
     );
     if (paymentResponse.success) {
       return paymentResponse;

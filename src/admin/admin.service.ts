@@ -211,6 +211,8 @@ export async function checkIfNormalUser(userId: string): Promise<boolean> {
   }
 }
 import { BlobServiceClient, ContainerClient } from "@azure/storage-blob";
+import mongoose from "mongoose";
+import CommunityModel, { Community } from "../community/community.model";
 
 export async function uploadSlotsJson(
   slots: string[],
@@ -300,3 +302,44 @@ export async function updatePromotionVideosJson({
     };
   }
 }
+
+export const createDefaultCommunityFromUsers = async (): Promise<{
+  success: boolean;
+  message: string;
+  data?: Community;
+}> => {
+  try {
+    const allUsers = await UserModel.find({}, "_id role");
+
+    const members: any[] = [];
+    const admins: any[] = [];
+
+    for (const user of allUsers) {
+      if (user.role === "admin") {
+        admins.push(user._id);
+      } else if (user.role === "trainer" || user.role === "user") {
+        members.push(user._id);
+      }
+    }
+
+    const community = await CommunityModel.create({
+      name: "Default Community",
+      members,
+      admins,
+      isCorporate: false,
+      isDefault: true,
+    });
+
+    return {
+      success: true,
+      message: "Default community created successfully",
+      data: community,
+    };
+  } catch (error) {
+    console.error("Error creating community:", error);
+    return {
+      success: false,
+      message: "Failed to create community",
+    };
+  }
+};

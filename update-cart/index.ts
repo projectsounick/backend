@@ -25,7 +25,8 @@ const httpTrigger: AzureFunction = async function (
     }
     const cartItemId = req.params.cartItemId;
     await init(context);
-    const response: { message: string; success: boolean } = await updateCartItem(cartItemId, req.body);
+    const response: { message: string; success: boolean } =
+      await updateCartItem(cartItemId, req.body.action);
     if (response.success) {
       context.res = {
         status: 200,

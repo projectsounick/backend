@@ -1,10 +1,9 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 import { init } from "../src/helpers/azure-cosmosdb-mongodb";
-import { checkIfAdmin, verifyAndDecodeToken } from "../src/admin/admin.service";
 import {
-  getCommunityById,
-  getCommunityPosts,
-} from "../src/community/community.service";
+  checkIfAdmin,
+  createDefaultCommunityFromUsers,
+} from "../src/admin/admin.service";
 
 //// Main login function ------------------------------------------------------------------------------/
 const httpTrigger: AzureFunction = async function (
@@ -12,29 +11,9 @@ const httpTrigger: AzureFunction = async function (
   req: HttpRequest
 ): Promise<void> {
   try {
-    let userId: string;
-    const authResponse = await verifyAndDecodeToken(req);
-    if (authResponse) {
-      userId = authResponse;
-    } else {
-      context.res = {
-        status: 401,
-        body: {
-          message: "Unauthorized",
-          success: false,
-        },
-      };
-      return;
-    }
     await init(context);
-    const communityId = req.query.communityId;
-    const { page, limit } = req.query;
-    console.log(communityId);
-    console.log(page);
-    console.log(limit);
 
-    const response: { message: string; success: boolean } =
-      await getCommunityPosts(communityId, userId, page, limit);
+    let response = await createDefaultCommunityFromUsers();
     if (response.success) {
       context.res = {
         status: 200,

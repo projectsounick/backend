@@ -276,6 +276,192 @@ export async function getCart(userId: string, status: boolean | null) {
     throw new Error(error.message);
   }
 }
+export async function getCartUser(userId: string, status: boolean | null) {
+  try {
+    const queryObj: any = {};
+
+    // Only filter by userId if it's provided
+    if (userId) {
+      queryObj.userId = new mongoose.Types.ObjectId(userId);
+    }
+    if (status !== null) {
+      queryObj["isDeleted"] = status;
+    }
+
+    const cartItems = await CartModel.aggregate([
+      { $match: queryObj },
+      { $sort: { createdAt: -1 } },
+
+      // Lookup diet plan details (if applicable)
+      // {
+      //   $lookup: {
+      //     from: "dietplans",
+      //     localField: "dietPlanId",
+      //     foreignField: "_id",
+      //     as: "dietPlanDetails",
+      //   },
+      // },
+
+      {
+        $lookup: {
+          from: "dietplans",
+          let: { dietPlanId: "$dietPlanId" },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $eq: ["$_id", "$$dietPlanId"] }
+              }
+            },
+            {
+              $project: { _id: 1,title: 1, imgUrl: 1, duration: 1, durationType:1 } // Only required fields
+            }
+          ],
+          as: "dietPlanDetails"
+        }
+      },
+
+      //Lookup plan details using the nested `plan.planId`
+      {
+        $lookup: {
+          from: "plans",
+          let: { planId: "$plan.planId" },
+          pipeline: [
+            { $match: { $expr: { $eq: ["$_id", "$$planId"] } } },
+            {
+              $project: { _id: 1,title: 1, imgUrl: 1, dietPlanId: 1 } // Only required fields
+            }
+          ],
+          as: "planDetails",
+        },
+      },
+
+      //Lookup plan item details using the nested `plan.planItemId`
+      {
+        $lookup: {
+          from: "planitems",
+          let: { planItemId: "$plan.planItemId" },
+          pipeline: [
+            { $match: { $expr: { $eq: ["$_id", "$$planItemId"] } } },
+            {
+              $project: { _id: 1,price: 1, duration: 1, durationType: 1, sessionCount:1 } // Only required fields
+            }
+          ],
+          as: "planItemDetails",
+        },
+      },
+      // Lookup diet plan details from `planDetails.dietPlanId`
+      {
+        $lookup: {
+          from: "dietplans",
+          let: { dietPlanId: { $first: ["$planDetails.dietPlanId", 0] } },
+          pipeline: [
+            { $match: { $expr: { $eq: ["$_id", "$$dietPlanId"] } } },
+            {
+              $project: { _id: 1,title: 1, imgUrl: 1, duration: 1, durationType:1 } // Only required fields
+            }
+          ],
+          as: "planDietPlanDetails",
+        },
+      },
+
+      // Convert `planDetails`, `planItemDetails`, and `planDietPlanDetails` into a structured plan object
+      {
+        $addFields: {
+          plan: {
+            $cond: {
+              if: { $gt: [{ $size: "$planDetails" }, 0] }, // Only add if plan exists
+              then: {
+                $mergeObjects: [
+                  { $first: ["$planDetails", 0] }, // Extract plan object
+                  {
+                    planItem: { $first: ["$planItemDetails", 0] }, //  Nest planItem inside plan
+                    dietPlanDetails: {
+                      $first: ["$planDietPlanDetails", 0],
+                    }, //  Nest dietPlanDetails inside plan
+                  },
+                ],
+              },
+              else: "$$REMOVE", //  Completely remove plan if no data exists
+            },
+          },
+        },
+      },
+
+      //Lookup product details using the nested `product.productId`
+      {
+        $lookup: {
+          from: "products",
+          let: { productId: "$product.productId" },
+          pipeline: [
+            { $match: { $expr: { $eq: ["$_id", "$$productId"] } } },
+            {
+              $project: { _id: 1,name: 1, images: 1, basePrice: 1 } // Only required fields
+            }
+          ],
+          as: "productDetails",
+        },
+      },
+
+      //Lookup variation item details using the nested `product.variationId`
+      {
+        $lookup: {
+          from: "productvariations",
+          let: { variationId: "$product.variationId" },
+          pipeline: [
+            { $match: { $expr: { $eq: ["$_id", "$$variationId"] } } },
+            {
+              $project: { _id: 1,label: 1, price: 1 } // Only required fields
+            }
+          ],
+          as: "variationDetails",
+        },
+      },
+      // Convert `productDetails`, and `variationDetails` into a structured product object
+      {
+        $addFields: {
+          product: {
+            $cond: {
+              if: { $gt: [{ $size: "$productDetails" }, 0] }, // Only add if product exists
+              then: {
+                $mergeObjects: [
+                  { $first: ["$productDetails", 0] }, // Extract product object
+                  {
+                    variation: { $first: ["$variationDetails", 0] }, //  Nest variation inside plan
+                  },
+                ],
+              },
+              else: "$$REMOVE", //  Completely remove product if no data exists
+            },
+          },
+        },
+      },
+
+      //Ensure final structure
+      {
+        $project: {
+          _id: 1,
+          userId: 1,
+          quantity: 1,
+          isDeleted: 1,
+          isBought: 1,
+          createdAt: 1,
+          updatedAt: 1,
+          dietPlanDetails: { $first: ["$dietPlanDetails", 0] },
+          plan: 1, //Plan object will appear only if data exists
+          product: 1
+        },
+      },
+    ]);
+
+    return {
+      message: "Cart items fetched successfully",
+      success: true,
+      data: cartItems,
+    };
+  } catch (error) {
+    throw new Error(error.message);
+  }
+}
 
 export async function updateCartItem(
   cartItemId: string,

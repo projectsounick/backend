@@ -1,7 +1,8 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 import { init } from "../src/helpers/azure-cosmosdb-mongodb";
-import { verifyAndDecodeToken } from "../src/admin/admin.service";
-import { updateCartItem } from "../src/cart/cart.service";
+import { checkIfAdmin, verifyAndDecodeToken } from "../src/admin/admin.service";
+import { updateProduct } from "../src/products/product.service";
+import { commentOnPost, disapprovePost, LikeUnlikePost } from "../src/community/post.service";
 
 //// Main login function ------------------------------------------------------------------------------/
 const httpTrigger: AzureFunction = async function (
@@ -23,10 +24,10 @@ const httpTrigger: AzureFunction = async function (
       };
       return;
     }
-    const cartItemId = req.params.cartItemId;
     await init(context);
-    const response: { message: string; success: boolean } =
-      await updateCartItem(cartItemId, req.body.action);
+
+    const postId = req.params.postId;
+    const response: { message: string; success: boolean } = await commentOnPost(postId,userId,req.body.comment ? req.body.comment : "" );
     if (response.success) {
       context.res = {
         status: 200,

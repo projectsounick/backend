@@ -42,7 +42,8 @@ const httpTrigger: AzureFunction = async function (
     }
 
     const couponCode = req.params.couponCode;
-    const response: { message: string; success: boolean } = await getDiscountCouponDetails(couponCode,userId);
+    const response: { message: string; success: boolean } =
+      await getDiscountCouponDetails(couponCode, userId);
     if (response.success) {
       context.res = {
         status: 200,
@@ -50,7 +51,7 @@ const httpTrigger: AzureFunction = async function (
       };
     } else {
       context.res = {
-        status: 500,
+        status: 200,
         body: response,
       };
     }

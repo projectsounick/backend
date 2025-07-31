@@ -279,6 +279,7 @@ export async function getCart(userId: string, status: boolean | null) {
 export async function getCartUser(userId: string, status: boolean | null) {
   try {
     const queryObj: any = {};
+    console.log("went for getcart");
 
     // Only filter by userId if it's provided
     if (userId) {
@@ -309,15 +310,21 @@ export async function getCartUser(userId: string, status: boolean | null) {
           pipeline: [
             {
               $match: {
-                $expr: { $eq: ["$_id", "$$dietPlanId"] }
-              }
+                $expr: { $eq: ["$_id", "$$dietPlanId"] },
+              },
             },
             {
-              $project: { _id: 1,title: 1, imgUrl: 1, duration: 1, durationType:1 } // Only required fields
-            }
+              $project: {
+                _id: 1,
+                title: 1,
+                imgUrl: 1,
+                duration: 1,
+                durationType: 1,
+              }, // Only required fields
+            },
           ],
-          as: "dietPlanDetails"
-        }
+          as: "dietPlanDetails",
+        },
       },
 
       //Lookup plan details using the nested `plan.planId`
@@ -328,8 +335,8 @@ export async function getCartUser(userId: string, status: boolean | null) {
           pipeline: [
             { $match: { $expr: { $eq: ["$_id", "$$planId"] } } },
             {
-              $project: { _id: 1,title: 1, imgUrl: 1, dietPlanId: 1 } // Only required fields
-            }
+              $project: { _id: 1, title: 1, imgUrl: 1, dietPlanId: 1 }, // Only required fields
+            },
           ],
           as: "planDetails",
         },
@@ -343,8 +350,14 @@ export async function getCartUser(userId: string, status: boolean | null) {
           pipeline: [
             { $match: { $expr: { $eq: ["$_id", "$$planItemId"] } } },
             {
-              $project: { _id: 1,price: 1, duration: 1, durationType: 1, sessionCount:1 } // Only required fields
-            }
+              $project: {
+                _id: 1,
+                price: 1,
+                duration: 1,
+                durationType: 1,
+                sessionCount: 1,
+              }, // Only required fields
+            },
           ],
           as: "planItemDetails",
         },
@@ -357,8 +370,14 @@ export async function getCartUser(userId: string, status: boolean | null) {
           pipeline: [
             { $match: { $expr: { $eq: ["$_id", "$$dietPlanId"] } } },
             {
-              $project: { _id: 1,title: 1, imgUrl: 1, duration: 1, durationType:1 } // Only required fields
-            }
+              $project: {
+                _id: 1,
+                title: 1,
+                imgUrl: 1,
+                duration: 1,
+                durationType: 1,
+              }, // Only required fields
+            },
           ],
           as: "planDietPlanDetails",
         },
@@ -395,8 +414,8 @@ export async function getCartUser(userId: string, status: boolean | null) {
           pipeline: [
             { $match: { $expr: { $eq: ["$_id", "$$productId"] } } },
             {
-              $project: { _id: 1,name: 1, images: 1, basePrice: 1 } // Only required fields
-            }
+              $project: { _id: 1, name: 1, images: 1, basePrice: 1 }, // Only required fields
+            },
           ],
           as: "productDetails",
         },
@@ -410,8 +429,8 @@ export async function getCartUser(userId: string, status: boolean | null) {
           pipeline: [
             { $match: { $expr: { $eq: ["$_id", "$$variationId"] } } },
             {
-              $project: { _id: 1,label: 1, price: 1 } // Only required fields
-            }
+              $project: { _id: 1, label: 1, price: 1 }, // Only required fields
+            },
           ],
           as: "variationDetails",
         },
@@ -448,7 +467,7 @@ export async function getCartUser(userId: string, status: boolean | null) {
           updatedAt: 1,
           dietPlanDetails: { $first: ["$dietPlanDetails", 0] },
           plan: 1, //Plan object will appear only if data exists
-          product: 1
+          product: 1,
         },
       },
     ]);

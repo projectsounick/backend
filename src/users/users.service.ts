@@ -181,7 +181,9 @@ export async function loginUserApp(email: string): Promise<{
     };
   }
 }
-export async function loginUserAppNew(email: string): Promise<{ data: User; message: string; success: boolean }> {
+export async function loginUserAppNew(
+  email: string
+): Promise<{ data: User; message: string; success: boolean }> {
   try {
     try {
       await UserModel.collection.dropIndex("phoneNumber_1");
@@ -199,21 +201,22 @@ export async function loginUserAppNew(email: string): Promise<{ data: User; mess
 
     if (!user) {
       // first check if the email is froma company or not
-      const emailDomain = email.split('@')[1]?.toLowerCase();
+      const emailDomain = email.split("@")[1]?.toLowerCase();
       const companyDetails = await CompanyModel.findOne({
         allowedDomains: emailDomain,
-        isActive: true
+        isActive: true,
       });
       if (companyDetails) {
         // check how many employees are allowed and how many are already registered
         const registeredEmployeesCount = await UserModel.countDocuments({
-          email: { $regex: new RegExp(`@${emailDomain}$`, 'i') },
-          isActive: true
+          email: { $regex: new RegExp(`@${emailDomain}$`, "i") },
+          isActive: true,
         });
         if (registeredEmployeesCount >= companyDetails.allowedEmployees) {
           return {
             success: false,
-            message: "Employee limit reached for this company, Please contact your HR",
+            message:
+              "Employee limit reached for this company, Please contact your HR",
             data: null,
           };
         }
@@ -221,12 +224,15 @@ export async function loginUserAppNew(email: string): Promise<{ data: User; mess
         // Create a new user with the provided email and default role
         user = await new UserModel({ email: email, role: "user" }).save();
         // create a userDetails entry with the companyId
-        await new UserDetailsModel({ userId: user._id, companyId: companyDetails._id }).save();
+        await new UserDetailsModel({
+          userId: user._id,
+          companyId: companyDetails._id,
+        }).save();
         // get the community for the company
         const community = await CommunityModel.findOne({
           company: companyDetails._id,
           isCorporate: true,
-          isActive: true
+          isActive: true,
         });
         // add the user to the community
         community.members.push(user._id);
@@ -238,19 +244,24 @@ export async function loginUserAppNew(email: string): Promise<{ data: User; mess
         // find the default community
         const community = await CommunityModel.findOne({
           isDefault: true,
-          isActive: true
+          isActive: true,
         });
         community.members.push(user._id);
         await community.save();
       }
 
-
-      await postSupportChat({role:'support',message:`Welcome to INESS! 💪/n
-        Your fitness journey just got a whole lot better./n
-        We're thrilled to have you on board! Whether you're here to lose fat, gain strength, or simply feel your best—we’re with you every step of the way. From personalized plans and expert coaches to tasty meal guidance and powerful tracking tools, INESS is your all-in-one fitness partner./n
-        Let’s crush your goals—one rep, one meal, one day at a time./n
-        Your transformation starts NOW./n
-        Tap below to get started with your plan!`},user._id)
+      await postSupportChat(
+        {
+          role: "support",
+          content: `Welcome to INESS! 💪\n
+        Your fitness journey just got a whole lot better.\n
+        We're thrilled to have you on board! Whether you're here to lose fat, gain strength, or simply feel your best—we’re with you every step of the way. From personalized plans and expert coaches to tasty meal guidance and powerful tracking tools, INESS is your all-in-one fitness partner.\n
+        Let’s crush your goals—one rep, one meal, one day at a time.\n
+        Your transformation starts NOW.\n
+        Tap below to get started with your plan!`,
+        },
+        user._id
+      );
     }
 
     if (email === "test@gmail.com") {
@@ -302,7 +313,6 @@ export async function loginUserAppNew(email: string): Promise<{ data: User; mess
     };
   }
 }
-
 
 export async function userOtpVerify(
   email: string,
@@ -462,18 +472,18 @@ export async function updateUserData(
     const [updatedUser, updatedDetails] = await Promise.all([
       Object.keys(userData).length
         ? UserModel.findOneAndUpdate(
-          { _id: userObjectId },
-          { $set: userData },
-          { new: true, upsert: true }
-        )
+            { _id: userObjectId },
+            { $set: userData },
+            { new: true, upsert: true }
+          )
         : UserModel.findById(userObjectId),
 
       Object.keys(userDetailsData).length
         ? UserDetailsModel.findOneAndUpdate(
-          { userId: userObjectId },
-          { $set: userDetailsData },
-          { new: true, upsert: true }
-        )
+            { userId: userObjectId },
+            { $set: userDetailsData },
+            { new: true, upsert: true }
+          )
         : Promise.resolve(null),
     ]);
 

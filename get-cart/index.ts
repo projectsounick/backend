@@ -35,16 +35,6 @@ const httpTrigger: AzureFunction = async function (
       };
       return;
     }
-    if( (userRoleResponse.role == "admin" || userRoleResponse.role == "trainer" || userRoleResponse.role == "hr") && !req.query.userId) {
-      context.res = {
-        status: 403,
-        body: {
-          message: "User ID is required",
-          success: false,
-        },
-      };
-      return;
-    }
 
     let { isDeleted, userId } = req.query;
 
@@ -53,18 +43,15 @@ const httpTrigger: AzureFunction = async function (
     const parsedUserId =
       userRoleResponse.role === "user" ? callingUserId : userId;
 
-      let response : { message: string; success: boolean };
-    if (userRoleResponse.role === "user") {
-      response = await getCartUser(
-        parsedUserId,
-        parsedIsDeleted
-      );
-    } else {
-      response = await getCart(
-        parsedUserId,
-        parsedIsDeleted
-      );
-    }
+    let response: { message: string; success: boolean };
+    response = await getCart(parsedUserId, parsedIsDeleted);
+    // if (userRoleResponse.role === "user") {
+
+    // } else {
+    //   response = await getCart(parsedUserId, parsedIsDeleted);
+    // }
+    console.log(response);
+
     // const response: { message: string; success: boolean } = await getCart(
     //   parsedUserId,
     //   parsedIsDeleted
@@ -81,6 +68,9 @@ const httpTrigger: AzureFunction = async function (
       };
     }
   } catch (error) {
+    console.log("this is error");
+    console.log(error);
+
     context.res = {
       status: 500,
       body: {

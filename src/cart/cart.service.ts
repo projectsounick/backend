@@ -353,7 +353,7 @@ export async function getCartUser(userId: string, status: boolean | null) {
       {
         $lookup: {
           from: "dietplans",
-          let: { dietPlanId: { arrayElemAt: ["$planDetails.dietPlanId", 0] } },
+          let: { dietPlanId: { $arrayElemAt: ["$planDetails.dietPlanId", 0] } },
           pipeline: [
             { $match: { $expr: { $eq: ["$_id", "$$dietPlanId"] } } },
             {
@@ -372,11 +372,11 @@ export async function getCartUser(userId: string, status: boolean | null) {
               if: { $gt: [{ $size: "$planDetails" }, 0] }, // Only add if plan exists
               then: {
                 $mergeObjects: [
-                  { arrayElemAt: ["$planDetails", 0] }, // Extract plan object
+                  { $arrayElemAt: ["$planDetails", 0] }, // Extract plan object
                   {
-                    planItem: { arrayElemAt: ["$planItemDetails", 0] }, //  Nest planItem inside plan
+                    planItem: { $arrayElemAt: ["$planItemDetails", 0] }, //  Nest planItem inside plan
                     dietPlanDetails: {
-                      arrayElemAt: ["$planDietPlanDetails", 0],
+                      $arrayElemAt: ["$planDietPlanDetails", 0],
                     }, //  Nest dietPlanDetails inside plan
                   },
                 ],
@@ -424,9 +424,9 @@ export async function getCartUser(userId: string, status: boolean | null) {
               if: { $gt: [{ $size: "$productDetails" }, 0] }, // Only add if product exists
               then: {
                 $mergeObjects: [
-                  { arrayElemAt: ["$productDetails", 0] }, // Extract product object
+                  { $arrayElemAt: ["$productDetails", 0] }, // Extract product object
                   {
-                    variation: { arrayElemAt: ["$variationDetails", 0] }, //  Nest variation inside plan
+                    variation: { $arrayElemAt: ["$variationDetails", 0] }, //  Nest variation inside plan
                   },
                 ],
               },
@@ -446,7 +446,7 @@ export async function getCartUser(userId: string, status: boolean | null) {
           isBought: 1,
           createdAt: 1,
           updatedAt: 1,
-          dietPlanDetails: { arrayElemAt: ["$dietPlanDetails", 0] },
+          dietPlanDetails: { $arrayElemAt: ["$dietPlanDetails", 0] },
           plan: 1, //Plan object will appear only if data exists
           product: 1
         },

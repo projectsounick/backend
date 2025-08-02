@@ -323,7 +323,7 @@ export const createDefaultCommunityFromUsers = async (): Promise<{
     }
 
     const community = await CommunityModel.create({
-      name: "Default Community",
+      name: "Iness Fitness Hub",
       members,
       admins,
       isCorporate: false,

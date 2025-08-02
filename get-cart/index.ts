@@ -35,7 +35,12 @@ const httpTrigger: AzureFunction = async function (
       };
       return;
     }
-    if( (userRoleResponse.role == "admin" || userRoleResponse.role == "trainer" || userRoleResponse.role == "hr") && !req.query.userId) {
+    if (
+      (userRoleResponse.role == "admin" ||
+        userRoleResponse.role == "trainer" ||
+        userRoleResponse.role == "hr") &&
+      !req.query.userId
+    ) {
       context.res = {
         status: 403,
         body: {
@@ -53,17 +58,11 @@ const httpTrigger: AzureFunction = async function (
     const parsedUserId =
       userRoleResponse.role === "user" ? callingUserId : userId;
 
-      let response : { message: string; success: boolean };
+    let response: { message: string; success: boolean };
     if (userRoleResponse.role === "user") {
-      response = await getCartUser(
-        parsedUserId,
-        parsedIsDeleted
-      );
+      response = await getCartUser(parsedUserId, parsedIsDeleted);
     } else {
-      response = await getCart(
-        parsedUserId,
-        parsedIsDeleted
-      );
+      response = await getCart(parsedUserId, parsedIsDeleted);
     }
     // const response: { message: string; success: boolean } = await getCart(
     //   parsedUserId,

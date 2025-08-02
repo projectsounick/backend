@@ -293,15 +293,6 @@ export async function getCartUser(userId: string, status: boolean | null) {
       { $sort: { createdAt: -1 } },
 
       // Lookup diet plan details (if applicable)
-      // {
-      //   $lookup: {
-      //     from: "dietplans",
-      //     localField: "dietPlanId",
-      //     foreignField: "_id",
-      //     as: "dietPlanDetails",
-      //   },
-      // },
-
       {
         $lookup: {
           from: "dietplans",
@@ -309,18 +300,24 @@ export async function getCartUser(userId: string, status: boolean | null) {
           pipeline: [
             {
               $match: {
-                $expr: { $eq: ["$_id", "$$dietPlanId"] }
-              }
+                $expr: { $eq: ["$_id", "$$dietPlanId"] },
+              },
             },
             {
-              $project: { _id: 1,title: 1, imgUrl: 1, duration: 1, durationType:1 } // Only required fields
-            }
+              $project: {
+                _id: 1,
+                title: 1,
+                imgUrl: 1,
+                duration: 1,
+                durationType: 1,
+              },
+            },
           ],
-          as: "dietPlanDetails"
-        }
+          as: "dietPlanDetails",
+        },
       },
 
-      //Lookup plan details using the nested `plan.planId`
+      // Lookup plan details
       {
         $lookup: {
           from: "plans",
@@ -328,14 +325,14 @@ export async function getCartUser(userId: string, status: boolean | null) {
           pipeline: [
             { $match: { $expr: { $eq: ["$_id", "$$planId"] } } },
             {
-              $project: { _id: 1,title: 1, imgUrl: 1, dietPlanId: 1 } // Only required fields
-            }
+              $project: { _id: 1, title: 1, imgUrl: 1, dietPlanId: 1 },
+            },
           ],
           as: "planDetails",
         },
       },
 
-      //Lookup plan item details using the nested `plan.planItemId`
+      // Lookup plan item details
       {
         $lookup: {
           from: "planitems",
@@ -343,13 +340,20 @@ export async function getCartUser(userId: string, status: boolean | null) {
           pipeline: [
             { $match: { $expr: { $eq: ["$_id", "$$planItemId"] } } },
             {
-              $project: { _id: 1,price: 1, duration: 1, durationType: 1, sessionCount:1 } // Only required fields
-            }
+              $project: {
+                _id: 1,
+                price: 1,
+                duration: 1,
+                durationType: 1,
+                sessionCount: 1,
+              },
+            },
           ],
           as: "planItemDetails",
         },
       },
-      // Lookup diet plan details from `planDetails.dietPlanId`
+
+      // Lookup diet plan from planDetails.dietPlanId
       {
         $lookup: {
           from: "dietplans",
@@ -357,37 +361,43 @@ export async function getCartUser(userId: string, status: boolean | null) {
           pipeline: [
             { $match: { $expr: { $eq: ["$_id", "$$dietPlanId"] } } },
             {
-              $project: { _id: 1,title: 1, imgUrl: 1, duration: 1, durationType:1 } // Only required fields
-            }
+              $project: {
+                _id: 1,
+                title: 1,
+                imgUrl: 1,
+                duration: 1,
+                durationType: 1,
+              },
+            },
           ],
           as: "planDietPlanDetails",
         },
       },
 
-      // Convert `planDetails`, `planItemDetails`, and `planDietPlanDetails` into a structured plan object
+      // Merge plan details, planItem, and dietPlanDetails
       {
         $addFields: {
           plan: {
             $cond: {
-              if: { $gt: [{ $size: "$planDetails" }, 0] }, // Only add if plan exists
+              if: { $gt: [{ $size: "$planDetails" }, 0] },
               then: {
                 $mergeObjects: [
-                  { $arrayElemAt: ["$planDetails", 0] }, // Extract plan object
+                  { $arrayElemAt: ["$planDetails", 0] },
                   {
-                    planItem: { $arrayElemAt: ["$planItemDetails", 0] }, //  Nest planItem inside plan
+                    planItem: { $arrayElemAt: ["$planItemDetails", 0] },
                     dietPlanDetails: {
                       $arrayElemAt: ["$planDietPlanDetails", 0],
-                    }, //  Nest dietPlanDetails inside plan
+                    },
                   },
                 ],
               },
-              else: "$$REMOVE", //  Completely remove plan if no data exists
+              else: "$$REMOVE",
             },
           },
         },
       },
 
-      //Lookup product details using the nested `product.productId`
+      // Lookup product
       {
         $lookup: {
           from: "products",
@@ -395,14 +405,14 @@ export async function getCartUser(userId: string, status: boolean | null) {
           pipeline: [
             { $match: { $expr: { $eq: ["$_id", "$$productId"] } } },
             {
-              $project: { _id: 1,name: 1, images: 1, basePrice: 1 } // Only required fields
-            }
+              $project: { _id: 1, name: 1, images: 1, basePrice: 1 },
+            },
           ],
           as: "productDetails",
         },
       },
 
-      //Lookup variation item details using the nested `product.variationId`
+      // Lookup product variation
       {
         $lookup: {
           from: "productvariations",
@@ -410,33 +420,34 @@ export async function getCartUser(userId: string, status: boolean | null) {
           pipeline: [
             { $match: { $expr: { $eq: ["$_id", "$$variationId"] } } },
             {
-              $project: { _id: 1,label: 1, price: 1 } // Only required fields
-            }
+              $project: { _id: 1, label: 1, price: 1 },
+            },
           ],
           as: "variationDetails",
         },
       },
-      // Convert `productDetails`, and `variationDetails` into a structured product object
+
+      // Merge product and variation
       {
         $addFields: {
           product: {
             $cond: {
-              if: { $gt: [{ $size: "$productDetails" }, 0] }, // Only add if product exists
+              if: { $gt: [{ $size: "$productDetails" }, 0] },
               then: {
                 $mergeObjects: [
-                  { $arrayElemAt: ["$productDetails", 0] }, // Extract product object
+                  { $arrayElemAt: ["$productDetails", 0] },
                   {
-                    variation: { $arrayElemAt: ["$variationDetails", 0] }, //  Nest variation inside plan
+                    variation: { $arrayElemAt: ["$variationDetails", 0] },
                   },
                 ],
               },
-              else: "$$REMOVE", //  Completely remove product if no data exists
+              else: "$$REMOVE",
             },
           },
         },
       },
 
-      //Ensure final structure
+      // Final projection
       {
         $project: {
           _id: 1,
@@ -447,8 +458,8 @@ export async function getCartUser(userId: string, status: boolean | null) {
           createdAt: 1,
           updatedAt: 1,
           dietPlanDetails: { $arrayElemAt: ["$dietPlanDetails", 0] },
-          plan: 1, //Plan object will appear only if data exists
-          product: 1
+          plan: 1,
+          product: 1,
         },
       },
     ]);

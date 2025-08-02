@@ -1,3 +1,4 @@
+import { Conversation } from "twilio/lib/twiml/VoiceResponse";
 import SupportChatModel from "./supportchat.model";
 
 ///// Function for getting the support chat ------------------------------------------------/
@@ -34,15 +35,8 @@ export const getSupportChat = async (userId: string) => {
   }
 };
 
-interface Conversation {
-  role: "user" | "support";
-  message: string;
-  timestamp?: Date;
-  [key: string]: any;
-}
-
 export const postSupportChat = async (
-  conversation: Conversation,
+  conversation: any,
   userId: string
 ): Promise<{
   success: boolean;

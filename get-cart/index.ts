@@ -1,7 +1,7 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 import { init } from "../src/helpers/azure-cosmosdb-mongodb";
 import { getUserRole, verifyAndDecodeToken } from "../src/admin/admin.service";
-import { getCart } from "../src/cart/cart.service";
+import { getCart, getCartUser } from "../src/cart/cart.service";
 
 const httpTrigger: AzureFunction = async function (
   context: Context,
@@ -35,7 +35,12 @@ const httpTrigger: AzureFunction = async function (
       };
       return;
     }
-    if( (userRoleResponse.role == "admin" || userRoleResponse.role == "trainer" || userRoleResponse.role == "hr") && !req.query.userId) {
+    if (
+      (userRoleResponse.role == "admin" ||
+        userRoleResponse.role == "trainer" ||
+        userRoleResponse.role == "hr") &&
+      !req.query.userId
+    ) {
       context.res = {
         status: 403,
         body: {
@@ -53,10 +58,16 @@ const httpTrigger: AzureFunction = async function (
     const parsedUserId =
       userRoleResponse.role === "user" ? callingUserId : userId;
 
-    const response: { message: string; success: boolean } = await getCart(
-      parsedUserId,
-      parsedIsDeleted
-    );
+    let response: { message: string; success: boolean };
+    if (userRoleResponse.role === "user") {
+      response = await getCartUser(parsedUserId, parsedIsDeleted);
+    } else {
+      response = await getCart(parsedUserId, parsedIsDeleted);
+    }
+    // const response: { message: string; success: boolean } = await getCart(
+    //   parsedUserId,
+    //   parsedIsDeleted
+    // );
     if (response.success) {
       context.res = {
         status: 200,

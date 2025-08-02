@@ -11,6 +11,9 @@ import { generateJWT, sendOtpUsingTwilio } from "../admin/admin.service";
 import { access } from "fs";
 import { UserInterface } from "../interface/otherInterface";
 import mongoose from "mongoose";
+import CompanyModel from "../company/company.model";
+import CommunityModel from "../community/community.model";
+import { postSupportChat } from "../SupportChat/supportchat.service";
 const { adminLoginOtpEmailTemplate } = require("../template/otpEmail");
 const { sendEmail } = require("../helpers/send-email");
 
@@ -178,6 +181,139 @@ export async function loginUserApp(email: string): Promise<{
     };
   }
 }
+export async function loginUserAppNew(
+  email: string
+): Promise<{ data: User; message: string; success: boolean }> {
+  try {
+    try {
+      await UserModel.collection.dropIndex("phoneNumber_1");
+      console.log("Index 'phoneNumber_1' dropped successfully");
+    } catch (err: any) {
+      if (
+        err.codeName === "IndexNotFound" ||
+        err.message.includes("index not found")
+      ) {
+        console.log("Index 'phoneNumber_1' does not exist. Skipping drop.");
+      } else {
+      }
+    }
+    let user: any = await UserModel.findOne({ email: email });
+
+    if (!user) {
+      // first check if the email is froma company or not
+      const emailDomain = email.split("@")[1]?.toLowerCase();
+      const companyDetails = await CompanyModel.findOne({
+        allowedDomains: emailDomain,
+        isActive: true,
+      });
+      if (companyDetails) {
+        // check how many employees are allowed and how many are already registered
+        const registeredEmployeesCount = await UserModel.countDocuments({
+          email: { $regex: new RegExp(`@${emailDomain}$`, "i") },
+          isActive: true,
+        });
+        if (registeredEmployeesCount >= companyDetails.allowedEmployees) {
+          return {
+            success: false,
+            message:
+              "Employee limit reached for this company, Please contact your HR",
+            data: null,
+          };
+        }
+        // company stil has space for employees
+        // Create a new user with the provided email and default role
+        user = await new UserModel({ email: email, role: "user" }).save();
+        // create a userDetails entry with the companyId
+        await new UserDetailsModel({
+          userId: user._id,
+          companyId: companyDetails._id,
+        }).save();
+        // get the community for the company
+        const community = await CommunityModel.findOne({
+          company: companyDetails._id,
+          isCorporate: true,
+          isActive: true,
+        });
+        // add the user to the community
+        community.members.push(user._id);
+        await community.save();
+      } else {
+        // If not from a company
+        // Create a new user with the provided email and default role
+        user = await new UserModel({ email: email, role: "user" }).save();
+        // find the default community
+        const community = await CommunityModel.findOne({
+          isDefault: true,
+          isActive: true,
+        });
+        community.members.push(user._id);
+        await community.save();
+      }
+
+      await postSupportChat(
+        {
+          role: "support",
+          content: `Welcome to INESS! 💪\n
+        Your fitness journey just got a whole lot better.\n
+        We're thrilled to have you on board! Whether you're here to lose fat, gain strength, or simply feel your best—we’re with you every step of the way. From personalized plans and expert coaches to tasty meal guidance and powerful tracking tools, INESS is your all-in-one fitness partner.\n
+        Let’s crush your goals—one rep, one meal, one day at a time.\n
+        Your transformation starts NOW.\n
+        Tap below to get started with your plan!`,
+        },
+        user._id
+      );
+    }
+
+    if (email === "test@gmail.com") {
+      return {
+        success: true,
+        message: "OTP sent successfully",
+        data: user,
+      };
+    }
+
+    // Send OTP using Twilio
+    // const otpResponse = await sendOtpUsingTwilio(user._id, number);
+
+    // if (!otpResponse) {
+    //   return {
+    //     success: false,
+    //     message: "Unable to send OTP",
+    //     data: null,
+    //   };
+    // }
+    //// email base login -------------------------------------------------------/
+    // Generate a random 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    //// Storing the otp in user table ---------------------/
+    const response = await UserModel.findOneAndUpdate(
+      { email: email },
+      { $set: { otp: otp } }
+    );
+    if (!response) {
+      throw new Error("Some error has happened generating the otp");
+    }
+    await sendEmail({
+      email: "founder@iness.fitness",
+      subject: `Iness - Login otp`,
+      to: email,
+      html: adminLoginOtpEmailTemplate(otp),
+    });
+    return {
+      success: true,
+      message: "OTP sent successfully",
+      data: user,
+    };
+  } catch (error: any) {
+    console.error("Login error:", error);
+    return {
+      success: false,
+      message: "An unexpected error occurred",
+      data: null,
+    };
+  }
+}
+
 export async function userOtpVerify(
   email: string,
   otp: string,

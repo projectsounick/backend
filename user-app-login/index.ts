@@ -1,5 +1,5 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
-import { loginUser, loginUserApp } from "../src/users/users.service";
+import { loginUser, loginUserApp, loginUserAppNew } from "../src/users/users.service";
 import { init } from "../src/helpers/azure-cosmosdb-mongodb";
 import { User } from "../src/users/user.model";
 
@@ -19,7 +19,7 @@ const httpTrigger: AzureFunction = async function (
       message: string;
       success: boolean;
       data: User;
-    } = await loginUserApp(req.body.email);
+    } = await loginUserAppNew(req.body.email);
     if (response.success) {
       context.res = {
         status: 200,

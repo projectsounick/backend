@@ -339,7 +339,7 @@ export async function getCartUser(userId: string, status: boolean | null) {
       {
         $lookup: {
           from: "services",
-          let: { dietPlanId: "$serviceId" },
+          let: { serviceId: "$serviceId" },
           pipeline: [
             {
               $match: {

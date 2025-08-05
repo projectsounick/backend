@@ -8,8 +8,6 @@ export interface Service extends Document {
     price: number;
     isOnline: boolean;
     isCorporate: boolean;
-    duration: number;
-    durationType: "day" | "week" | "month" | "year";
     sessionCount: number;
     isActive: boolean;
     createdAt: Date;
@@ -47,18 +45,10 @@ const serviceSchema: Schema<Service> = new Schema<Service>({
         required: true,
         default: false,
     },
-    duration: {
-        type: Number,
-        required: true,
-    },
-    durationType: {
-        type: String,
-        enum: ["day", "week", "month", "year"],
-        required: true,
-    },
     sessionCount: {
         type: Number,
         required: true,
+        default : 1
     },
     isActive: {
         type: Boolean,

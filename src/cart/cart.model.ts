@@ -11,7 +11,8 @@ export interface Cart extends Document {
     product: {
         productId: mongoose.Types.ObjectId;
         variationId: mongoose.Types.ObjectId;
-    }
+    },
+    serviceId: mongoose.Types.ObjectId;
     quantity: number;
     isDeleted: boolean;
     isBought: boolean;
@@ -61,6 +62,11 @@ const CartSchema: Schema<Cart> = new Schema<Cart>({
         },
         required: false,
         _id: false
+    },
+    serviceId: {
+        type: mongoose.SchemaTypes.ObjectId,
+        ref: "services",
+        required: false,
     },
     quantity: {
         type: Number,

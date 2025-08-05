@@ -5,7 +5,9 @@
       "type": "httpTrigger",
       "direction": "in",
       "name": "req",
-      "methods": ["post"]
+      "methods": [
+        "post"
+      ]
     },
     {
       "type": "http",
@@ -13,5 +15,5 @@
       "name": "res"
     }
   ],
-  "scriptFile": "../dist/createDefaultCommunityFromUsers/index.js"
+  "scriptFile": "../dist/create-service/index.js"
 }

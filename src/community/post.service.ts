@@ -125,3 +125,35 @@ export async function commentOnPost(
     throw new Error(error);
   }
 }
+
+
+export async function deletePostById(postId: string, userId: string) {
+  try {
+    const post = await PostModel.findById(postId);
+
+    if (!post) {
+      return {
+        message: "Post not found",
+        success: false,
+      };
+    }
+
+    // Ensure only the creator can delete the post
+    if (post.createdBy.toString() !== userId) {
+      return {
+        message: "You are not authorized to delete this post",
+        success: false,
+      };
+    }
+
+    await PostModel.findByIdAndDelete(postId);
+
+    return {
+      message: "Post deleted successfully",
+      success: true,
+    };
+  } catch (error: any) {
+    console.log(error.message);
+    throw new Error(error);
+  }
+}

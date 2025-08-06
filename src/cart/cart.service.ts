@@ -4,15 +4,15 @@ import CartModel from "./cart.model";
 import { addPaymentItem, getTransactionData } from "../payment/payment.service";
 import ProductModel, { ProductVariationModel } from "../products/product.model";
 import DiscountCouponModel from "../DiscountCoupon/discountCoupon.model";
+import ServiceModel from "../services/services.model";
 
 export async function addCart(userId: string, data: Record<string, any>) {
   try {
     console.log(data);
 
-    if (!data.product && !data.dietPlanId && !data.plan) {
+    if (!data.product && !data.dietPlanId && !data.plan && !data.serviceId) {
       return {
-        message:
-          "Either product details, diet plan id or plan detail is required",
+        message: "Either product, diet plan, plan, or serviceId is required",
         success: false,
       };
     }
@@ -118,6 +118,15 @@ export async function addCart(userId: string, data: Record<string, any>) {
         };
       }
       cartObj.plan["planItemId"] = planItemToBeAdded._id;
+    } else if (data.serviceId) {
+      const serviceToBeAdded = await ServiceModel.findById(data.serviceId);
+      if (!serviceToBeAdded) {
+        return {
+          message: "Service with given id is not found",
+          success: false,
+        };
+      }
+      cartObj["serviceId"] = new mongoose.Types.ObjectId(data.serviceId);
     }
     console.log(cartObj);
 
@@ -156,6 +165,15 @@ export async function getCart(userId: string, status: boolean | null) {
           localField: "dietPlanId",
           foreignField: "_id",
           as: "dietPlanDetails",
+        },
+      },
+      // Lookup service details (if applicable)
+      {
+        $lookup: {
+          from: "services",
+          localField: "serviceId",
+          foreignField: "_id",
+          as: "serviceDetails",
         },
       },
 
@@ -263,6 +281,7 @@ export async function getCart(userId: string, status: boolean | null) {
           dietPlanDetails: { $arrayElemAt: ["$dietPlanDetails", 0] },
           plan: 1, //Plan object will appear only if data exists
           product: 1,
+          serviceDetails: { $arrayElemAt: ["$serviceDetails", 0] },
         },
       },
     ]);
@@ -314,6 +333,28 @@ export async function getCartUser(userId: string, status: boolean | null) {
             },
           ],
           as: "dietPlanDetails",
+        },
+      },
+      // Lookup service details (if applicable)
+      {
+        $lookup: {
+          from: "services",
+          let: { serviceId: "$serviceId" },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $eq: ["$_id", "$$serviceId"] },
+              },
+            },
+            {
+              $project: {
+                _id: 1,
+                title: 1,
+                imgUrl: 1
+              },
+            },
+          ],
+          as: "serviceDetails",
         },
       },
 
@@ -460,6 +501,7 @@ export async function getCartUser(userId: string, status: boolean | null) {
           dietPlanDetails: { $arrayElemAt: ["$dietPlanDetails", 0] },
           plan: 1,
           product: 1,
+          serviceDetails: { $arrayElemAt: ["$serviceDetails", 0] },
         },
       },
     ]);
@@ -576,6 +618,16 @@ export async function cartCheckout(
         },
       },
 
+      // Lookup service details (if applicable)
+      {
+        $lookup: {
+          from: "services",
+          localField: "serviceId",
+          foreignField: "_id",
+          as: "serviceDetails",
+        },
+      },
+
       //Lookup plan details using the nested `plan.planId`
       {
         $lookup: {
@@ -680,6 +732,7 @@ export async function cartCheckout(
           dietPlanDetails: { $arrayElemAt: ["$dietPlanDetails", 0] },
           plan: 1, //Plan object will appear only if data exists
           product: 1,
+          serviceDetails: { $arrayElemAt: ["$serviceDetails", 0] },
         },
       },
     ]);

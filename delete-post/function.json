@@ -5,7 +5,8 @@
       "type": "httpTrigger",
       "direction": "in",
       "name": "req",
-      "methods": ["post"]
+      "methods": ["delete"],
+      "route": "delete-post/{postId}"
     },
     {
       "type": "http",
@@ -13,5 +14,5 @@
       "name": "res"
     }
   ],
-  "scriptFile": "../dist/assign-userto-community/index.js"
+  "scriptFile": "../dist/delete-post/index.js"
 }

@@ -129,6 +129,7 @@ export async function getUserCommunityId(userId: string) {
     return {
       success: true,
       communityId: community._id,
+      communityName: community.name,
       message: "Community found successfully.",
     };
   } catch (error) {
@@ -300,7 +301,8 @@ export async function getCommunityPosts(
   communityId: string,
   userId: string,
   page: string,
-  limit: string
+  limit: string,
+  allPost: string
 ) {
   try {
     const parsedPage = page ? parseInt(page, 10) : 1;
@@ -309,14 +311,18 @@ export async function getCommunityPosts(
     const pageNumber = parsedPage > 0 ? parsedPage : 1;
     const itemsPerPage = parsedLimit > 0 ? parsedLimit : 10;
     const skip = (pageNumber - 1) * itemsPerPage;
+    const matchStage: any = {
+      community: new mongoose.Types.ObjectId(communityId),
+      isActive: true,
+    };
+
+    // Add filter for createdBy if userId is provided
+    if (allPost && allPost === "false") {
+      matchStage.createdBy = new mongoose.Types.ObjectId(userId);
+    }
 
     const posts = await PostModel.aggregate([
-      {
-        $match: {
-          community: new mongoose.Types.ObjectId(communityId),
-          isActive: true,
-        },
-      },
+      { $match: matchStage },
       { $sort: { createdAt: -1, isActive: -1 } },
       { $skip: skip },
       { $limit: itemsPerPage },

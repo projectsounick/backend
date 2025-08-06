@@ -28,13 +28,10 @@ const httpTrigger: AzureFunction = async function (
     }
     await init(context);
     const communityId = req.query.communityId;
-    const { page, limit } = req.query;
-    console.log(communityId);
-    console.log(page);
-    console.log(limit);
+    const { page, limit, allPost } = req.query;
 
     const response: { message: string; success: boolean } =
-      await getCommunityPosts(communityId, userId, page, limit);
+      await getCommunityPosts(communityId, userId, page, limit, allPost);
     if (response.success) {
       context.res = {
         status: 200,

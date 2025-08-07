@@ -830,3 +830,45 @@ export async function updateTrainers(
     throw new Error(error);
   }
 }
+
+
+
+export async function deleteUser(userId: string) {
+  try {
+    const user = await UserModel.findById(userId);
+    if (!user) {
+      return {
+        message: "User not found",
+        success: false,
+      };
+    }
+
+    // Delete associated user details based on role
+    if (user.role === "trainer") {
+      await TrainerDetailsModel.deleteOne({ userId: user._id });
+    } else if (user.role === "hr") {
+      await HRDetailsModel.deleteOne({ userId: user._id });
+    } else if (user.role === "user") {
+      await UserDetailsModel.deleteOne({ userId: user._id });
+    }
+
+    // Remove from any communities (optional cleanup)
+    await CommunityModel.updateMany(
+      { members: user._id },
+      { $pull: { members: user._id } }
+    );
+
+    // Finally, delete the user
+    await UserModel.deleteOne({ _id: user._id });
+
+    return {
+      message: "User deleted successfully",
+      success: true,
+    };
+  } catch (error) {
+    return {
+      message: `Failed to delete user: ${error instanceof Error ? error.message : error}`,
+      success: false,
+    };
+  }
+}

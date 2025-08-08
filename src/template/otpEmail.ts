@@ -69,7 +69,7 @@ const adminLoginOtpEmailTemplate = (otp: any) => `<!DOCTYPE html>
               
             </div>
             <div class="footer">
-                &copy; ${new Date().getFullYear()} Your Company | All Rights Reserved
+                &copy; ${new Date().getFullYear()} phonix health and fitness | All Rights Reserved
             </div>
         </div>
     </body>

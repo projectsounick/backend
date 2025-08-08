@@ -85,7 +85,7 @@ const userQueryEmailTemplate = (
               <p>Please respond to the user as soon as possible.</p>
           </div>
           <div class="footer">
-              &copy; ${new Date().getFullYear()} Your Company | All Rights Reserved
+              &copy; ${new Date().getFullYear()} Phonix health and fitness | All Rights Reserved
           </div>
       </div>
   </body>

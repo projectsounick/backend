@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 import PodcastModel, { Podcast } from "./podcast.model";
+import { sendNotificationToALLUser } from "../Notification/notification.service";
+import { notificationContentForNewVideo } from "../utils/staticNotificaitonContent";
 
 ///// Function for fetching the podcasts -------------------------------------/
 export async function fetchPodcasts(): Promise<{
@@ -28,6 +30,10 @@ export async function createPodcast(data: Podcast): Promise<{
   try {
     const dataToSave = new PodcastModel(data);
     let response = await dataToSave.save();
+    await sendNotificationToALLUser(
+      notificationContentForNewVideo.title,
+      notificationContentForNewVideo.body
+    );
     return {
       message: "Podcast has been Created",
       success: true,

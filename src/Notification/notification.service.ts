@@ -1,3 +1,9 @@
+import { log } from "node:console";
+import UserModel from "../users/user.model";
+import {
+  notificationContentForNewMessage,
+  notificationContentForNewVideo,
+} from "../utils/staticNotificaitonContent";
 import NotificationModel from "./notification.model";
 const { Expo } = require("expo-server-sdk");
 interface GetNotificationsOptions {
@@ -207,5 +213,65 @@ export async function postNotification(input: any, userId: string) {
       message: "Failed to create notification.",
       data: null,
     };
+  }
+}
+
+///// Functionf or sending support message ntoficaiton -----------------------------/
+export async function sendSupportMessageNotification(
+  userId: string,
+  conversation: any
+) {
+  try {
+    if (conversation.role !== "user") {
+      // Get only the expoPushToken field from the DB
+      const userDetails = await UserModel.findById(userId).select(
+        "expoPushToken"
+      );
+
+      const tokens = [];
+      if (userDetails && userDetails.expoPushToken) {
+        tokens.push(userDetails.expoPushToken);
+      }
+
+      // Send notifications if we have at least one token
+      if (tokens.length > 0) {
+        await sendBulkPushNotifications(
+          notificationContentForNewMessage.title,
+          notificationContentForNewMessage.body,
+          tokens
+        );
+      }
+      return;
+    } else {
+      return;
+    }
+  } catch (error) {
+    console.error("Error sending push notification:", error);
+  }
+}
+export async function sendNotificationToALLUser(title: string, body: string) {
+  try {
+    // 1. Fetch all users with a valid fcmToken
+    const usersWithTokens = await UserModel.find({
+      expoPushToken: { $exists: true, $ne: "" }, // token exists and is not empty
+    }).select("expoPushToken");
+
+    // 2. Extract all tokens into an array
+    const tokens = usersWithTokens.map((user) => user.expoPushToken);
+
+    if (tokens.length === 0) {
+      console.log("No valid FCM tokens found.");
+      return;
+    }
+    console.log("this are tokens");
+
+    console.log(tokens);
+
+    // 3. Send bulk notification
+    await sendBulkPushNotifications(title, body, tokens);
+
+    console.log(`New video notification sent to ${tokens.length} users.`);
+  } catch (error) {
+    console.error("Error sending new video notification:", error);
   }
 }

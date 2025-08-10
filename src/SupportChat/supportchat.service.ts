@@ -1,5 +1,11 @@
 import { Conversation } from "twilio/lib/twiml/VoiceResponse";
 import SupportChatModel from "./supportchat.model";
+import UserModel from "../users/user.model";
+import {
+  sendBulkPushNotifications,
+  sendSupportMessageNotification,
+} from "../Notification/notification.service";
+import { notificationContentForNewMessage } from "../utils/staticNotificaitonContent";
 
 ///// Function for getting the support chat ------------------------------------------------/
 
@@ -65,6 +71,8 @@ export const postSupportChat = async (
         updateFields,
         { new: true }
       );
+      /// Function for sending support memessage notificaion ---------------/
+      await sendSupportMessageNotification(userId, conversation);
 
       return {
         success: true,
@@ -82,7 +90,7 @@ export const postSupportChat = async (
 
       const newChat = new SupportChatModel(newChatData);
       const savedChat = await newChat.save();
-
+      await sendSupportMessageNotification(userId, conversation);
       return {
         success: true,
         message: "New chat created",

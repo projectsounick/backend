@@ -8,6 +8,43 @@ interface GetNotificationsOptions {
   isTrainer?: boolean;
   isHr?: boolean;
 }
+export async function sendBulkPushNotifications(
+  title: string,
+  body: string,
+  expoPushTokens: string[]
+) {
+  const expo = new Expo();
+
+  // Keep only valid tokens
+  const validTokens = expoPushTokens.filter(Expo.isExpoPushToken);
+
+  // Break into batches of 100
+  const batches = [];
+  for (let i = 0; i < validTokens.length; i += 100) {
+    batches.push(validTokens.slice(i, i + 100));
+  }
+
+  try {
+    for (const batch of batches) {
+      const messages = batch.map((token) => ({
+        to: token,
+        sound: "default",
+        title,
+        body,
+      }));
+
+      await expo.sendPushNotificationsAsync(messages);
+    }
+
+    return { success: true, message: "Notifications sent successfully" };
+  } catch (err) {
+    return {
+      success: false,
+      message: "Failed to send notifications",
+      error: err.message,
+    };
+  }
+}
 export async function sendPushNotifications(title, body, expoPushTokens, data) {
   try {
     const expo = new Expo();

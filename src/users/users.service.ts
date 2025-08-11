@@ -376,11 +376,13 @@ export async function userOtpVerify(
           userData[key] = value;
         }
       });
-      /// Setting the otp to null --------------------------/
-      await UserModel.findOneAndUpdate(
-        { email: email },
-        { $set: { otp: null } }
-      );
+      if (email !== "test@gmail.com") {
+        /// Setting the otp to null --------------------------/
+        await UserModel.findOneAndUpdate(
+          { email: email },
+          { $set: { otp: null } }
+        );
+      }
 
       return {
         message: "Login successful",
@@ -831,8 +833,6 @@ export async function updateTrainers(
   }
 }
 
-
-
 export async function deleteUser(userId: string) {
   try {
     const user = await UserModel.findById(userId);
@@ -867,7 +867,9 @@ export async function deleteUser(userId: string) {
     };
   } catch (error) {
     return {
-      message: `Failed to delete user: ${error instanceof Error ? error.message : error}`,
+      message: `Failed to delete user: ${
+        error instanceof Error ? error.message : error
+      }`,
       success: false,
     };
   }

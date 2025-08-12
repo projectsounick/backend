@@ -21,11 +21,14 @@ const timerTrigger: AzureFunction = async function (
 
   let notificationContent = null;
 
-  if (hours === 9 && minutes === 40) {
+  if (hours === 9 && minutes === 0) {
     notificationContent = notificationContentForImageProgress;
   } else if (hours === 12 && minutes === 0) {
     notificationContent = notificationContentForWaterLog;
-  } else if (hours === 20 && minutes === 0) {
+  }  else if (hours === 15 && minutes === 0) {
+    notificationContent = notificationContentForSteps;
+  }
+  else if (hours === 20 && minutes === 0) {
     notificationContent = notificationContentForSteps;
   }
 

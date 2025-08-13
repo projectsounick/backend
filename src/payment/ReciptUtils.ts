@@ -102,6 +102,20 @@ function generateHtml(receipt: any): string {
                   
                 </div>
               `;
+            }else if (item.serviceDetails) {
+              return `
+                <div class="item">
+                  <h3>Diet Plan - ${
+                    item.serviceDetails.title ?? "Untitled Diet Plan"
+                  }</h3>
+                  <p><strong>Price:</strong> ₹${
+                    item.serviceDetails.price ?? "-"
+                  }</p>
+                  <p><strong>Quantity:</strong> ${item.quantity ?? 1}</p>
+                
+                  
+                </div>
+              `;
             } else {
               return ""; // Skip unknown or malformed items
             }

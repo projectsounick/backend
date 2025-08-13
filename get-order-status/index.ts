@@ -24,7 +24,7 @@ const httpTrigger: AzureFunction = async function (
     //   };
     //   return;
     // }
-    // await init(context);
+    await init(context);
 
     const orderId = req.params.orderId;
     const response: { message: string; success: boolean } =

@@ -1,9 +1,10 @@
 import mongoose from "mongoose";
 import SessionModel from "./sessions.model";
 import UserActivePlansModel from "../userActivePlans/activePlans.model";
-import { getUserActivePlanData } from "../userActivePlans/activePlans.service";
+import { getUserActivePlanData, getUserActiveServiceData } from "../userActivePlans/activePlans.service";
 import SessionWorkoutModel from "../sessionWorkout/sessionWorkout.model";
 import UserModel from "../users/user.model";
+import UserActiveServicesModel from "../userActivePlans/activeServices.model";
 export async function createNewSession(toBeassignedUserId, data: any) {
   try {
     if (!data.sessionItems || data.sessionItems.length == 0) {
@@ -54,11 +55,40 @@ export async function createNewSession(toBeassignedUserId, data: any) {
         };
       }
     }
-    if (data.sessionAgainstType == "againstService" && !data.activeServiceId) {
-      return {
-        message: "Active ServiceId is not found",
-        success: false,
-      };
+    let activeServiceData;
+    if (data.sessionAgainstType == "againstService") {
+      if (!data.activeServiceId) {
+        return {
+          message: "Active ServiceId is not found",
+          success: false,
+        };
+      }
+      activeServiceData = await getUserActiveServiceData(data.activeServiceId);
+      if (activeServiceData.data.length == 0) {
+        return {
+          message: "Active Service with given id is not found",
+          success: false,
+        };
+      }
+      if (activeServiceData.data.userId != toBeassignedUserId) {
+        return {
+          message: "Active Service userId and passed userId does not match",
+          success: false,
+        };
+      }
+
+      if (activeServiceData.data.remainingSessions <= 0) {
+        return {
+          message: "No remaining sessions in the active plan",
+          success: false,
+        };
+      }
+      if (activeServiceData.data.remainingSessions < data.sessionItems.length) {
+        return {
+          message: `remaining sessions in the active service are ${activeServiceData.data.remainingSessions}, which is less than the number of sessions to be created`,
+          success: false,
+        };
+      }
     }
 
     const createdUserSessions = [];
@@ -80,6 +110,11 @@ export async function createNewSession(toBeassignedUserId, data: any) {
           data.activePlanId
         );
       }
+      if (data.sessionAgainstType == "againstService") {
+        sessionItemObj["activeServiceId"] = new mongoose.Types.ObjectId(
+          data.activeServiceId
+        );
+      }
       if (sessionItem.trainerId) {
         sessionItemObj["trainerId"] = new mongoose.Types.ObjectId(
           sessionItem.trainerId
@@ -87,13 +122,23 @@ export async function createNewSession(toBeassignedUserId, data: any) {
       }
 
       let savedSession = await SessionModel.create(sessionItemObj);
-      const currentRemainingSessions =
-        activePlanData.data.remainingSessions - 1;
-      await UserActivePlansModel.findByIdAndUpdate(
-        new mongoose.Types.ObjectId(data.activePlanId),
-        { remainingSessions: currentRemainingSessions },
-        { new: true }
-      );
+      if (data.sessionAgainstType == "againstPlan") {
+        const currentRemainingSessions = activePlanData.data.remainingSessions - 1;
+        await UserActivePlansModel.findByIdAndUpdate(
+          new mongoose.Types.ObjectId(data.activePlanId),
+          { remainingSessions: currentRemainingSessions },
+          { new: true }
+        );
+      }
+      if (data.sessionAgainstType == "againstService") {
+        const currentRemainingSessions = activeServiceData.data.remainingSessions - 1;
+        await UserActiveServicesModel.findByIdAndUpdate(
+          new mongoose.Types.ObjectId(data.activeServiceId),
+          { remainingSessions: currentRemainingSessions },
+          { new: true }
+        );
+      }
+     
       let savedWorkoutItems = [];
 
       for (const workoutItem of sessionItem.workoutItems) {
@@ -168,6 +213,7 @@ export async function createNewSession(toBeassignedUserId, data: any) {
       data: createdUserSessions,
     };
   } catch (error) {
+    console.log(error)
     throw new Error(error);
   }
 }
@@ -207,7 +253,7 @@ export async function getUserSessions(
     const userSessions = await SessionModel.aggregate([
       { $match: queryObj },
       { $sort: { sessionDate: 1 } },
-
+      // Workouts lookup
       {
         $lookup: {
           from: "sessionworkouts",
@@ -216,7 +262,7 @@ export async function getUserSessions(
           as: "workouts",
         },
       },
-
+      // Trainer basic details
       {
         $lookup: {
           from: "users",
@@ -225,7 +271,7 @@ export async function getUserSessions(
           as: "trainerBasicDetails",
         },
       },
-
+      // Trainer achievements
       {
         $lookup: {
           from: "trainerdetails",
@@ -255,7 +301,7 @@ export async function getUserSessions(
           },
         },
       },
-
+      // Active Plan Details
       {
         $lookup: {
           from: "useractiveplans",
@@ -327,6 +373,39 @@ export async function getUserSessions(
         },
       },
 
+      // Active Service Details (like Plan)
+      {
+        $lookup: {
+          from: "useractiveservices",
+          localField: "activeServiceId",
+          foreignField: "_id",
+          as: "activeServiceDetails",
+        },
+      },
+      {
+        $lookup: {
+          from: "services",
+          let: { serviceId: { $arrayElemAt: ["$activeServiceDetails.serviceId", 0] } },
+          pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$serviceId"] } } }],
+          as: "serviceInfo",
+        },
+      },
+      {
+        $addFields: {
+          "activeServiceDetails.service": {
+            $cond: {
+              if: { $gt: [{ $size: "$serviceInfo" }, 0] },
+              then: { $arrayElemAt: ["$serviceInfo", 0] },
+              else: "$$REMOVE",
+            },
+          },
+        },
+      },
+      {
+        $addFields: {
+          activeServiceDetails: { $arrayElemAt: ["$activeServiceDetails", 0] },
+        },
+      },
       {
         $addFields: {
           start: {
@@ -403,6 +482,7 @@ export async function getUserSessions(
           workouts: 1,
           trainer: 1,
           activePlanDetails: 1,
+          activeServiceDetails: 1,
         },
       },
     ]);
@@ -453,6 +533,34 @@ export async function updateSession(
       { ...data, updatedAt: new Date() },
       { new: true }
     );
+    if (data.sessionStatus == 'cancelled') {
+      const sessionDetails = await SessionModel.findById(sessionId);
+      if (sessionDetails.sessionAgainstPlan) {
+        await UserActivePlansModel.findOneAndUpdate(
+          {
+            _id: sessionDetails.activePlanId,
+            $expr: { $lt: ["$remainingSessions", "$totalSessions"] } // only update if remaining < total
+          },
+          {
+            $inc: { remainingSessions: 1 },
+            $set: { updatedAt: new Date() }
+          },
+          { new: true }
+        );
+      } else {
+        await UserActiveServicesModel.findOneAndUpdate(
+          {
+            _id: sessionDetails.activeServiceId,
+            $expr: { $lt: ["$remainingSessions", "$totalSessions"] } // only update if remaining < total
+          },
+          {
+            $inc: { remainingSessions: 1 },
+            $set: { updatedAt: new Date() }
+          },
+          { new: true }
+        );
+      }
+    }
 
     if (!updatedSession) {
       return {

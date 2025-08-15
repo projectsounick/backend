@@ -7,6 +7,7 @@ import {
 import jwt from "jsonwebtoken";
 import UserModel from "../users/user.model";
 import axios from "axios";
+const { sendEmail } = require("../helpers/send-email");
 ////// Function for generating the sastoken -------------------------------------/
 /// takes container name and generate sastoken for accessing that ----/
 export function generateSasToken(folderName: string, contName?: string) {
@@ -213,6 +214,8 @@ export async function checkIfNormalUser(userId: string): Promise<boolean> {
 import { BlobServiceClient, ContainerClient } from "@azure/storage-blob";
 import mongoose from "mongoose";
 import CommunityModel, { Community } from "../community/community.model";
+import NotificationModel from "../Notification/notification.model";
+import { log } from "node:console";
 
 export async function uploadSlotsJson(
   slots: string[],
@@ -344,9 +347,121 @@ export const createDefaultCommunityFromUsers = async (): Promise<{
   }
 };
 
-
-
 ///// Function for the content complain ------------------------------------/
-async function addContentComplain(){
-  
+export async function addContentComplain({
+  complainType,
+  complainerId,
+  complainedId,
+  postId,
+  medianName,
+}) {
+  try {
+    console.log("this is complainType");
+    console.log(complainType);
+
+    let idArray = [complainedId, complainerId];
+    console.log(idArray);
+
+    /// will check what type of compain is this -----------/
+    if (complainType === "feed") {
+      /// need to find the userdetails -----------------/
+      const userDetails = await UserModel.find({
+        _id: { $in: idArray },
+      }).select("name");
+      console.log(userDetails);
+
+      let title = "Complain about a feed post";
+      let body = `${userDetails[1].name} has complained about ${userDetails[0].name} post whose postId is=${postId}`;
+      /// stroing the complain in database ---------------/
+      let html = `
+<div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
+  <h2 style="color: #d9534f;">User Complaint Notification</h2>
+  <p>
+    <strong>${userDetails[1].name}</strong> has complained about a post by 
+    <strong>${userDetails[0].name}</strong>.
+  </p>
+  <p>
+    <strong>Post ID:</strong> ${postId}
+  </p>
+  <hr style="margin: 20px 0; border: none; border-top: 1px solid #ddd;">
+  <p>
+    Please log in to the admin panel to review the complaint and take necessary action.
+  </p>
+  <p style="color: #888; font-size: 12px;">
+    This is an automated message from the INESS platform.
+  </p>
+</div>`;
+      let response = new NotificationModel({
+        title: title,
+        body: body,
+        isAdmin: true,
+        userId: complainerId,
+      });
+      let responseN = await response.save();
+      console.log(responseN);
+
+      /// and send an email to iness admin ---------------------/
+      await sendEmail({
+        email: "projectsounick@gmail.com",
+        subject: "User complain",
+        to: "iness.numberonefitness@gmail.com",
+        html: html,
+      });
+      return {
+        message:
+          "Your complain has been recived,we will investiage the issue and will take action agains it",
+        success: true,
+      };
+    } else if (complainType === "media") {
+      const userDetails: any = await UserModel.findOne({ _id: complainerId })
+        .select("name")
+        .lean();
+      let title = "Complain about post";
+      let body = `${userDetails.name} has compalied about this Media =${medianName}`;
+      let html = `
+<div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
+  <h2 style="color: #d9534f; margin-bottom: 10px;">User Complaint Alert</h2>
+  <p>
+    <strong>${userDetails.name}</strong> has complained about the following post:
+  </p>
+  <p style="background: #f9f9f9; padding: 10px; border-left: 4px solid #d9534f;">
+    <strong>Post ID:</strong> ${medianName}
+  </p>
+  <hr style="margin: 20px 0; border: none; border-top: 1px solid #ddd;">
+  <p>
+    Please check the post in the admin dashboard and take the necessary action.
+  </p>
+  <p style="font-size: 12px; color: #888;">
+    This is an automated message from the INESS platform.
+  </p>
+</div>
+`;
+      let response = new NotificationModel({
+        title: title,
+        body: body,
+        isAdmin: true,
+        userId: complainerId,
+      });
+      /// and send an email to iness admin ---------------------/
+      await sendEmail({
+        email: "projectsounick@gmail.com",
+        subject: "User complain",
+        to: "iness.numberonefitness@gmail.com",
+        html: html,
+      });
+      return {
+        message:
+          "Your complain has been recived,we will investiage the issue and will take action agains it",
+        success: true,
+      };
+    }
+  } catch (error) {
+    console.log(error.message);
+
+    return {
+      message:
+        "Your complain has been recived,we will investiage the issue and will take action agains it",
+      success: true,
+    };
+  }
 }

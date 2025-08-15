@@ -343,3 +343,10 @@ export const createDefaultCommunityFromUsers = async (): Promise<{
     };
   }
 };
+
+
+
+///// Function for the content complain ------------------------------------/
+async function addContentComplain(){
+  
+}

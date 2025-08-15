@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import PaymentModel from "./payment.model";
-import { activePlanForUser } from "../userActivePlans/activePlans.service";
+import { activePlanForUser, activeServiceUser } from "../userActivePlans/activePlans.service";
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
 import CartModel from "../cart/cart.model";
@@ -280,6 +280,15 @@ export async function getUpdatePaymentStatus(orderId: string) {
                 as: "dietPlanDetails",
               },
             },
+            // Lookup service details (if applicable)
+            {
+              $lookup: {
+                from: "services",
+                localField: "serviceId",
+                foreignField: "_id",
+                as: "serviceDetails",
+              },
+            },
             //Lookup plan details using the nested `plan.planId`
             {
               $lookup: {
@@ -388,7 +397,8 @@ export async function getUpdatePaymentStatus(orderId: string) {
                 updatedAt: 1,
                 dietPlanDetails: { $arrayElemAt: ["$dietPlanDetails", 0] },
                 plan: 1, //Plan object will appear only if data exists
-                product: 1
+                product: 1,
+                serviceDetails: { $arrayElemAt: ["$serviceDetails", 0] },
               },
             },
           ],
@@ -449,10 +459,32 @@ export async function getUpdatePaymentStatus(orderId: string) {
         { _id: { $in: updatedPaymentItem.items } },
         { $set: { isDeleted: true, isBought: true } }
       );
-      await activePlanForUser(
-        paymentItemToBeUpdated[0].userId,
-        paymentItemToBeUpdated[0].cartItems
-      );
+      const planAndDietPlan = []
+      paymentItemToBeUpdated[0].cartItems.map((item:any)=>{
+        if(item.dietPlanDetails || item.plan){
+          planAndDietPlan.push(item)
+        }
+      })
+
+      const service = []
+      paymentItemToBeUpdated[0].cartItems.map((item:any)=>{
+        if(item.serviceDetails){
+          service.push(item)
+        }
+      })
+      if (planAndDietPlan.length > 0) {
+        await activePlanForUser(
+          paymentItemToBeUpdated[0].userId,
+          planAndDietPlan
+        );
+      }
+      if (service.length > 0) {
+        await activeServiceUser(
+          paymentItemToBeUpdated[0].userId,
+          service
+        );
+      }
+      
       await addUserUsage(paymentItemToBeUpdated[0].couponDetails.code, paymentItemToBeUpdated[0].userId)
     }
 
@@ -462,6 +494,7 @@ export async function getUpdatePaymentStatus(orderId: string) {
       data: updatedPaymentItem,
     };
   } catch (error) {
+    console.log(error)
     throw new Error(error);
   }
 }
@@ -524,6 +557,15 @@ export async function getPaymentItems(
                   as: "dietPlanDetails",
                 },
               },
+              // Lookup service details (if applicable)
+              {
+                $lookup: {
+                  from: "services",
+                  localField: "serviceId",
+                  foreignField: "_id",
+                  as: "serviceDetails",
+                },
+              },
               //Lookup plan details using the nested `plan.planId`
               {
                 $lookup: {
@@ -635,7 +677,8 @@ export async function getPaymentItems(
                   updatedAt: 1,
                   dietPlanDetails: { $arrayElemAt: ["$dietPlanDetails", 0] },
                   plan: 1, //Plan object will appear only if data exists
-                  product: 1
+                  product: 1,
+                  serviceDetails: { $arrayElemAt: ["$serviceDetails", 0] },
                 },
               },
             ],
@@ -691,6 +734,15 @@ export async function getPaymentItems(
                   as: "dietPlanDetails",
                 },
               },
+              // Lookup service details (if applicable)
+              {
+                $lookup: {
+                  from: "services",
+                  localField: "serviceId",
+                  foreignField: "_id",
+                  as: "serviceDetails",
+                },
+              },
               //Lookup plan details using the nested `plan.planId`
               {
                 $lookup: {
@@ -802,7 +854,8 @@ export async function getPaymentItems(
                   updatedAt: 1,
                   dietPlanDetails: { $arrayElemAt: ["$dietPlanDetails", 0] },
                   plan: 1, //Plan object will appear only if data exists
-                  product: 1
+                  product: 1,
+                  serviceDetails: { $arrayElemAt: ["$serviceDetails", 0] },
                 },
               },
             ],
@@ -861,6 +914,15 @@ export async function getPaymentItem(orderId: string) {
                 localField: "dietPlanId",
                 foreignField: "_id",
                 as: "dietPlanDetails",
+              },
+            },
+            // Lookup service details (if applicable)
+            {
+              $lookup: {
+                from: "services",
+                localField: "serviceId",
+                foreignField: "_id",
+                as: "serviceDetails",
               },
             },
             //Lookup plan details using the nested `plan.planId`
@@ -974,7 +1036,8 @@ export async function getPaymentItem(orderId: string) {
                 updatedAt: 1,
                 dietPlanDetails: { $arrayElemAt: ["$dietPlanDetails", 0] },
                 plan: 1, //Plan object will appear only if data exists
-                product: 1
+                product: 1,
+                serviceDetails: { $arrayElemAt: ["$serviceDetails", 0] },
               },
             },
           ],
@@ -1037,6 +1100,15 @@ export async function getPaymentReceipt(orderId: string, userId: string) {
                 localField: "dietPlanId",
                 foreignField: "_id",
                 as: "dietPlanDetails",
+              },
+            },
+            // Lookup service details (if applicable)
+            {
+              $lookup: {
+                from: "services",
+                localField: "serviceId",
+                foreignField: "_id",
+                as: "serviceDetails",
               },
             },
             {
@@ -1154,7 +1226,8 @@ export async function getPaymentReceipt(orderId: string, userId: string) {
                 quantity: 1,
                 dietPlanDetails: 1,
                 plan: 1,
-                product: 1
+                product: 1,
+                serviceDetails: { $arrayElemAt: ["$serviceDetails", 0] },
               },
             },
           ],

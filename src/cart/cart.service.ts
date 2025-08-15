@@ -756,7 +756,9 @@ export async function cartCheckout(
         }
       } else if (item.dietPlanDetails) {
         totalAmount += item.dietPlanDetails.price * item.quantity;
-      } else {
+      } else if (item.serviceDetails) {
+        totalAmount += item.serviceDetails.price * item.quantity;
+      }else {
         totalAmount += item.plan.planItem.price * item.quantity;
       }
       cartItemsId.push(item._id);

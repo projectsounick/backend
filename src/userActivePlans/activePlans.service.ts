@@ -3,6 +3,9 @@ import UserActivePlansModel from "./activePlans.model";
 import dayjs from "dayjs";
 import UserModel from "../users/user.model";
 import PlanModel, { PlanItemModel, DietPlanModel } from "../Plans/plan.model";
+import UserActiveServicesModel from "./activeServices.model";
+import ServiceModel from "../services/services.model";
+
 export async function activePlanForUser(userId: string, plans: Array<any>) {
   try {
     const useractiveplansObj = plans.map((item) => {
@@ -397,6 +400,7 @@ const getEndDate = (
   return endDate.format("YYYY-MM-DD"); // ✅ Returns formatted end date
 };
 
+
 /////Funciton for assigning the diet plan pdf url to the user------------------------/
 export async function updateDietPlanPdf(
   dietPlanUrl: string,
@@ -559,6 +563,291 @@ export async function assignDietPlanToUser(userId: string, dietPlanId: string) {
       message: "Plans activated successfully",
       success: true,
       data: userActivePlan,
+    };
+
+  } catch (error) {
+  throw new Error(error);
+}
+
+}
+
+
+
+export async function activeServiceUser(userId: string, services: Array<any>) {
+  try {
+    const useractiveserviceObj = services.map((item) => {
+      const respObj = {
+        userId: new mongoose.Types.ObjectId(userId),
+        serviceId: new mongoose.Types.ObjectId(item.serviceDetails._id),
+        totalSessions: item.serviceDetails.sessionCount,
+        remainingSessions: item.serviceDetails.sessionCount
+      };
+      return respObj;
+    });
+    const userActiveServices = await UserActiveServicesModel.insertMany(
+      useractiveserviceObj
+    );
+    return {
+      message: "Services activated successfully",
+      success: true,
+      data: userActiveServices,
+    };
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+export async function getUserServiceHistory(
+  userId: string,
+  status: boolean | null
+) {
+  try {
+    const queryObj: any = { userId: new mongoose.Types.ObjectId(userId) };
+
+    if (status !== null) {
+      queryObj["isActive"] = status;
+    }
+    const activePlans = await UserActiveServicesModel.aggregate([
+      { $match: queryObj },
+      { $sort: { createdAt: -1 } },
+      // Lookup trainer details (if applicable)
+      {
+        $lookup: {
+          from: "users",
+          localField: "trainerId",
+          foreignField: "_id",
+          as: "trainerBasicDetails",
+        },
+      },
+      {
+        $lookup: {
+          from: "trainerdetails",
+          localField: "trainerId",
+          foreignField: "userId",
+          as: "trainerExtraDetails",
+        },
+      },
+      // Convert `trainerDetails`, `trainerExtraDetails` into a structured trainer object
+      {
+        $addFields: {
+          trainer: {
+            $cond: {
+              if: { $gt: [{ $size: "$trainerBasicDetails" }, 0] }, // Only add if trainerBasicDetails exists
+              then: {
+                $mergeObjects: [
+                  { $arrayElemAt: ["$trainerBasicDetails", 0] }, // Extract plan object
+                  {
+                    trainerDetails: {
+                      $arrayElemAt: ["$trainerExtraDetails", 0],
+                    }, //  Nest trainerExtraDetails inside trainer
+                  },
+                ],
+              },
+              else: "$$REMOVE", //  Completely remove plan if no data exists
+            },
+          },
+        },
+      },
+      // Lookup service details (if applicable)
+      {
+        $lookup: {
+          from: "services",
+          localField: "serviceId",
+          foreignField: "_id",
+          as: "serviceDetails",
+        },
+      },
+      //Ensure final structure
+      {
+        $project: {
+          _id: 1,
+          userId: 1,
+          serviceDetails: { $arrayElemAt: ["$serviceDetails", 0] },
+          totalSessions: 1,
+          remainingSessions: 1,
+          trainerId: 1,
+          trainer: 1, // Trainer object will appear only if data exists
+          isActive: 1,
+          createdAt: 1,
+          updatedAt: 1,
+        },
+      },
+    ]);
+    return {
+      message: "Current active services fetched successfully",
+      success: true,
+      data: activePlans,
+    };
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+export async function updateActiveService(
+  activeServiceId: string,
+  data: Record<string, any>
+) {
+  try {
+    if (data.trainerId) {
+      const user = await UserModel.findById(data.trainerId);
+      if (!user) {
+        return {
+          message: "Trainer with given id is not found",
+          success: false,
+        };
+      }
+      if (user.role !== "trainer") {
+        return {
+          message: "User is not a trainer",
+          success: false,
+        };
+      }
+    }
+    const activeServiceToBeUpdated = await UserActiveServicesModel.findById(
+      activeServiceId
+    );
+    if (!activeServiceToBeUpdated) {
+      return {
+        message: "Active Service with given id is not found",
+        success: false,
+      };
+    }
+    const updatedActiveService = await UserActiveServicesModel.findByIdAndUpdate(
+      activeServiceId,
+      { ...data },
+      { new: true }
+    );
+    return {
+      message: "Active Service updated successfully",
+      success: true,
+      data: updatedActiveService,
+    };
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+export async function getUserActiveServiceData(activeServiceId: string) {
+  try {
+    const queryObj: any = {
+      _id: new mongoose.Types.ObjectId(activeServiceId),
+      isActive: true,
+    };
+
+    const activeService = await UserActiveServicesModel.aggregate([
+      { $match: queryObj },
+      { $sort: { createdAt: -1 } },
+      // Lookup trainer details (if applicable)
+      {
+        $lookup: {
+          from: "users",
+          localField: "trainerId",
+          foreignField: "_id",
+          as: "trainerBasicDetails",
+        },
+      },
+      {
+        $lookup: {
+          from: "trainerdetails",
+          localField: "trainerId",
+          foreignField: "userId",
+          as: "trainerExtraDetails",
+        },
+      },
+      // Convert `trainerDetails`, `trainerExtraDetails` into a structured trainer object
+      {
+        $addFields: {
+          trainer: {
+            $cond: {
+              if: { $gt: [{ $size: "$trainerBasicDetails" }, 0] }, // Only add if trainerBasicDetails exists
+              then: {
+                $mergeObjects: [
+                  { $arrayElemAt: ["$trainerBasicDetails", 0] }, // Extract plan object
+                  {
+                    trainerDetails: {
+                      $arrayElemAt: ["$trainerExtraDetails", 0],
+                    }, //  Nest trainerExtraDetails inside trainer
+                  },
+                ],
+              },
+              else: "$$REMOVE", //  Completely remove plan if no data exists
+            },
+          },
+        },
+      },
+      // Lookup service details (if applicable)
+      {
+        $lookup: {
+          from: "services",
+          localField: "serviceId",
+          foreignField: "_id",
+          as: "serviceDetails",
+        },
+      },
+      //Ensure final structure
+      {
+        $project: {
+          _id: 1,
+          userId: 1,
+          serviceDetails: { $arrayElemAt: ["$serviceDetails", 0] },
+          totalSessions: 1,
+          remainingSessions: 1,
+          trainerId: 1,
+          trainer: 1, // Trainer object will appear only if data exists
+          isActive: 1,
+          createdAt: 1,
+          updatedAt: 1,
+        },
+      },
+    ]);
+    return {
+      message: "Current active Service fetched successfully",
+      success: true,
+      data: activeService[0],
+    };
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+export async function assignServiceToUser(userId: string, ServiceId: string) {
+  try {
+    const alreadyActiveService = await UserActiveServicesModel.findOne({userId:new mongoose.Types.ObjectId(userId), serviceId: new mongoose.Types.ObjectId(ServiceId)})
+    if(alreadyActiveService){
+      return {
+        message: "Service already assigned to user",
+        success: false,
+      };
+    }
+    const user = await UserModel.findById(userId);
+    if (!user) {
+      return {
+        message: "User with given id is not found",
+        success: false,
+      };
+    }
+    if (user.role !== "user") {
+      return {
+        message: "Not a valid user",
+        success: false,
+      };
+    }
+    const service = await ServiceModel.findById(ServiceId);
+    if(!service){
+      return {
+        message: "Service with given id is not found",
+        success: false,
+      };
+    }
+
+    const respObj = {
+      userId: new mongoose.Types.ObjectId(userId),
+      serviceId: new mongoose.Types.ObjectId(ServiceId),
+      totalSessions: service.sessionCount,
+      remainingSessions: service.sessionCount
+    };
+
+    const userActiveService = await UserActiveServicesModel.insertOne(respObj);
+    return {
+      message: "Service activated successfully",
+      success: true,
+      data: userActiveService,
     };
 
   } catch (error) {

@@ -96,5 +96,24 @@ LikeSchema.index({ post: 1, user: 1 }, { unique: true });
 
 const LikeModel = mongoose.model<Like>("likes", LikeSchema);
 
+export interface Block extends Document {
+  blocker: mongoose.Types.ObjectId; // The user who blocks
+  blocked: mongoose.Types.ObjectId; // The user who is blocked
+  createdAt: Date;
+}
+
+const BlockSchema: Schema<Block> = new Schema<Block>({
+  blocker: { type: mongoose.Schema.Types.ObjectId, ref: "users", required: true },
+  blocked: { type: mongoose.Schema.Types.ObjectId, ref: "users", required: true },
+  createdAt: { type: Date, default: Date.now },
+});
+
+// Ensure a user can't block the same person twice
+BlockSchema.index({ blocker: 1, blocked: 1 }, { unique: true });
+
+const BlockModel = mongoose.model<Block>("blocks", BlockSchema);
+
+
+
 export default CommunityModel;
-export { PostModel, CommentModel, LikeModel };
+export { PostModel, CommentModel, LikeModel, BlockModel };

@@ -1,8 +1,7 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 import { init } from "../src/helpers/azure-cosmosdb-mongodb";
 import { checkIfAdmin, verifyAndDecodeToken } from "../src/admin/admin.service";
-import { updatePlan } from "../src/Plans/plan.service";
-import { getUpdatePaymentStatus } from "../src/payment/payment.service";
+import { updateActiveService } from "../src/userActivePlans/activePlans.service";
 
 //// Main login function ------------------------------------------------------------------------------/
 const httpTrigger: AzureFunction = async function (
@@ -10,25 +9,34 @@ const httpTrigger: AzureFunction = async function (
   req: HttpRequest
 ): Promise<void> {
   try {
-    // let userId: string;
-    // const authResponse = await verifyAndDecodeToken(req);
-    // if (authResponse) {
-    //   userId = authResponse;
-    // } else {
-    //   context.res = {
-    //     status: 401,
-    //     body: {
-    //       message: "Unauthorized",
-    //       success: false,
-    //     },
-    //   };
-    //   return;
-    // }
+    let userId: string;
+    const authResponse = await verifyAndDecodeToken(req);
+    if (authResponse) {
+      userId = authResponse;
+    } else {
+      context.res = {
+        status: 401,
+        body: {
+          message: "Unauthorized",
+          success: false,
+        },
+      };
+      return;
+    }
     await init(context);
 
-    const orderId = req.params.orderId;
-    const response: { message: string; success: boolean } =
-      await getUpdatePaymentStatus(orderId);
+    if (!checkIfAdmin(userId)) {
+      context.res = {
+        status: 401,
+        body: {
+          message: "Unauthorized",
+          success: false,
+        },
+      };
+      return;
+    }
+    const activeServiceId = req.params.activeServiceId;
+    const response: { message: string; success: boolean } = await updateActiveService(activeServiceId, req.body);
     if (response.success) {
       context.res = {
         status: 200,

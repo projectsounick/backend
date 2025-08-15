@@ -1,4 +1,4 @@
-import CommunityModel, { CommentModel, PostModel } from "./community.model";
+import CommunityModel, { BlockModel, CommentModel, PostModel } from "./community.model";
 import mongoose from "mongoose";
 
 export async function createDefaultCommunity(data: Record<string, any>) {
@@ -311,9 +311,27 @@ export async function getCommunityPosts(
     const pageNumber = parsedPage > 0 ? parsedPage : 1;
     const itemsPerPage = parsedLimit > 0 ? parsedLimit : 10;
     const skip = (pageNumber - 1) * itemsPerPage;
+
+    // 1️⃣ Get all users blocked by current user
+    const blockedUsers = await BlockModel.find({
+      blocker: new mongoose.Types.ObjectId(userId),
+    }).distinct("blocked");
+
+    // 2️⃣ Get all users who blocked the current user
+    const usersWhoBlockedMe = await BlockModel.find({
+      blocked: new mongoose.Types.ObjectId(userId),
+    }).distinct("blocker");
+
+    // 3️⃣ Merge into exclusion list
+    const excludedUsers = [...new Set([...blockedUsers, ...usersWhoBlockedMe])].map(
+      (id) => new mongoose.Types.ObjectId(id)
+    );
+
+
     const matchStage: any = {
       community: new mongoose.Types.ObjectId(communityId),
       isActive: true,
+      createdBy: { $nin: excludedUsers },
     };
 
     // Add filter for createdBy if userId is provided
@@ -463,3 +481,40 @@ export async function getCommentsForPost(
     throw new Error(error.message || "Error fetching comments");
   }
 }
+
+
+
+
+export async function blockUser(currentUserId: string, blockedUserId: string) {
+  // const currentUserId = req.user._id;
+  // const { blockedUserId } = req.body;
+
+  if (String(currentUserId) === String(blockedUserId)) {
+    return {
+      success: false,
+      communityId: null,
+      message: "You cannot block yourself.",
+    };
+  }
+
+  await BlockModel.findOneAndUpdate(
+    { blocker: currentUserId, blocked: blockedUserId },
+    {},
+    { upsert: true, new: true }
+  );
+  return {
+    message: "User blocked successfully",
+    success: true,
+  };
+};
+
+export const unblockUser = async (currentUserId: string, blockedUserId: string) => {
+  // const currentUserId = req.user._id;
+  // const { blockedUserId } = req.body;
+
+  await BlockModel.deleteOne({ blocker: currentUserId, blocked: blockedUserId });
+  return {
+    message: "User unblocked successfully",
+    success: true,
+  };
+};

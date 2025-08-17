@@ -247,7 +247,7 @@ export async function uploadSlotsJson(
     let data;
 
     if (fileName === "testimonial") {
-      data = JSON.stringify(slots, null, 2); // pretty JSON array
+      data = JSON.stringify(slots, null, 2);
     } else {
       data = JSON.stringify({ slots });
     }

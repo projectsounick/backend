@@ -9,7 +9,6 @@ export const createDownloadPageContent = async (
     // Delete existing entries
     await DownloadPageContentModel.deleteMany({});
 
-    // Create new entry
     const newEntry = new DownloadPageContentModel(data);
     let response = await newEntry.save();
     if (response) {

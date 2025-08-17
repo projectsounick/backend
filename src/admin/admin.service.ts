@@ -248,6 +248,8 @@ export async function uploadSlotsJson(
 
     if (fileName === "testimonial") {
       data = JSON.stringify(slots, null, 2);
+    } else if (fileName === "offers") {
+      data = JSON.stringify(slots, null, 2);
     } else {
       data = JSON.stringify({ slots });
     }

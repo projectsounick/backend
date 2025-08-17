@@ -27,7 +27,8 @@ const httpTrigger: AzureFunction = async function (
     await init(context);
 
     const postId = req.params.postId;
-    const response: { message: string; success: boolean } = await LikeUnlikePost(postId,userId);
+    const response: { message: string; success: boolean } =
+      await LikeUnlikePost(postId, userId, req.body);
     if (response.success) {
       context.res = {
         status: 200,

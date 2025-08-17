@@ -275,3 +275,60 @@ export async function sendNotificationToALLUser(title: string, body: string) {
     console.error("Error sending new video notification:", error);
   }
 }
+
+export async function sendingNotificationByTakingTwoUserId(
+  senderId: any,
+  reciverId: any,
+  notificationType: string
+) {
+  try {
+    const userIds = [reciverId, senderId];
+    const userDetails = await UserModel.find({ _id: { $in: userIds } })
+      .select("name expoPushToken")
+      .lean();
+
+    // find receiver & sender
+    const receiverDetails: any = userDetails.find(
+      (item: any) => item._id.toString() === reciverId.toString()
+    );
+    const senderDetails: any = userDetails.find(
+      (item: any) => item._id.toString() === senderId.toString()
+    );
+
+    if (!receiverDetails) {
+      return; // no receiver found
+    }
+
+    const reciverName = receiverDetails.name;
+    let reciverToken = receiverDetails.expoPushToken;
+    const senderName = senderDetails?.name; // may not exist
+
+    let title = "";
+    let body = "";
+    if (reciverToken) {
+      if (notificationType === "like") {
+        if (senderName) {
+          title = `Hey ${reciverName},`;
+          body = `${senderName} liked your post.`;
+        } else {
+          title = `Hey ${reciverName},`;
+          body = `Someone liked your post.`;
+        }
+      } else if (notificationType === "comment") {
+        if (senderName) {
+          title = `Hey ${reciverName},`;
+          body = `${senderName} commented on your post.`;
+        } else {
+          title = `Hey ${reciverName},`;
+          body = `Someone commented on your post.`;
+        }
+      }
+
+      sendPushNotifications(title, body, [reciverToken], {});
+    }
+
+    // 🚀 send push notification here using expoPushToken
+  } catch (error) {
+    console.error(error);
+  }
+}

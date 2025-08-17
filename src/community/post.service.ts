@@ -1,3 +1,4 @@
+import { sendingNotificationByTakingTwoUserId } from "../Notification/notification.service";
 import CommunityModel, {
   PostModel,
   CommentModel,
@@ -70,7 +71,11 @@ export async function disapprovePost(postId: string) {
   }
 }
 
-export async function LikeUnlikePost(postId: string, userId: string) {
+export async function LikeUnlikePost(
+  postId: string,
+  userId: string,
+  notificationData: any
+) {
   try {
     console.log(postId);
     console.log(userId);
@@ -91,7 +96,14 @@ export async function LikeUnlikePost(postId: string, userId: string) {
     } else {
       // else we will add the like
       let response = await LikeModel.create({ post: postId, user: userId });
-      console.log(response);
+      //// Code for like notificaiton ---------------------------/
+
+      try {
+        if (notificationData) {
+          const { reciverId, senderId } = notificationData;
+          sendingNotificationByTakingTwoUserId(senderId, reciverId, "like");
+        }
+      } catch (error) {}
 
       return {
         message: "Post liked successfully",
@@ -125,7 +137,6 @@ export async function commentOnPost(
     throw new Error(error);
   }
 }
-
 
 export async function deletePostById(postId: string, userId: string) {
   try {

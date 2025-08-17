@@ -263,6 +263,7 @@ export async function loginUserAppNew(
         user._id
       );
     }
+    console.log("went outside");
 
     if (email === "test@gmail.com") {
       return {
@@ -285,6 +286,9 @@ export async function loginUserAppNew(
     //// email base login -------------------------------------------------------/
     // Generate a random 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    console.log("this is otp");
+    console.log(otp);
+
     //// Storing the otp in user table ---------------------/
     const response = await UserModel.findOneAndUpdate(
       { email: email },

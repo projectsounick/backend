@@ -222,6 +222,9 @@ export async function uploadSlotsJson(
   fileName: string
 ): Promise<any> {
   try {
+    console.log("this is slots");
+    console.log(slots);
+
     const folderName = "Jsons";
     const sasToken = await generateSasToken(folderName); // assumes this returns a valid SAS
     const storageAccountName = process.env.storageAccountName;
@@ -241,10 +244,13 @@ export async function uploadSlotsJson(
     const blobClient = containerClient.getBlockBlobClient(
       `${folderName}/${fileName}`
     );
+    let data;
 
-    const data = JSON.stringify({ slots });
-    console.log("this is data");
-    console.log(slots);
+    if (fileName === "testimonial") {
+      data = JSON.stringify(slots, null, 2); // pretty JSON array
+    } else {
+      data = JSON.stringify({ slots });
+    }
 
     const exists = await blobClient.exists();
 

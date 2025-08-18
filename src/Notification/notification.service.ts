@@ -332,3 +332,77 @@ export async function sendingNotificationByTakingTwoUserId(
     console.error(error);
   }
 }
+
+
+export async function postBatchNotification(inputs: any[]) {
+  try {
+    const savedNotification = await NotificationModel.insertMany(inputs);
+
+    return {
+      success: true,
+      message: "Notifications created successfully.",
+      data: savedNotification,
+    };
+  } catch (error) {
+    console.error("postNotification error:", error);
+    return {
+      success: false,
+      message: "Failed to create notification.",
+      data: null,
+    };
+  }
+}
+
+export async function sendBulkPushNotificationsAndSave(
+  title: string,
+  body: string,
+  users: any[],
+  notificationFor : 'admin' | 'hr' | 'trainer' | 'user'
+) {
+  const tokens = [...new Set(users.map((user) => user.expoPushToken).filter((token) => !!token)),]; // Removes duplicates
+
+  const expo = new Expo();
+
+  // Keep only valid tokens
+  const validTokens = tokens.filter(Expo.isExpoPushToken);
+
+  // Break into batches of 100
+  const batches = [];
+  for (let i = 0; i < validTokens.length; i += 100) {
+    batches.push(validTokens.slice(i, i + 100));
+  }
+
+  try {
+    for (const batch of batches) {
+      const messages = batch.map((token) => ({
+        to: token,
+        sound: "default",
+        title,
+        body,
+      }));
+
+      await expo.sendPushNotificationsAsync(messages);
+    }
+
+    postBatchNotification(users.map((user)=>{
+      return {
+        title: title,
+        body: body,
+        isAdmin: notificationFor === 'admin',
+        isTrainer: notificationFor === 'trainer',
+        isHr: notificationFor === 'hr',
+        userId: user._id
+      }
+    }))
+      .then(() => console.log("Background notifications generated."))
+      .catch(err => console.error("Error generating notifications in background:", err));
+
+    return { success: true, message: "Notifications sent successfully" };
+  } catch (err) {
+    return {
+      success: false,
+      message: "Failed to send notifications",
+      error: err.message,
+    };
+  }
+}

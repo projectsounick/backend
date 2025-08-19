@@ -27,8 +27,8 @@ const timerTrigger: AzureFunction = async function (
     notificationContent = notificationContentForImageProgress; // 11:00 AM
   } else if (hours === 16 && minutes === 0) {
     notificationContent = notificationContentForWaterLog; // 4:00 PM
-  } else if (hours === 22 && minutes === 0) {
-    notificationContent = notificationContentForSteps; // 10:00 PM
+  } else if (hours === 20 && minutes === 0) {
+    notificationContent = notificationContentForSteps; // 8:00 PM
   }
 
   if (!notificationContent) {
@@ -37,7 +37,7 @@ const timerTrigger: AzureFunction = async function (
   }
 
   // Fetch all users
-  const users = await UserModel.find({ "email": "mannada.sayan@gmail.com" }).select("expoPushToken").lean();
+  const users = await UserModel.find({}).select("expoPushToken").lean();
 
 
   if (users.length > 0) {

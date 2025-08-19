@@ -236,6 +236,40 @@ export async function getUserPlanHostory(
     throw new Error(error);
   }
 }
+
+export async function getUserDietUrls(
+  userId: string
+) {
+  try {
+    const queryObj: any = { userId: new mongoose.Types.ObjectId(userId) };
+
+    const userActivePlans = await UserActivePlansModel.find({ userId, isActive: true , dietPlanUrl: { $exists: true, $ne: "" }})
+    .populate({
+      path: "dietPlanId",
+      model: "dietplans",
+      select: "_id title",
+    })
+    .populate({
+      path: "plan.planId",
+      model: "plans",
+      populate: {
+        path: "dietPlanId",
+        model: "dietplans",
+        select: "_id title",
+      },
+    })
+    .select("dietPlanUrl dietPlanId plan");
+
+    return {
+      message: "Current diet plan urls fetched successfully",
+      success: true,
+      data: userActivePlans,
+    };
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+
 export async function getUserActivePlanData(activePlanId: string) {
   try {
     const queryObj: any = {

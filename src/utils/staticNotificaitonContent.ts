@@ -20,3 +20,14 @@ export const notificationContentForSteps = {
   title: "Step Up Your Game 👟",
   body: "Track your steps and keep moving towards your goal!",
 };
+
+
+export const notificationContentForSessionCreated = {
+  title: "New Session Scheduled 📅",
+  body: "You have a new session scheduled. Check your calender for details.",
+};
+
+export const notificationContentForPlanAssign = {
+  title: "New Plan Assigned 📋",
+  body: "A new plan has been assigned to you. Start your journey today!",
+};

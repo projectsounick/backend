@@ -5,6 +5,8 @@ import { getUserActivePlanData, getUserActiveServiceData } from "../userActivePl
 import SessionWorkoutModel from "../sessionWorkout/sessionWorkout.model";
 import UserModel from "../users/user.model";
 import UserActiveServicesModel from "../userActivePlans/activeServices.model";
+import { sendBulkPushNotificationsAndSave } from "../Notification/notification.service";
+import { notificationContentForSessionCreated } from "../utils/staticNotificaitonContent";
 export async function createNewSession(toBeassignedUserId, data: any) {
   try {
     if (!data.sessionItems || data.sessionItems.length == 0) {
@@ -206,6 +208,22 @@ export async function createNewSession(toBeassignedUserId, data: any) {
     //     }
 
     // const userSessions = await SessionModel.insertMany(data);
+
+
+
+    // To Send Notification to user about the new session assigned to them
+    const users = await UserModel.find({ _id: new mongoose.Types.ObjectId(toBeassignedUserId) }).select("expoPushToken").lean();
+    const notificationContent = notificationContentForSessionCreated;
+    if (users.length > 0) {
+      sendBulkPushNotificationsAndSave(
+        notificationContent.title,
+        notificationContent.body,
+        users,
+        'user'
+      ).then(() => console.log("Background notification triggred."))
+        .catch(err => console.error("Error generating sending notification:", err));
+
+    }
 
     return {
       message: "Sessions created successfully",

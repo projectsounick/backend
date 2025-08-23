@@ -5,6 +5,8 @@ import UserModel from "../users/user.model";
 import PlanModel, { PlanItemModel, DietPlanModel } from "../Plans/plan.model";
 import UserActiveServicesModel from "./activeServices.model";
 import ServiceModel from "../services/services.model";
+import { sendBulkPushNotificationsAndSave } from "../Notification/notification.service";
+import { notificationContentForPlanAssign } from "../utils/staticNotificaitonContent";
 
 export async function activePlanForUser(userId: string, plans: Array<any>) {
   try {
@@ -236,6 +238,40 @@ export async function getUserPlanHostory(
     throw new Error(error);
   }
 }
+
+export async function getUserDietUrls(
+  userId: string
+) {
+  try {
+    const queryObj: any = { userId: new mongoose.Types.ObjectId(userId) };
+
+    const userActivePlans = await UserActivePlansModel.find({ userId, isActive: true , dietPlanUrl: { $exists: true, $ne: "" }})
+    .populate({
+      path: "dietPlanId",
+      model: "dietplans",
+      select: "_id title",
+    })
+    .populate({
+      path: "plan.planId",
+      model: "plans",
+      populate: {
+        path: "dietPlanId",
+        model: "dietplans",
+        select: "_id title",
+      },
+    })
+    .select("dietPlanUrl dietPlanId plan");
+
+    return {
+      message: "Current diet plan urls fetched successfully",
+      success: true,
+      data: userActivePlans,
+    };
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+
 export async function getUserActivePlanData(activePlanId: string) {
   try {
     const queryObj: any = {
@@ -506,6 +542,20 @@ export async function assignPlanToUser(userId: string, planId: string, planItemI
     respObj["remainingSessions"] = planItem.sessionCount;
 
     const userActivePlan = await UserActivePlansModel.insertOne(respObj);
+
+
+    const users = await UserModel.find({ _id: new mongoose.Types.ObjectId(userId) }).select("expoPushToken").lean();
+    const notificationContent = notificationContentForPlanAssign;
+    if (users.length > 0) {
+      sendBulkPushNotificationsAndSave(
+        notificationContent.title,
+        notificationContent.body,
+        users,
+        'user'
+      ).then(() => console.log("Background notification triggred."))
+        .catch(err => console.error("Error generating sending notification:", err));
+
+    }
     return {
       message: "Plans activated successfully",
       success: true,

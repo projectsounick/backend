@@ -583,6 +583,9 @@ export async function getAllUsers(query: Record<string, any>) {
           preserveNullAndEmptyArrays: true,
         },
       },
+      {
+        $sort: { createdAt: -1 }
+      }
     ]);
 
     return {

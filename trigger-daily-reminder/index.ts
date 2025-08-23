@@ -1,6 +1,6 @@
 import { AzureFunction, Context } from "@azure/functions";
 import UserModel from "../src/users/user.model";
-import { sendBulkPushNotifications } from "../src/Notification/notification.service";
+import { sendBulkPushNotificationsAndSave } from "../src/Notification/notification.service";
 import { init } from "../src/helpers/azure-cosmosdb-mongodb";
 
 import {
@@ -9,6 +9,8 @@ import {
   notificationContentForWaterLog,
 } from "../src/utils/staticNotificaitonContent";
 
+// "schedule": "0 0 9,12,16,20 * * *"
+// Old
 const timerTrigger: AzureFunction = async function (
   context: Context,
   myTimer: any
@@ -21,15 +23,12 @@ const timerTrigger: AzureFunction = async function (
 
   let notificationContent = null;
 
-  if (hours === 9 && minutes === 0) {
-    notificationContent = notificationContentForImageProgress;
-  } else if (hours === 12 && minutes === 0) {
-    notificationContent = notificationContentForWaterLog;
-  }  else if (hours === 16 && minutes === 0) {
-    notificationContent = notificationContentForSteps;
-  }
-  else if (hours === 20 && minutes === 0) {
-    notificationContent = notificationContentForSteps;
+  if (hours === 11 && minutes === 0) {
+    notificationContent = notificationContentForImageProgress; // 11:00 AM
+  } else if (hours === 16 && minutes === 0) {
+    notificationContent = notificationContentForWaterLog; // 4:00 PM
+  } else if (hours === 20 && minutes === 0) {
+    notificationContent = notificationContentForSteps; // 8:00 PM
   }
 
   if (!notificationContent) {
@@ -39,19 +38,16 @@ const timerTrigger: AzureFunction = async function (
 
   // Fetch all users
   const users = await UserModel.find({}).select("expoPushToken").lean();
-  const tokens = [
-    ...new Set(
-      users.map((user) => user.expoPushToken).filter((token) => !!token)
-    ),
-  ]; // Removes duplicates
 
-  if (tokens.length > 0) {
-    await sendBulkPushNotifications(
+
+  if (users.length > 0) {
+    await sendBulkPushNotificationsAndSave(
       notificationContent.title,
       notificationContent.body,
-      tokens
+      users,
+      'user'
     );
-    context.log(`Notification sent to ${tokens.length} unique users`);
+    context.log(`Notification sent to ${users.length} unique users`);
   } else {
     context.log("No valid push tokens found.");
   }

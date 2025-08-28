@@ -252,7 +252,9 @@ export async function getUserSessions(
   userId: string,
   status: boolean | null,
   startDate?: string,
-  endDate?: string
+  endDate?: string,
+  activePlanId?: string,
+  activeServiceId?: string
 ) {
   try {
     // if (!userId || !startDate || !endDate) {
@@ -278,6 +280,16 @@ export async function getUserSessions(
     }
     if (status !== null) {
       queryObj["isActive"] = status;
+    }
+
+    // Active Plan filter
+    if (activePlanId) {
+      queryObj["activePlanId"] = new mongoose.Types.ObjectId(activePlanId);
+    }
+
+    // Active Service filter
+    if (activeServiceId) {
+      queryObj["activeServiceId"] = new mongoose.Types.ObjectId(activeServiceId);
     }
 
     const userSessions = await SessionModel.aggregate([

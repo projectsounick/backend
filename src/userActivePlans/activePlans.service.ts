@@ -238,6 +238,66 @@ export async function getUserPlanHostory(
     throw new Error(error);
   }
 }
+export async function getUserPlanHostoryNew(
+  userId: string,
+  status: boolean | null
+) {
+  try {
+    const queryObj: any = { userId: new mongoose.Types.ObjectId(userId) };
+
+    if (status !== null) {
+      queryObj["isActive"] = status;
+    }
+    const activePlans = await UserActivePlansModel.aggregate([
+      { $match: queryObj },
+      { $sort: { createdAt: -1 } },
+
+      // Lookup plan details
+      {
+        $lookup: {
+          from: "plans",
+          let: { planId: "$plan.planId" },
+          pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$planId"] } } }],
+          as: "planDetails",
+        },
+      },
+
+      // Flatten and keep only needed fields
+      {
+        $addFields: {
+          plan: {
+            $cond: {
+              if: { $gt: [{ $size: "$planDetails" }, 0] },
+              then: {
+                _id: { $arrayElemAt: ["$planDetails._id", 0] },
+                title: { $arrayElemAt: ["$planDetails.title", 0] },
+                imgUrl: { $arrayElemAt: ["$planDetails.imgUrl", 0] },
+              },
+              else: "$$REMOVE",
+            },
+          },
+        },
+      },
+
+      // Final projection
+      {
+        $project: {
+          _id: 1,
+          "plan.title": 1,
+          "plan.imgUrl": 1,
+        },
+      },
+    ]);
+
+    return {
+      message: "Current active Plans fetched successfully",
+      success: true,
+      data: activePlans,
+    };
+  } catch (error) {
+    throw new Error(error);
+  }
+}
 
 export async function getUserDietUrls(userId: string) {
   try {
@@ -727,6 +787,58 @@ export async function getUserServiceHistory(
           isActive: 1,
           createdAt: 1,
           updatedAt: 1,
+        },
+      },
+    ]);
+    return {
+      message: "Current active services fetched successfully",
+      success: true,
+      data: activePlans,
+    };
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+export async function getUserServiceHistoryNew(
+  userId: string,
+  status: boolean | null
+) {
+  try {
+    const queryObj: any = { userId: new mongoose.Types.ObjectId(userId) };
+
+    if (status !== null) {
+      queryObj["isActive"] = status;
+    }
+    const activePlans =await UserActiveServicesModel.aggregate([
+      { $match: queryObj },
+      { $sort: { createdAt: -1 } },
+
+      // Lookup service details
+      {
+        $lookup: {
+          from: "services",
+          let: { serviceId: "$serviceId" },
+          pipeline: [
+            { $match: { $expr: { $eq: ["$_id", "$$serviceId"] } } },
+            { $project: { _id: 1, title: 1, imgUrl: 1 } }, // only required fields
+          ],
+          as: "serviceDetails",
+        },
+      },
+
+      // Flatten serviceDetails
+      {
+        $addFields: {
+          service: { $arrayElemAt: ["$serviceDetails", 0] },
+        },
+      },
+
+      // Final projection
+      {
+        $project: {
+          _id: 1,
+          "service.title": 1,
+          "service.imgUrl": 1,
         },
       },
     ]);

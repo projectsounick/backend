@@ -10,6 +10,7 @@ import {
   addTransformationImages,
   getTransformationImagesByUserId,
 } from "../src/TransformationImages.tsx/transformationImages.service";
+import { createNotification } from "../src/Notification/notification.service";
 
 const httpTrigger: AzureFunction = async function (
   context: Context,
@@ -32,7 +33,14 @@ const httpTrigger: AzureFunction = async function (
     }
 
     await init(context);
-
+    try {
+      createNotification({
+        title: "Progress tracking",
+        body: "User has tracked their progress",
+        userId: userId,
+        isAdmin: true,
+      });
+    } catch (error) {}
     let response = await addTransformationImages(userId, req.body.data);
     if (response.success) {
       context.res = {

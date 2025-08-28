@@ -11,6 +11,7 @@ export interface Notification extends Document {
   userId?: string; // optional in case it's a broadcast
   createdAt: Date;
   updatedAt: Date;
+  userName: string;
 }
 
 const notificationSchema: Schema<Notification> = new Schema<Notification>(
@@ -30,6 +31,10 @@ const notificationSchema: Schema<Notification> = new Schema<Notification>(
     isTrainer: {
       type: Boolean,
       default: false,
+    },
+    userName: {
+      type: String,
+      required: false,
     },
     isHr: {
       type: Boolean,

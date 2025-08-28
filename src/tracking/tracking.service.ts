@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import SleepTrackingModel from "./sleepTracking.model";
 import WalkTrackingModel from "./walkTracking.model";
 import WaterTrackingModel from "./waterTracking.model";
@@ -276,6 +277,63 @@ export async function getWaterTracking(
       success: false,
       message: "Internal server error.",
       data: null,
+    };
+  }
+}
+
+
+
+
+interface TrackingPayload {
+  steps?: Array<{ userId: string; steps: number; date: string }>;
+  water?: Array<{ userId: string; waterIntake: number; date: string }>;
+  sleep?: Array<{ userId: string; sleepDuration: number; date: string }>;
+}
+export async function addUserTracking(data: TrackingPayload) {
+  try {
+    const results: any = {};
+
+    // Insert steps (WalkTracking)
+    if (data.steps && data.steps.length > 0) {
+      const stepDocs = data.steps.map((item) => ({
+        userId: new mongoose.Types.ObjectId(item.userId),
+        steps: item.steps,
+        date: new Date(item.date),
+      }));
+      results.steps = await WalkTrackingModel.insertMany(stepDocs);
+    }
+
+    // Insert water intake (WaterTracking)
+    if (data.water && data.water.length > 0) {
+      const waterDocs = data.water.map((item) => ({
+        userId: new mongoose.Types.ObjectId(item.userId),
+        waterIntake: item.waterIntake,
+        date: new Date(item.date),
+      }));
+      results.water = await WaterTrackingModel.insertMany(waterDocs);
+    }
+
+    // Insert sleep duration (SleepTracking)
+    if (data.sleep && data.sleep.length > 0) {
+      const sleepDocs = data.sleep.map((item) => ({
+        userId: new mongoose.Types.ObjectId(item.userId),
+        sleepDuration: item.sleepDuration,
+        date: new Date(item.date),
+      }));
+      results.sleep = await SleepTrackingModel.insertMany(sleepDocs);
+    }
+
+    return {
+      success: true,
+      message: "Tracking data added successfully",
+      data: results,
+    };
+  } catch (error: any) {
+    console.error(error);
+    return {
+      success: false,
+      message: "Failed to add tracking data",
+      error: error.message,
     };
   }
 }

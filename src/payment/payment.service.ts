@@ -11,6 +11,7 @@ import { generateReceiptPdf } from "./ReciptUtils";
 import { uploadUserReceiptPdfWithSas } from "../azure/azureService";
 import crypto from "crypto";
 import { addUserUsage } from "../DiscountCoupon/discoutCoupon.service";
+import { ObjectId } from "bson";
 export async function addPaymentItem(
   userId: string,
   amount: number,
@@ -1102,9 +1103,31 @@ export async function getPaymentItem(orderId: string) {
 //// Funciton for getting the payment details -------------------------------/
 export async function getPaymentReceipt(orderId: string, userId: string) {
   try {
+    // Step 1: Just check PaymentModel
+    const step1 = await PaymentModel.aggregate([
+      { $match: { _id: new mongoose.Types.ObjectId(orderId) } },
+    ]);
+    console.log("Step 1:", JSON.stringify(step1, null, 2));
+
+    const step2 = await PaymentModel.aggregate([
+      { $match: { _id: new mongoose.Types.ObjectId(orderId) } },
+      {
+        $lookup: {
+          from: "carts",
+          let: { cartItemIds: "$items" },
+          pipeline: [
+            {
+              $match: { $expr: { $in: ["$_id", "$$cartItemIds"] } },
+            },
+          ],
+          as: "cartItems",
+        },
+      },
+    ]);
+    console.log("Step 2:", JSON.stringify(step2, null, 2));
     const response = await PaymentModel.aggregate([
       {
-        $match: { orderId: orderId },
+        $match: { _id: new mongoose.Types.ObjectId(orderId) },
       },
       {
         $lookup: {
@@ -1296,6 +1319,17 @@ export async function getPaymentReceipt(orderId: string, userId: string) {
         },
       },
     ]);
+    console.log("this is response");
+    console.log(response);
+
+    if (!response || response.length === 0) {
+      return {
+        success: false,
+        message: "No payment found for this order",
+        receipt: null,
+      };
+    }
+
     const pdfBuffer = await generateReceiptPdf(response);
     const reciptUrl = await uploadUserReceiptPdfWithSas(pdfBuffer, userId);
     return {

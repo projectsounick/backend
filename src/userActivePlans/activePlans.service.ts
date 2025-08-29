@@ -7,6 +7,7 @@ import UserActiveServicesModel from "./activeServices.model";
 import ServiceModel from "../services/services.model";
 import { sendBulkPushNotificationsAndSave } from "../Notification/notification.service";
 import { notificationContentForPlanAssign } from "../utils/staticNotificaitonContent";
+import { log } from "node:console";
 
 export async function activePlanForUser(userId: string, plans: Array<any>) {
   try {
@@ -243,6 +244,8 @@ export async function getUserPlanHostoryNew(
   status: boolean | null
 ) {
   try {
+    console.log("went here");
+
     const queryObj: any = { userId: new mongoose.Types.ObjectId(userId) };
 
     if (status !== null) {
@@ -272,6 +275,8 @@ export async function getUserPlanHostoryNew(
                 _id: { $arrayElemAt: ["$planDetails._id", 0] },
                 title: { $arrayElemAt: ["$planDetails.title", 0] },
                 imgUrl: { $arrayElemAt: ["$planDetails.imgUrl", 0] },
+                descItems: { $arrayElemAt: ["$planDetails.descItems", 0] },
+                isActive: { $arrayElemAt: ["$planDetails.isActive", 0] },
               },
               else: "$$REMOVE",
             },
@@ -283,8 +288,11 @@ export async function getUserPlanHostoryNew(
       {
         $project: {
           _id: 1,
+          isActive: 1,
           "plan.title": 1,
           "plan.imgUrl": 1,
+          "plan.descItems": 1,
+          "plan.isActive": 1,
         },
       },
     ]);
@@ -809,7 +817,7 @@ export async function getUserServiceHistoryNew(
     if (status !== null) {
       queryObj["isActive"] = status;
     }
-    const activePlans =await UserActiveServicesModel.aggregate([
+    const activePlans = await UserActiveServicesModel.aggregate([
       { $match: queryObj },
       { $sort: { createdAt: -1 } },
 
@@ -820,7 +828,16 @@ export async function getUserServiceHistoryNew(
           let: { serviceId: "$serviceId" },
           pipeline: [
             { $match: { $expr: { $eq: ["$_id", "$$serviceId"] } } },
-            { $project: { _id: 1, title: 1, imgUrl: 1 } }, // only required fields
+            {
+              $project: {
+                _id: 1,
+                title: 1,
+                imgUrl: 1,
+                descItems: 1,
+                isActive: 1,
+                isCorporate: 1,
+              },
+            }, // only required fields
           ],
           as: "serviceDetails",
         },
@@ -829,7 +846,7 @@ export async function getUserServiceHistoryNew(
       // Flatten serviceDetails
       {
         $addFields: {
-          service: { $arrayElemAt: ["$serviceDetails", 0] },
+          serviceDetails: { $arrayElemAt: ["$serviceDetails", 0] },
         },
       },
 
@@ -837,8 +854,12 @@ export async function getUserServiceHistoryNew(
       {
         $project: {
           _id: 1,
-          "service.title": 1,
-          "service.imgUrl": 1,
+          isActive: 1,
+          "serviceDetails.title": 1,
+          "serviceDetails.imgUrl": 1,
+          "serviceDetails.descItems": 1,
+          "serviceDetails.isActive": 1,
+          "serviceDetails.isCorporate": 1,
         },
       },
     ]);

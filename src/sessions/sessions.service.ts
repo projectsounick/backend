@@ -251,10 +251,10 @@ export async function createNewSession(toBeassignedUserId, data: any) {
 export async function getUserSessions(
   userId: string,
   status: boolean | null,
-  startDate?: string,
-  endDate?: string,
-  activePlanId?: string,
-  activeServiceId?: string
+  startDate: string,
+  endDate: string,
+  activePlanId: string,
+  activeServiceId: string
 ) {
   try {
     // if (!userId || !startDate || !endDate) {
@@ -289,7 +289,9 @@ export async function getUserSessions(
 
     // Active Service filter
     if (activeServiceId) {
-      queryObj["activeServiceId"] = new mongoose.Types.ObjectId(activeServiceId);
+      queryObj["activeServiceId"] = new mongoose.Types.ObjectId(
+        activeServiceId
+      );
     }
 
     const userSessions = await SessionModel.aggregate([

@@ -12,7 +12,7 @@ import {
   createNotification,
   sendBulkPushNotificationsAndSave,
 } from "../Notification/notification.service";
-import { notificationContentForSessionCreated } from "../utils/staticNotificaitonContent";
+import { notificationContentForSessionCanceled, notificationContentForSessionCompleted, notificationContentForSessionCreated } from "../utils/staticNotificaitonContent";
 export async function createNewSession(toBeassignedUserId, data: any) {
   try {
     if (!data.sessionItems || data.sessionItems.length == 0) {
@@ -130,24 +130,7 @@ export async function createNewSession(toBeassignedUserId, data: any) {
       }
 
       let savedSession = await SessionModel.create(sessionItemObj);
-      if (data.sessionAgainstType == "againstPlan") {
-        const currentRemainingSessions =
-          activePlanData.data.remainingSessions - 1;
-        await UserActivePlansModel.findByIdAndUpdate(
-          new mongoose.Types.ObjectId(data.activePlanId),
-          { remainingSessions: currentRemainingSessions },
-          { new: true }
-        );
-      }
-      if (data.sessionAgainstType == "againstService") {
-        const currentRemainingSessions =
-          activeServiceData.data.remainingSessions - 1;
-        await UserActiveServicesModel.findByIdAndUpdate(
-          new mongoose.Types.ObjectId(data.activeServiceId),
-          { remainingSessions: currentRemainingSessions },
-          { new: true }
-        );
-      }
+      
 
       let savedWorkoutItems = [];
 
@@ -170,6 +153,26 @@ export async function createNewSession(toBeassignedUserId, data: any) {
         ...savedSession.toObject(),
         workoutItems: savedWorkoutItems,
       });
+    }
+
+
+    if (data.sessionAgainstType == "againstPlan") {
+      const currentRemainingSessions =
+        activePlanData.data.remainingSessions - createdUserSessions.length;
+      await UserActivePlansModel.findByIdAndUpdate(
+        new mongoose.Types.ObjectId(data.activePlanId),
+        { remainingSessions: currentRemainingSessions },
+        { new: true }
+      );
+    }
+    if (data.sessionAgainstType == "againstService") {
+      const currentRemainingSessions =
+        activeServiceData.data.remainingSessions - createdUserSessions.length;
+      await UserActiveServicesModel.findByIdAndUpdate(
+        new mongoose.Types.ObjectId(data.activeServiceId),
+        { remainingSessions: currentRemainingSessions },
+        { new: true }
+      );
     }
     //     for (const sessionItem of data) {
     //         if (sessionItem.sessionAgainstPlan) {
@@ -616,6 +619,46 @@ export async function updateSession(
           },
           { new: true }
         );
+      }
+      const users = await UserModel.find({
+        _id: new mongoose.Types.ObjectId(sessionDetails.userId),
+      })
+        .select("expoPushToken")
+        .lean();
+      const notificationContent = notificationContentForSessionCanceled;
+      if (users.length > 0) {
+        sendBulkPushNotificationsAndSave(
+          notificationContent.title,
+          notificationContent.body,
+          users,
+          "user"
+        )
+          .then(() => console.log("Background notification triggred."))
+          .catch((err) =>
+            console.error("Error generating sending notification:", err)
+          );
+      }
+    }
+
+    if (data.sessionStatus == "completed") {
+      const sessionDetails = await SessionModel.findById(sessionId);
+      const users = await UserModel.find({
+        _id: new mongoose.Types.ObjectId(sessionDetails.userId),
+      })
+        .select("expoPushToken")
+        .lean();
+      const notificationContent = notificationContentForSessionCompleted;
+      if (users.length > 0) {
+        sendBulkPushNotificationsAndSave(
+          notificationContent.title,
+          notificationContent.body,
+          users,
+          "user"
+        )
+          .then(() => console.log("Background notification triggred."))
+          .catch((err) =>
+            console.error("Error generating sending notification:", err)
+          );
       }
     }
 

@@ -27,7 +27,23 @@ export const notificationContentForSessionCreated = {
   body: "You have a new session scheduled. Check your calender for details.",
 };
 
+export const notificationContentForSessionCanceled = {
+  title: "Session Canceled ❌",
+  body: "Your upcoming session has been canceled. Please reschedule at your convenience.",
+};
+
+export const notificationContentForSessionCompleted = {
+  title: "Session Completed ✅",
+  body: "Great job on completing your session! Keep up the good work.",
+};
+
+
 export const notificationContentForPlanAssign = {
   title: "New Plan Assigned 📋",
   body: "A new plan has been assigned to you. Start your journey today!",
+};
+
+export const notificationContentForPlanExpire = {
+  title: "Plan Expiring Soon ⏳",
+  body: "Your current plan is expiring soon. Renew now to continue your progress!",
 };

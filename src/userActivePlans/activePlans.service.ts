@@ -5,6 +5,9 @@ import UserModel from "../users/user.model";
 import PlanModel, { PlanItemModel, DietPlanModel } from "../Plans/plan.model";
 import UserActiveServicesModel from "./activeServices.model";
 import ServiceModel from "../services/services.model";
+import { sendBulkPushNotificationsAndSave } from "../Notification/notification.service";
+import { notificationContentForPlanAssign } from "../utils/staticNotificaitonContent";
+import { log } from "node:console";
 
 export async function activePlanForUser(userId: string, plans: Array<any>) {
   try {
@@ -236,29 +239,98 @@ export async function getUserPlanHostory(
     throw new Error(error);
   }
 }
-
-export async function getUserDietUrls(
-  userId: string
+export async function getUserPlanHostoryNew(
+  userId: string,
+  status: boolean | null
 ) {
+  try {
+    console.log("went here");
+
+    const queryObj: any = { userId: new mongoose.Types.ObjectId(userId) };
+
+    if (status !== null) {
+      queryObj["isActive"] = status;
+    }
+    const activePlans = await UserActivePlansModel.aggregate([
+      { $match: queryObj },
+      { $sort: { createdAt: -1 } },
+
+      // Lookup plan details
+      {
+        $lookup: {
+          from: "plans",
+          let: { planId: "$plan.planId" },
+          pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$planId"] } } }],
+          as: "planDetails",
+        },
+      },
+
+      // Flatten and keep only needed fields
+      {
+        $addFields: {
+          plan: {
+            $cond: {
+              if: { $gt: [{ $size: "$planDetails" }, 0] },
+              then: {
+                _id: { $arrayElemAt: ["$planDetails._id", 0] },
+                title: { $arrayElemAt: ["$planDetails.title", 0] },
+                imgUrl: { $arrayElemAt: ["$planDetails.imgUrl", 0] },
+                descItems: { $arrayElemAt: ["$planDetails.descItems", 0] },
+                isActive: { $arrayElemAt: ["$planDetails.isActive", 0] },
+              },
+              else: "$$REMOVE",
+            },
+          },
+        },
+      },
+
+      // Final projection
+      {
+        $project: {
+          _id: 1,
+          isActive: 1,
+          "plan.title": 1,
+          "plan.imgUrl": 1,
+          "plan.descItems": 1,
+          "plan.isActive": 1,
+        },
+      },
+    ]);
+
+    return {
+      message: "Current active Plans fetched successfully",
+      success: true,
+      data: activePlans,
+    };
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+
+export async function getUserDietUrls(userId: string) {
   try {
     const queryObj: any = { userId: new mongoose.Types.ObjectId(userId) };
 
-    const userActivePlans = await UserActivePlansModel.find({ userId, isActive: true , dietPlanUrl: { $exists: true, $ne: "" }})
-    .populate({
-      path: "dietPlanId",
-      model: "dietplans",
-      select: "_id title",
+    const userActivePlans = await UserActivePlansModel.find({
+      userId,
+      isActive: true,
+      dietPlanUrl: { $exists: true, $ne: "" },
     })
-    .populate({
-      path: "plan.planId",
-      model: "plans",
-      populate: {
+      .populate({
         path: "dietPlanId",
         model: "dietplans",
         select: "_id title",
-      },
-    })
-    .select("dietPlanUrl dietPlanId plan");
+      })
+      .populate({
+        path: "plan.planId",
+        model: "plans",
+        populate: {
+          path: "dietPlanId",
+          model: "dietplans",
+          select: "_id title",
+        },
+      })
+      .select("dietPlanUrl dietPlanId plan");
 
     return {
       message: "Current diet plan urls fetched successfully",
@@ -434,7 +506,6 @@ const getEndDate = (
   return endDate.format("YYYY-MM-DD"); // ✅ Returns formatted end date
 };
 
-
 /////Funciton for assigning the diet plan pdf url to the user------------------------/
 export async function updateDietPlanPdf(
   dietPlanUrl: string,
@@ -483,11 +554,17 @@ export async function updateDietPlanPdf(
   }
 }
 
-
-export async function assignPlanToUser(userId: string, planId: string, planItemId: string) {
+export async function assignPlanToUser(
+  userId: string,
+  planId: string,
+  planItemId: string
+) {
   try {
-    const alreadyActivePlans = await UserActivePlansModel.findOne({userId:new mongoose.Types.ObjectId(userId), 'plan.planId': new mongoose.Types.ObjectId(planId)})
-    if(alreadyActivePlans){
+    const alreadyActivePlans = await UserActivePlansModel.findOne({
+      userId: new mongoose.Types.ObjectId(userId),
+      "plan.planId": new mongoose.Types.ObjectId(planId),
+    });
+    if (alreadyActivePlans) {
       return {
         message: "Plan already assigned to user",
         success: false,
@@ -507,17 +584,15 @@ export async function assignPlanToUser(userId: string, planId: string, planItemI
       };
     }
     const plan = await PlanModel.findById(planId);
-    if(!plan){
+    if (!plan) {
       return {
         message: "Plan with given id is not found",
         success: false,
       };
     }
 
-
-
     const planItem = await PlanItemModel.findById(planItemId);
-    if(!planItem){
+    if (!planItem) {
       return {
         message: "Plan Item with given id is not found",
         success: false,
@@ -528,8 +603,8 @@ export async function assignPlanToUser(userId: string, planId: string, planItemI
       userId: new mongoose.Types.ObjectId(userId),
       plan: {
         planId: new mongoose.Types.ObjectId(planId),
-        planItemId: new mongoose.Types.ObjectId(planItemId)
-      }
+        planItemId: new mongoose.Types.ObjectId(planItemId),
+      },
     };
     respObj["planStartDate"] = new Date();
     respObj["planEndDate"] = getEndDate(
@@ -540,22 +615,42 @@ export async function assignPlanToUser(userId: string, planId: string, planItemI
     respObj["remainingSessions"] = planItem.sessionCount;
 
     const userActivePlan = await UserActivePlansModel.insertOne(respObj);
+
+    const users = await UserModel.find({
+      _id: new mongoose.Types.ObjectId(userId),
+    })
+      .select("expoPushToken")
+      .lean();
+    const notificationContent = notificationContentForPlanAssign;
+    if (users.length > 0) {
+      sendBulkPushNotificationsAndSave(
+        notificationContent.title,
+        notificationContent.body,
+        users,
+        "user"
+      )
+        .then(() => console.log("Background notification triggred."))
+        .catch((err) =>
+          console.error("Error generating sending notification:", err)
+        );
+    }
     return {
       message: "Plans activated successfully",
       success: true,
       data: userActivePlan,
     };
-
   } catch (error) {
-  throw new Error(error);
-}
-
+    throw new Error(error);
+  }
 }
 
 export async function assignDietPlanToUser(userId: string, dietPlanId: string) {
   try {
-    const alreadyActivePlans = await UserActivePlansModel.findOne({userId:new mongoose.Types.ObjectId(userId), dietPlanId: new mongoose.Types.ObjectId(dietPlanId)})
-    if(alreadyActivePlans){
+    const alreadyActivePlans = await UserActivePlansModel.findOne({
+      userId: new mongoose.Types.ObjectId(userId),
+      dietPlanId: new mongoose.Types.ObjectId(dietPlanId),
+    });
+    if (alreadyActivePlans) {
       return {
         message: "Plan already assigned to user",
         success: false,
@@ -575,7 +670,7 @@ export async function assignDietPlanToUser(userId: string, dietPlanId: string) {
       };
     }
     const dietPlan = await DietPlanModel.findById(dietPlanId);
-    if(!dietPlan){
+    if (!dietPlan) {
       return {
         message: "Diet Plan with given id is not found",
         success: false,
@@ -584,7 +679,7 @@ export async function assignDietPlanToUser(userId: string, dietPlanId: string) {
 
     const respObj = {
       userId: new mongoose.Types.ObjectId(userId),
-      dietPlanId: new mongoose.Types.ObjectId(dietPlanId)
+      dietPlanId: new mongoose.Types.ObjectId(dietPlanId),
     };
     respObj["planStartDate"] = new Date();
     respObj["planEndDate"] = getEndDate(
@@ -598,14 +693,10 @@ export async function assignDietPlanToUser(userId: string, dietPlanId: string) {
       success: true,
       data: userActivePlan,
     };
-
   } catch (error) {
-  throw new Error(error);
+    throw new Error(error);
+  }
 }
-
-}
-
-
 
 export async function activeServiceUser(userId: string, services: Array<any>) {
   try {
@@ -614,7 +705,7 @@ export async function activeServiceUser(userId: string, services: Array<any>) {
         userId: new mongoose.Types.ObjectId(userId),
         serviceId: new mongoose.Types.ObjectId(item.serviceDetails._id),
         totalSessions: item.serviceDetails.sessionCount,
-        remainingSessions: item.serviceDetails.sessionCount
+        remainingSessions: item.serviceDetails.sessionCount,
       };
       return respObj;
     });
@@ -660,7 +751,7 @@ export async function getUserServiceHistory(
           as: "trainerExtraDetails",
         },
       },
-      // Convert `trainerDetails`, `trainerExtraDetails` into a structured trainer object
+      //  Convert `trainerDetails`, `trainerExtraDetails` into a structured trainer object
       {
         $addFields: {
           trainer: {
@@ -697,12 +788,78 @@ export async function getUserServiceHistory(
           userId: 1,
           serviceDetails: { $arrayElemAt: ["$serviceDetails", 0] },
           totalSessions: 1,
+
           remainingSessions: 1,
           trainerId: 1,
           trainer: 1, // Trainer object will appear only if data exists
           isActive: 1,
           createdAt: 1,
           updatedAt: 1,
+        },
+      },
+    ]);
+    return {
+      message: "Current active services fetched successfully",
+      success: true,
+      data: activePlans,
+    };
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+export async function getUserServiceHistoryNew(
+  userId: string,
+  status: boolean | null
+) {
+  try {
+    const queryObj: any = { userId: new mongoose.Types.ObjectId(userId) };
+
+    if (status !== null) {
+      queryObj["isActive"] = status;
+    }
+    const activePlans = await UserActiveServicesModel.aggregate([
+      { $match: queryObj },
+      { $sort: { createdAt: -1 } },
+
+      // Lookup service details
+      {
+        $lookup: {
+          from: "services",
+          let: { serviceId: "$serviceId" },
+          pipeline: [
+            { $match: { $expr: { $eq: ["$_id", "$$serviceId"] } } },
+            {
+              $project: {
+                _id: 1,
+                title: 1,
+                imgUrl: 1,
+                descItems: 1,
+                isActive: 1,
+                isCorporate: 1,
+              },
+            }, // only required fields
+          ],
+          as: "serviceDetails",
+        },
+      },
+
+      // Flatten serviceDetails
+      {
+        $addFields: {
+          serviceDetails: { $arrayElemAt: ["$serviceDetails", 0] },
+        },
+      },
+
+      // Final projection
+      {
+        $project: {
+          _id: 1,
+          isActive: 1,
+          "serviceDetails.title": 1,
+          "serviceDetails.imgUrl": 1,
+          "serviceDetails.descItems": 1,
+          "serviceDetails.isActive": 1,
+          "serviceDetails.isCorporate": 1,
         },
       },
     ]);
@@ -744,11 +901,12 @@ export async function updateActiveService(
         success: false,
       };
     }
-    const updatedActiveService = await UserActiveServicesModel.findByIdAndUpdate(
-      activeServiceId,
-      { ...data },
-      { new: true }
-    );
+    const updatedActiveService =
+      await UserActiveServicesModel.findByIdAndUpdate(
+        activeServiceId,
+        { ...data },
+        { new: true }
+      );
     return {
       message: "Active Service updated successfully",
       success: true,
@@ -842,8 +1000,11 @@ export async function getUserActiveServiceData(activeServiceId: string) {
 }
 export async function assignServiceToUser(userId: string, ServiceId: string) {
   try {
-    const alreadyActiveService = await UserActiveServicesModel.findOne({userId:new mongoose.Types.ObjectId(userId), serviceId: new mongoose.Types.ObjectId(ServiceId)})
-    if(alreadyActiveService){
+    const alreadyActiveService = await UserActiveServicesModel.findOne({
+      userId: new mongoose.Types.ObjectId(userId),
+      serviceId: new mongoose.Types.ObjectId(ServiceId),
+    });
+    if (alreadyActiveService) {
       return {
         message: "Service already assigned to user",
         success: false,
@@ -863,7 +1024,7 @@ export async function assignServiceToUser(userId: string, ServiceId: string) {
       };
     }
     const service = await ServiceModel.findById(ServiceId);
-    if(!service){
+    if (!service) {
       return {
         message: "Service with given id is not found",
         success: false,
@@ -874,7 +1035,7 @@ export async function assignServiceToUser(userId: string, ServiceId: string) {
       userId: new mongoose.Types.ObjectId(userId),
       serviceId: new mongoose.Types.ObjectId(ServiceId),
       totalSessions: service.sessionCount,
-      remainingSessions: service.sessionCount
+      remainingSessions: service.sessionCount,
     };
 
     const userActiveService = await UserActiveServicesModel.insertOne(respObj);
@@ -883,9 +1044,7 @@ export async function assignServiceToUser(userId: string, ServiceId: string) {
       success: true,
       data: userActiveService,
     };
-
   } catch (error) {
-  throw new Error(error);
-}
-
+    throw new Error(error);
+  }
 }

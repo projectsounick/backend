@@ -44,7 +44,8 @@ const httpTrigger: AzureFunction = async function (
     const sessionId = req.params.sessionId;
     const response: { message: string; success: boolean } = await updateSession(
       sessionId,
-      req.body
+      req.body,
+      userId
     );
     if (response.success) {
       context.res = {

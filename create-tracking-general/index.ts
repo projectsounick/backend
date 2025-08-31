@@ -1,11 +1,7 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 import { init } from "../src/helpers/azure-cosmosdb-mongodb";
-import {
-  checkIfNormalUser,
-  verifyAndDecodeToken,
-} from "../src/admin/admin.service";
-import { addCart } from "../src/cart/cart.service";
-import { createNotification } from "../src/Notification/notification.service";
+import { verifyAndDecodeToken } from "../src/admin/admin.service";
+import { AddOrUpdateSleepTracking, AddOrUpdateWalkTracking, AddOrUpdateWaterTracking, addUserTracking } from "../src/tracking/tracking.service";
 
 const httpTrigger: AzureFunction = async function (
   context: Context,
@@ -26,35 +22,11 @@ const httpTrigger: AzureFunction = async function (
       };
       return;
     }
+
     await init(context);
+    const { data } = req.body;
 
-    if (!checkIfNormalUser(userId)) {
-      context.res = {
-        status: 401,
-        body: {
-          message: "Unauthorized",
-          success: false,
-        },
-      };
-      return;
-    }
-
-    try {
-      createNotification({
-        title: "Product adding",
-        body: "User has added a product to the cart",
-        userId: userId,
-        isAdmin: true,
-      });
-    } catch (error) {}
-    console.log("went past this");
-
-    const response: { message: string; success: boolean } = await addCart(
-      userId,
-      req.body
-    );
-    console.log("this is response");
-    console.log(response);
+    let response = await addUserTracking(req.body.data);
 
     if (response.success) {
       context.res = {
@@ -68,8 +40,6 @@ const httpTrigger: AzureFunction = async function (
       };
     }
   } catch (error) {
-    console.log(error.message);
-
     context.res = {
       status: 500,
       body: {

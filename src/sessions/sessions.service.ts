@@ -1,10 +1,18 @@
 import mongoose from "mongoose";
 import SessionModel from "./sessions.model";
 import UserActivePlansModel from "../userActivePlans/activePlans.model";
-import { getUserActivePlanData, getUserActiveServiceData } from "../userActivePlans/activePlans.service";
+import {
+  getUserActivePlanData,
+  getUserActiveServiceData,
+} from "../userActivePlans/activePlans.service";
 import SessionWorkoutModel from "../sessionWorkout/sessionWorkout.model";
 import UserModel from "../users/user.model";
 import UserActiveServicesModel from "../userActivePlans/activeServices.model";
+import {
+  createNotification,
+  sendBulkPushNotificationsAndSave,
+} from "../Notification/notification.service";
+import { notificationContentForSessionCanceled, notificationContentForSessionCompleted, notificationContentForSessionCreated } from "../utils/staticNotificaitonContent";
 export async function createNewSession(toBeassignedUserId, data: any) {
   try {
     if (!data.sessionItems || data.sessionItems.length == 0) {
@@ -122,23 +130,8 @@ export async function createNewSession(toBeassignedUserId, data: any) {
       }
 
       let savedSession = await SessionModel.create(sessionItemObj);
-      if (data.sessionAgainstType == "againstPlan") {
-        const currentRemainingSessions = activePlanData.data.remainingSessions - 1;
-        await UserActivePlansModel.findByIdAndUpdate(
-          new mongoose.Types.ObjectId(data.activePlanId),
-          { remainingSessions: currentRemainingSessions },
-          { new: true }
-        );
-      }
-      if (data.sessionAgainstType == "againstService") {
-        const currentRemainingSessions = activeServiceData.data.remainingSessions - 1;
-        await UserActiveServicesModel.findByIdAndUpdate(
-          new mongoose.Types.ObjectId(data.activeServiceId),
-          { remainingSessions: currentRemainingSessions },
-          { new: true }
-        );
-      }
-     
+      
+
       let savedWorkoutItems = [];
 
       for (const workoutItem of sessionItem.workoutItems) {
@@ -160,6 +153,26 @@ export async function createNewSession(toBeassignedUserId, data: any) {
         ...savedSession.toObject(),
         workoutItems: savedWorkoutItems,
       });
+    }
+
+
+    if (data.sessionAgainstType == "againstPlan") {
+      const currentRemainingSessions =
+        activePlanData.data.remainingSessions - createdUserSessions.length;
+      await UserActivePlansModel.findByIdAndUpdate(
+        new mongoose.Types.ObjectId(data.activePlanId),
+        { remainingSessions: currentRemainingSessions },
+        { new: true }
+      );
+    }
+    if (data.sessionAgainstType == "againstService") {
+      const currentRemainingSessions =
+        activeServiceData.data.remainingSessions - createdUserSessions.length;
+      await UserActiveServicesModel.findByIdAndUpdate(
+        new mongoose.Types.ObjectId(data.activeServiceId),
+        { remainingSessions: currentRemainingSessions },
+        { new: true }
+      );
     }
     //     for (const sessionItem of data) {
     //         if (sessionItem.sessionAgainstPlan) {
@@ -207,13 +220,33 @@ export async function createNewSession(toBeassignedUserId, data: any) {
 
     // const userSessions = await SessionModel.insertMany(data);
 
+    // To Send Notification to user about the new session assigned to them
+    const users = await UserModel.find({
+      _id: new mongoose.Types.ObjectId(toBeassignedUserId),
+    })
+      .select("expoPushToken")
+      .lean();
+    const notificationContent = notificationContentForSessionCreated;
+    if (users.length > 0) {
+      sendBulkPushNotificationsAndSave(
+        notificationContent.title,
+        notificationContent.body,
+        users,
+        "user"
+      )
+        .then(() => console.log("Background notification triggred."))
+        .catch((err) =>
+          console.error("Error generating sending notification:", err)
+        );
+    }
+
     return {
       message: "Sessions created successfully",
       success: true,
       data: createdUserSessions,
     };
   } catch (error) {
-    console.log(error)
+    console.log(error);
     throw new Error(error);
   }
 }
@@ -221,8 +254,10 @@ export async function createNewSession(toBeassignedUserId, data: any) {
 export async function getUserSessions(
   userId: string,
   status: boolean | null,
-  startDate?: string,
-  endDate?: string
+  startDate: string,
+  endDate: string,
+  activePlanId: string,
+  activeServiceId: string
 ) {
   try {
     // if (!userId || !startDate || !endDate) {
@@ -248,6 +283,18 @@ export async function getUserSessions(
     }
     if (status !== null) {
       queryObj["isActive"] = status;
+    }
+
+    // Active Plan filter
+    if (activePlanId) {
+      queryObj["activePlanId"] = new mongoose.Types.ObjectId(activePlanId);
+    }
+
+    // Active Service filter
+    if (activeServiceId) {
+      queryObj["activeServiceId"] = new mongoose.Types.ObjectId(
+        activeServiceId
+      );
     }
 
     const userSessions = await SessionModel.aggregate([
@@ -385,7 +432,9 @@ export async function getUserSessions(
       {
         $lookup: {
           from: "services",
-          let: { serviceId: { $arrayElemAt: ["$activeServiceDetails.serviceId", 0] } },
+          let: {
+            serviceId: { $arrayElemAt: ["$activeServiceDetails.serviceId", 0] },
+          },
           pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$serviceId"] } } }],
           as: "serviceInfo",
         },
@@ -505,12 +554,23 @@ export async function getUserSessions(
 
 export async function updateSession(
   sessionId: string,
-  data: Record<string, any>
+  data: Record<string, any>,
+  userId?: string
 ) {
-  console.log("this is sessionid");
+  console.log("this is data");
   console.log(data);
-  console.log(sessionId);
 
+  //// feedback storing in notification for the admin -------/
+  try {
+    if (data.sessionFeedback) {
+      await createNotification({
+        title: "Session notificaiton",
+        body: `User has given a feedback of ${data.sessionFeedback}`,
+        isAdmin: true,
+        userId: userId,
+      });
+    }
+  } catch (error) {}
   try {
     let user;
     if (data.trainerId) {
@@ -533,17 +593,17 @@ export async function updateSession(
       { ...data, updatedAt: new Date() },
       { new: true }
     );
-    if (data.sessionStatus == 'cancelled') {
+    if (data.sessionStatus == "cancelled") {
       const sessionDetails = await SessionModel.findById(sessionId);
       if (sessionDetails.sessionAgainstPlan) {
         await UserActivePlansModel.findOneAndUpdate(
           {
             _id: sessionDetails.activePlanId,
-            $expr: { $lt: ["$remainingSessions", "$totalSessions"] } // only update if remaining < total
+            $expr: { $lt: ["$remainingSessions", "$totalSessions"] }, // only update if remaining < total
           },
           {
             $inc: { remainingSessions: 1 },
-            $set: { updatedAt: new Date() }
+            $set: { updatedAt: new Date() },
           },
           { new: true }
         );
@@ -551,14 +611,54 @@ export async function updateSession(
         await UserActiveServicesModel.findOneAndUpdate(
           {
             _id: sessionDetails.activeServiceId,
-            $expr: { $lt: ["$remainingSessions", "$totalSessions"] } // only update if remaining < total
+            $expr: { $lt: ["$remainingSessions", "$totalSessions"] }, // only update if remaining < total
           },
           {
             $inc: { remainingSessions: 1 },
-            $set: { updatedAt: new Date() }
+            $set: { updatedAt: new Date() },
           },
           { new: true }
         );
+      }
+      const users = await UserModel.find({
+        _id: new mongoose.Types.ObjectId(sessionDetails.userId),
+      })
+        .select("expoPushToken")
+        .lean();
+      const notificationContent = notificationContentForSessionCanceled;
+      if (users.length > 0) {
+        sendBulkPushNotificationsAndSave(
+          notificationContent.title,
+          notificationContent.body,
+          users,
+          "user"
+        )
+          .then(() => console.log("Background notification triggred."))
+          .catch((err) =>
+            console.error("Error generating sending notification:", err)
+          );
+      }
+    }
+
+    if (data.sessionStatus == "completed") {
+      const sessionDetails = await SessionModel.findById(sessionId);
+      const users = await UserModel.find({
+        _id: new mongoose.Types.ObjectId(sessionDetails.userId),
+      })
+        .select("expoPushToken")
+        .lean();
+      const notificationContent = notificationContentForSessionCompleted;
+      if (users.length > 0) {
+        sendBulkPushNotificationsAndSave(
+          notificationContent.title,
+          notificationContent.body,
+          users,
+          "user"
+        )
+          .then(() => console.log("Background notification triggred."))
+          .catch((err) =>
+            console.error("Error generating sending notification:", err)
+          );
       }
     }
 
@@ -572,6 +672,11 @@ export async function updateSession(
     if (user) {
       respObj["trainerDetails"] = user.toObject();
     }
+    try {
+      if (data?.sessoionStatus) {
+      }
+    } catch (error) {}
+
     return {
       message: "Session updated successfully",
       success: true,

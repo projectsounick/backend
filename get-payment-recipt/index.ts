@@ -38,6 +38,9 @@ const httpTrigger: AzureFunction = async function (
       };
       return;
     }
+    console.log(req.query.orderId);
+
+    console.log(callingUserId);
 
     const response: { message: string; success: boolean } =
       await getPaymentReceipt(req.query.orderId, callingUserId);

@@ -402,7 +402,7 @@ export async function sendBulkPushNotificationsAndSave(
         return {
           title: title,
           body: body,
-          reciverId: user._id,
+          receiverId: user._id,
           senderId: "6824c9555c0f5d5253ed8d3f",
         };
       })

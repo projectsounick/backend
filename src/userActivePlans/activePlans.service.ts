@@ -735,43 +735,43 @@ export async function getUserServiceHistory(
       { $match: queryObj },
       { $sort: { createdAt: -1 } },
       // Lookup trainer details (if applicable)
-      // {
-      //   $lookup: {
-      //     from: "users",
-      //     localField: "trainerId",
-      //     foreignField: "_id",
-      //     as: "trainerBasicDetails",
-      //   },
-      // },
-      // {
-      //   $lookup: {
-      //     from: "trainerdetails",
-      //     localField: "trainerId",
-      //     foreignField: "userId",
-      //     as: "trainerExtraDetails",
-      //   },
-      // },
-      // Convert `trainerDetails`, `trainerExtraDetails` into a structured trainer object
-      // {
-      //   $addFields: {
-      //     trainer: {
-      //       $cond: {
-      //         if: { $gt: [{ $size: "$trainerBasicDetails" }, 0] }, // Only add if trainerBasicDetails exists
-      //         then: {
-      //           $mergeObjects: [
-      //             { $arrayElemAt: ["$trainerBasicDetails", 0] }, // Extract plan object
-      //             {
-      //               trainerDetails: {
-      //                 $arrayElemAt: ["$trainerExtraDetails", 0],
-      //               }, //  Nest trainerExtraDetails inside trainer
-      //             },
-      //           ],
-      //         },
-      //         else: "$$REMOVE", //  Completely remove plan if no data exists
-      //       },
-      //     },
-      //   },
-      // },
+      {
+        $lookup: {
+          from: "users",
+          localField: "trainerId",
+          foreignField: "_id",
+          as: "trainerBasicDetails",
+        },
+      },
+      {
+        $lookup: {
+          from: "trainerdetails",
+          localField: "trainerId",
+          foreignField: "userId",
+          as: "trainerExtraDetails",
+        },
+      },
+      //  Convert `trainerDetails`, `trainerExtraDetails` into a structured trainer object
+      {
+        $addFields: {
+          trainer: {
+            $cond: {
+              if: { $gt: [{ $size: "$trainerBasicDetails" }, 0] }, // Only add if trainerBasicDetails exists
+              then: {
+                $mergeObjects: [
+                  { $arrayElemAt: ["$trainerBasicDetails", 0] }, // Extract plan object
+                  {
+                    trainerDetails: {
+                      $arrayElemAt: ["$trainerExtraDetails", 0],
+                    }, //  Nest trainerExtraDetails inside trainer
+                  },
+                ],
+              },
+              else: "$$REMOVE", //  Completely remove plan if no data exists
+            },
+          },
+        },
+      },
       // Lookup service details (if applicable)
       {
         $lookup: {
@@ -787,11 +787,11 @@ export async function getUserServiceHistory(
           _id: 1,
           userId: 1,
           serviceDetails: { $arrayElemAt: ["$serviceDetails", 0] },
-          //totalSessions: 1,
+          totalSessions: 1,
 
-          // remainingSessions: 1,
-          // trainerId: 1,
-          // trainer: 1, // Trainer object will appear only if data exists
+          remainingSessions: 1,
+          trainerId: 1,
+          trainer: 1, // Trainer object will appear only if data exists
           isActive: 1,
           createdAt: 1,
           updatedAt: 1,

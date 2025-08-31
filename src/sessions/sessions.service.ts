@@ -554,9 +554,9 @@ export async function updateSession(
   data: Record<string, any>,
   userId?: string
 ) {
-  console.log("this is sessionid");
+  console.log("this is data");
   console.log(data);
-  console.log(sessionId);
+
   //// feedback storing in notification for the admin -------/
   try {
     if (data.sessionFeedback) {
@@ -629,6 +629,11 @@ export async function updateSession(
     if (user) {
       respObj["trainerDetails"] = user.toObject();
     }
+    try {
+      if (data?.sessoionStatus) {
+      }
+    } catch (error) {}
+
     return {
       message: "Session updated successfully",
       success: true,

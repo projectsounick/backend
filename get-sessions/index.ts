@@ -55,7 +55,8 @@ const httpTrigger: AzureFunction = async function (
     //   return;
     // }
 
-    const { startDate, endDate, id, isActive } = req.query;
+    const { startDate, endDate, id, isActive, activePlanId, activeServiceId } =
+      req.query;
 
     let response: { message: string; success: boolean };
 
@@ -67,7 +68,9 @@ const httpTrigger: AzureFunction = async function (
       finalUserId,
       parsedStatus,
       startDate,
-      endDate
+      endDate,
+      activePlanId,
+      activeServiceId
     );
     console.log(response);
 

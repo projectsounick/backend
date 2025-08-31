@@ -1,7 +1,10 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 import { init } from "../src/helpers/azure-cosmosdb-mongodb";
 import { getUserRole, verifyAndDecodeToken } from "../src/admin/admin.service";
-import { getUserServiceHistory, getUserServiceHistoryNew } from "../src/userActivePlans/activePlans.service";
+import {
+  getUserServiceHistory,
+  getUserServiceHistoryNew,
+} from "../src/userActivePlans/activePlans.service";
 
 const httpTrigger: AzureFunction = async function (
   context: Context,
@@ -47,6 +50,7 @@ const httpTrigger: AzureFunction = async function (
     //   await getUserServiceHistory(parsedUserId, parsedIsActive);
     let response: { message: string; success: boolean };
     if (userRoleResponse.role === "user") {
+      // response = await getUserServiceHistory(parsedUserId, parsedIsActive);
       response = await getUserServiceHistoryNew(parsedUserId, parsedIsActive);
     } else {
       response = await getUserServiceHistory(parsedUserId, parsedIsActive);

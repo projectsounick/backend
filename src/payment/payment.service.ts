@@ -1,6 +1,9 @@
 import mongoose from "mongoose";
 import PaymentModel from "./payment.model";
-import { activePlanForUser, activeServiceUser } from "../userActivePlans/activePlans.service";
+import {
+  activePlanForUser,
+  activeServiceUser,
+} from "../userActivePlans/activePlans.service";
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
 import CartModel from "../cart/cart.model";
@@ -8,6 +11,7 @@ import { generateReceiptPdf } from "./ReciptUtils";
 import { uploadUserReceiptPdfWithSas } from "../azure/azureService";
 import crypto from "crypto";
 import { addUserUsage } from "../DiscountCoupon/discoutCoupon.service";
+import { ObjectId } from "bson";
 export async function addPaymentItem(
   userId: string,
   amount: number,
@@ -23,10 +27,10 @@ export async function addPaymentItem(
       };
     }
     const orderId = uuidv4();
-    console.log(orderId)
+    console.log(orderId);
     // const orderObj = await createOrder(amount, orderId);
     const redirectUrl = await initiatePayment(amount, orderId);
-    console.log(redirectUrl)
+    console.log(redirectUrl);
     const paymentObj: any = {
       userId: new mongoose.Types.ObjectId(userId),
       amount: amount,
@@ -36,10 +40,10 @@ export async function addPaymentItem(
       paymentUrl: redirectUrl,
     };
     if (couponCode) {
-      paymentObj['couponCode'] = couponCode;
+      paymentObj["couponCode"] = couponCode;
     }
-    if(deliveryAddess){
-      paymentObj['deliveryAddess'] = deliveryAddess;
+    if (deliveryAddess) {
+      paymentObj["deliveryAddess"] = deliveryAddess;
     }
     const savedPaymentItem = await PaymentModel.create({ ...paymentObj });
     return {
@@ -258,8 +262,8 @@ export async function getUpdatePaymentStatus(orderId: string) {
       orderStatus == "FAILED"
         ? "failed"
         : orderStatus == "COMPLETED"
-          ? "success"
-          : "pending";
+        ? "success"
+        : "pending";
     const paymentItemToBeUpdated = await PaymentModel.aggregate([
       { $match: { orderId: orderId } },
       { $sort: { createdAt: -1 } },
@@ -351,7 +355,9 @@ export async function getUpdatePaymentStatus(orderId: string) {
               $lookup: {
                 from: "products",
                 let: { productId: "$product.productId" },
-                pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$productId"] } } }],
+                pipeline: [
+                  { $match: { $expr: { $eq: ["$_id", "$$productId"] } } },
+                ],
                 as: "productDetails",
               },
             },
@@ -361,7 +367,9 @@ export async function getUpdatePaymentStatus(orderId: string) {
               $lookup: {
                 from: "productvariations",
                 let: { variationId: "$product.variationId" },
-                pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$variationId"] } } }],
+                pipeline: [
+                  { $match: { $expr: { $eq: ["$_id", "$$variationId"] } } },
+                ],
                 as: "variationDetails",
               },
             },
@@ -430,7 +438,7 @@ export async function getUpdatePaymentStatus(orderId: string) {
           createdAt: 1,
           updatedAt: 1,
           cartItems: 1, //Nested cart items including product/plan details
-          couponDetails: 1
+          couponDetails: 1,
         },
       },
     ]);
@@ -459,19 +467,19 @@ export async function getUpdatePaymentStatus(orderId: string) {
         { _id: { $in: updatedPaymentItem.items } },
         { $set: { isDeleted: true, isBought: true } }
       );
-      const planAndDietPlan = []
-      paymentItemToBeUpdated[0].cartItems.map((item:any)=>{
-        if(item.dietPlanDetails || item.plan){
-          planAndDietPlan.push(item)
+      const planAndDietPlan = [];
+      paymentItemToBeUpdated[0].cartItems.map((item: any) => {
+        if (item.dietPlanDetails || item.plan) {
+          planAndDietPlan.push(item);
         }
-      })
+      });
 
-      const service = []
-      paymentItemToBeUpdated[0].cartItems.map((item:any)=>{
-        if(item.serviceDetails){
-          service.push(item)
+      const service = [];
+      paymentItemToBeUpdated[0].cartItems.map((item: any) => {
+        if (item.serviceDetails) {
+          service.push(item);
         }
-      })
+      });
       if (planAndDietPlan.length > 0) {
         await activePlanForUser(
           paymentItemToBeUpdated[0].userId,
@@ -479,13 +487,13 @@ export async function getUpdatePaymentStatus(orderId: string) {
         );
       }
       if (service.length > 0) {
-        await activeServiceUser(
-          paymentItemToBeUpdated[0].userId,
-          service
-        );
+        await activeServiceUser(paymentItemToBeUpdated[0].userId, service);
       }
-      
-      await addUserUsage(paymentItemToBeUpdated[0].couponDetails.code, paymentItemToBeUpdated[0].userId)
+
+      await addUserUsage(
+        paymentItemToBeUpdated[0].couponDetails.code,
+        paymentItemToBeUpdated[0].userId
+      );
     }
 
     return {
@@ -494,7 +502,7 @@ export async function getUpdatePaymentStatus(orderId: string) {
       data: updatedPaymentItem,
     };
   } catch (error) {
-    console.log(error)
+    console.log(error);
     throw new Error(error);
   }
 }
@@ -632,7 +640,9 @@ export async function getPaymentItems(
                 $lookup: {
                   from: "products",
                   let: { productId: "$product.productId" },
-                  pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$productId"] } } }],
+                  pipeline: [
+                    { $match: { $expr: { $eq: ["$_id", "$$productId"] } } },
+                  ],
                   as: "productDetails",
                 },
               },
@@ -642,7 +652,9 @@ export async function getPaymentItems(
                 $lookup: {
                   from: "productvariations",
                   let: { variationId: "$product.variationId" },
-                  pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$variationId"] } } }],
+                  pipeline: [
+                    { $match: { $expr: { $eq: ["$_id", "$$variationId"] } } },
+                  ],
                   as: "variationDetails",
                 },
               },
@@ -656,7 +668,9 @@ export async function getPaymentItems(
                         $mergeObjects: [
                           { $arrayElemAt: ["$productDetails", 0] }, // Extract product object
                           {
-                            variation: { $arrayElemAt: ["$variationDetails", 0] }, //  Nest variation inside plan
+                            variation: {
+                              $arrayElemAt: ["$variationDetails", 0],
+                            }, //  Nest variation inside plan
                           },
                         ],
                       },
@@ -809,7 +823,9 @@ export async function getPaymentItems(
                 $lookup: {
                   from: "products",
                   let: { productId: "$product.productId" },
-                  pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$productId"] } } }],
+                  pipeline: [
+                    { $match: { $expr: { $eq: ["$_id", "$$productId"] } } },
+                  ],
                   as: "productDetails",
                 },
               },
@@ -819,7 +835,9 @@ export async function getPaymentItems(
                 $lookup: {
                   from: "productvariations",
                   let: { variationId: "$product.variationId" },
-                  pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$variationId"] } } }],
+                  pipeline: [
+                    { $match: { $expr: { $eq: ["$_id", "$$variationId"] } } },
+                  ],
                   as: "variationDetails",
                 },
               },
@@ -833,7 +851,9 @@ export async function getPaymentItems(
                         $mergeObjects: [
                           { $arrayElemAt: ["$productDetails", 0] }, // Extract product object
                           {
-                            variation: { $arrayElemAt: ["$variationDetails", 0] }, //  Nest variation inside plan
+                            variation: {
+                              $arrayElemAt: ["$variationDetails", 0],
+                            }, //  Nest variation inside plan
                           },
                         ],
                       },
@@ -991,7 +1011,9 @@ export async function getPaymentItem(orderId: string) {
               $lookup: {
                 from: "products",
                 let: { productId: "$product.productId" },
-                pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$productId"] } } }],
+                pipeline: [
+                  { $match: { $expr: { $eq: ["$_id", "$$productId"] } } },
+                ],
                 as: "productDetails",
               },
             },
@@ -1001,7 +1023,9 @@ export async function getPaymentItem(orderId: string) {
               $lookup: {
                 from: "productvariations",
                 let: { variationId: "$product.variationId" },
-                pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$variationId"] } } }],
+                pipeline: [
+                  { $match: { $expr: { $eq: ["$_id", "$$variationId"] } } },
+                ],
                 as: "variationDetails",
               },
             },
@@ -1079,9 +1103,31 @@ export async function getPaymentItem(orderId: string) {
 //// Funciton for getting the payment details -------------------------------/
 export async function getPaymentReceipt(orderId: string, userId: string) {
   try {
+    // Step 1: Just check PaymentModel
+    const step1 = await PaymentModel.aggregate([
+      { $match: { _id: new mongoose.Types.ObjectId(orderId) } },
+    ]);
+    console.log("Step 1:", JSON.stringify(step1, null, 2));
+
+    const step2 = await PaymentModel.aggregate([
+      { $match: { _id: new mongoose.Types.ObjectId(orderId) } },
+      {
+        $lookup: {
+          from: "carts",
+          let: { cartItemIds: "$items" },
+          pipeline: [
+            {
+              $match: { $expr: { $in: ["$_id", "$$cartItemIds"] } },
+            },
+          ],
+          as: "cartItems",
+        },
+      },
+    ]);
+    console.log("Step 2:", JSON.stringify(step2, null, 2));
     const response = await PaymentModel.aggregate([
       {
-        $match: { orderId: orderId },
+        $match: { _id: new mongoose.Types.ObjectId(orderId) },
       },
       {
         $lookup: {
@@ -1187,7 +1233,9 @@ export async function getPaymentReceipt(orderId: string, userId: string) {
               $lookup: {
                 from: "products",
                 let: { productId: "$product.productId" },
-                pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$productId"] } } }],
+                pipeline: [
+                  { $match: { $expr: { $eq: ["$_id", "$$productId"] } } },
+                ],
                 as: "productDetails",
               },
             },
@@ -1197,7 +1245,9 @@ export async function getPaymentReceipt(orderId: string, userId: string) {
               $lookup: {
                 from: "productvariations",
                 let: { variationId: "$product.variationId" },
-                pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$variationId"] } } }],
+                pipeline: [
+                  { $match: { $expr: { $eq: ["$_id", "$$variationId"] } } },
+                ],
                 as: "variationDetails",
               },
             },
@@ -1269,6 +1319,17 @@ export async function getPaymentReceipt(orderId: string, userId: string) {
         },
       },
     ]);
+    console.log("this is response");
+    console.log(response);
+
+    if (!response || response.length === 0) {
+      return {
+        success: false,
+        message: "No payment found for this order",
+        receipt: null,
+      };
+    }
+
     const pdfBuffer = await generateReceiptPdf(response);
     const reciptUrl = await uploadUserReceiptPdfWithSas(pdfBuffer, userId);
     return {
@@ -1277,6 +1338,9 @@ export async function getPaymentReceipt(orderId: string, userId: string) {
       receipt: reciptUrl,
     };
   } catch (error) {
+    console.log("this is error");
+    console.log(error.message);
+
     return {
       success: false,
       message: error.message,

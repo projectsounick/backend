@@ -21,7 +21,7 @@ const userSchema: Schema<User> = new Schema<User>({
     type: String,
     required: false,
     unique: true,
-  sparse: true, // <-- only enforces uniqueness when phoneNumber is present
+    sparse: true, // <-- only enforces uniqueness when phoneNumber is present
   },
   expoPushToken: {
     type: String,
@@ -97,6 +97,7 @@ export interface UserDetails extends Document {
   preferredWorkoutLocation: string;
   activityLevel: string;
   assignedCoupons: string[];
+  healthReport?: string;
   companyId: mongoose.Types.ObjectId;
   preferences: {
     date: string;
@@ -145,6 +146,10 @@ const userDetailsSchema: Schema<UserDetails> = new Schema<UserDetails>({
     required: false,
   },
   preferredWorkoutTime: {
+    type: String,
+    required: false,
+  },
+  healthReport: {
     type: String,
     required: false,
   },

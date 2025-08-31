@@ -1,5 +1,7 @@
+import mongoose from "mongoose";
 import AdminNotificationModel, {
   AdminNotification,
+  AdminNotificationData,
 } from "./AdminNotification.model";
 
 export async function postUserNotifications(
@@ -128,3 +130,36 @@ export async function deleteNotificationById(notificationId: string): Promise<{
     };
   }
 }
+interface CreateAdminNotificationParams {
+  title: string;
+  body: string;
+  senderId: mongoose.Types.ObjectId | string;
+  receiverId: mongoose.Types.ObjectId | string;
+  data?: AdminNotificationData; // optional
+}
+export const createUserNotification = async (
+  params: CreateAdminNotificationParams
+) => {
+  try {
+    const { title, body, senderId, receiverId, data } = params;
+
+    // Validate required fields
+    if (!title || !body || !senderId || !receiverId) {
+      throw new Error("title, body, senderId, and receiverId are required.");
+    }
+
+    const notification = new AdminNotificationModel({
+      title,
+      body,
+      senderId,
+      receiverId,
+      data: data || undefined, // optional, can be undefined
+    });
+
+    const savedNotification = await notification.save();
+    return savedNotification;
+  } catch (err) {
+    console.error("Failed to create admin notification:", err);
+    throw err;
+  }
+};

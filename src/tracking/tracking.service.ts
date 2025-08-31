@@ -154,6 +154,61 @@ export async function AddOrUpdateWalkTracking(
     };
   }
 }
+export async function getDayTrackingData(userId: string, day: string) {
+  try {
+    if (!userId || !day) {
+      return {
+        success: false,
+        message: "Missing required fields.",
+        data: null,
+      };
+    }
+
+    console.log("this is day:", day);
+
+    const start = new Date(day);
+    start.setHours(0, 0, 0, 0);
+
+    const end = new Date(day);
+    end.setHours(23, 59, 59, 999);
+
+    console.log("Start:", start);
+    console.log("End:", end);
+
+    const [sleepData, stepsData, waterData] = await Promise.all([
+      SleepTrackingModel.findOne({
+        userId,
+        date: { $gte: start, $lte: end },
+      }),
+      WalkTrackingModel.findOne({
+        userId,
+        date: { $gte: start, $lte: end },
+      }),
+      WaterTrackingModel.findOne({
+        userId,
+        date: { $gte: start, $lte: end },
+      }),
+    ]);
+
+    return {
+      success: true,
+      message: "Fetched successfully!",
+      data: {
+        sleep: sleepData || {},
+        steps: stepsData || {},
+        water: waterData || {},
+      },
+    };
+  } catch (error) {
+    console.error("Error fetching day tracking data:", error);
+    return {
+      success: false,
+      message: "Internal server error.",
+      data: null,
+    };
+  }
+}
+
 export async function getWalkTracking(
   userId: string,
   startDate: string,

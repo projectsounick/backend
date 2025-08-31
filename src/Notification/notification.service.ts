@@ -5,6 +5,8 @@ import {
   notificationContentForNewVideo,
 } from "../utils/staticNotificaitonContent";
 import NotificationModel from "./notification.model";
+import { createUserNotification } from "../AdminNotification/adminNotificationService";
+import AdminNotificationModel from "../AdminNotification/AdminNotification.model";
 const { Expo } = require("expo-server-sdk");
 interface GetNotificationsOptions {
   page?: number;
@@ -325,6 +327,14 @@ export async function sendingNotificationByTakingTwoUserId(
       }
 
       sendPushNotifications(title, body, [reciverToken], {});
+      try {
+        createUserNotification({
+          title: title,
+          body: body,
+          senderId: senderId,
+          receiverId: reciverId,
+        });
+      } catch (error) {}
     }
 
     // 🚀 send push notification here using expoPushToken
@@ -333,10 +343,9 @@ export async function sendingNotificationByTakingTwoUserId(
   }
 }
 
-
 export async function postBatchNotification(inputs: any[]) {
   try {
-    const savedNotification = await NotificationModel.insertMany(inputs);
+    const savedNotification = await AdminNotificationModel.insertMany(inputs);
 
     return {
       success: true,
@@ -357,9 +366,13 @@ export async function sendBulkPushNotificationsAndSave(
   title: string,
   body: string,
   users: any[],
-  notificationFor : 'admin' | 'hr' | 'trainer' | 'user'
+  notificationFor: "admin" | "hr" | "trainer" | "user"
 ) {
-  const tokens = [...new Set(users.map((user) => user.expoPushToken).filter((token) => !!token)),]; // Removes duplicates
+  const tokens = [
+    ...new Set(
+      users.map((user) => user.expoPushToken).filter((token) => !!token)
+    ),
+  ]; // Removes duplicates
 
   const expo = new Expo();
 
@@ -384,18 +397,20 @@ export async function sendBulkPushNotificationsAndSave(
       await expo.sendPushNotificationsAsync(messages);
     }
 
-    postBatchNotification(users.map((user)=>{
-      return {
-        title: title,
-        body: body,
-        isAdmin: notificationFor === 'admin',
-        isTrainer: notificationFor === 'trainer',
-        isHr: notificationFor === 'hr',
-        userId: user._id
-      }
-    }))
+    postBatchNotification(
+      users.map((user) => {
+        return {
+          title: title,
+          body: body,
+          reciverId: user._id,
+          senderId: "6824c9555c0f5d5253ed8d3f",
+        };
+      })
+    )
       .then(() => console.log("Background notifications generated."))
-      .catch(err => console.error("Error generating notifications in background:", err));
+      .catch((err) =>
+        console.error("Error generating notifications in background:", err)
+      );
 
     return { success: true, message: "Notifications sent successfully" };
   } catch (err) {
@@ -406,3 +421,51 @@ export async function sendBulkPushNotificationsAndSave(
     };
   }
 }
+interface CreateNotificationParams {
+  title: string;
+  body: string;
+  userId?: string;
+  isAdmin?: boolean;
+  isTrainer?: boolean;
+  isHr?: boolean;
+}
+
+export const createNotification = async (params: CreateNotificationParams) => {
+  try {
+    const {
+      title,
+      body,
+      userId,
+      isAdmin = false,
+      isTrainer = false,
+      isHr = false,
+    } = params;
+    let userName;
+    try {
+      const data = await UserModel.findById(userId).select("name");
+      userName = data.name || null;
+    } catch (error) {}
+    // Validate at least one target (user or role) is set
+    if (!userId && !isAdmin && !isTrainer && !isHr) {
+      throw new Error(
+        "Notification must have at least one target: userId or a role flag."
+      );
+    }
+
+    const notification = new NotificationModel({
+      title,
+      body,
+      userId,
+      isAdmin,
+      isTrainer,
+      isHr,
+      userName: userName,
+    });
+
+    const savedNotification = await notification.save();
+    return savedNotification;
+  } catch (err) {
+    console.error("Failed to create notification:", err);
+    throw err;
+  }
+};

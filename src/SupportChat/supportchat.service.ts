@@ -2,6 +2,7 @@ import { Conversation } from "twilio/lib/twiml/VoiceResponse";
 import SupportChatModel from "./supportchat.model";
 import UserModel from "../users/user.model";
 import {
+  createNotification,
   sendBulkPushNotifications,
   sendSupportMessageNotification,
 } from "../Notification/notification.service";
@@ -73,7 +74,17 @@ export const postSupportChat = async (
       );
       /// Function for sending support memessage notificaion ---------------/
       await sendSupportMessageNotification(userId, conversation);
-
+      if (conversation.role === "user") {
+        try {
+          /// store in admin side notificaiton also -------------/
+          createNotification({
+            title: "Support message",
+            body: "User has send a message",
+            isAdmin: true,
+            userId: userId,
+          });
+        } catch (error) {}
+      }
       return {
         success: true,
         message: "Chat has been updated",

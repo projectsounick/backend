@@ -58,11 +58,22 @@ const httpTrigger: AzureFunction = async function (
     const parsedUserId =
       userRoleResponse.role === "user" ? callingUserId : userId;
 
-    let response: { message: string; success: boolean };
+    let response: any;
     if (userRoleResponse.role === "user") {
       response = await getCartUser(parsedUserId, parsedIsDeleted);
     } else {
-      response = await getCart(parsedUserId, parsedIsDeleted);
+      if (
+        userRoleResponse.role === "trainer" ||
+        userRoleResponse.role === "hr"
+      ) {
+        response = {
+          message: "Cart has been fetched",
+          success: true,
+          data: [],
+        };
+      } else {
+        response = await getCart(parsedUserId, parsedIsDeleted);
+      }
     }
     // const response: { message: string; success: boolean } = await getCart(
     //   parsedUserId,

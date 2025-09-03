@@ -14,6 +14,8 @@ import mongoose from "mongoose";
 import CompanyModel from "../company/company.model";
 import CommunityModel from "../community/community.model";
 import { postSupportChat } from "../SupportChat/supportchat.service";
+import UserActivePlansModel from "../userActivePlans/activePlans.model";
+import UserActiveServicesModel from "../userActivePlans/activeServices.model";
 const { adminLoginOtpEmailTemplate } = require("../template/otpEmail");
 const { sendEmail } = require("../helpers/send-email");
 
@@ -584,8 +586,8 @@ export async function getAllUsers(query: Record<string, any>) {
         },
       },
       {
-        $sort: { createdAt: -1 }
-      }
+        $sort: { createdAt: -1 },
+      },
     ]);
 
     return {
@@ -610,7 +612,33 @@ export async function getTrainerAssignedUsers(
     const isCorporateUser = query.isCorporateUser === "true";
     const search = query.search || "";
 
-    const queryObj: any = { role: "user" };
+    // 1️⃣ Get all userIds assigned to this trainer from both collections
+    const [planUsers, serviceUsers] = await Promise.all([
+      UserActivePlansModel.find({
+        trainerId: trainerId,
+        isActive: true,
+      }).distinct("userId"),
+      UserActiveServicesModel.find({
+        trainerId: trainerId,
+        isActive: true,
+      }).distinct("userId"),
+    ]);
+
+    // Combine unique userIds
+    const assignedUserIds = Array.from(
+      new Set([...planUsers, ...serviceUsers])
+    );
+
+    if (!assignedUserIds.length) {
+      return {
+        message: "No users found for this trainer",
+        success: true,
+        data: [],
+      };
+    }
+
+    // 2️⃣ Build query for fetching users
+    const queryObj: any = { role: "user", _id: { $in: assignedUserIds } };
 
     if (gender.length > 0) {
       queryObj["sex"] = { $in: gender };
@@ -638,7 +666,6 @@ export async function getTrainerAssignedUsers(
     }
     if (search) {
       const searchRegex = { $regex: search, $options: "i" };
-
       queryObj["$or"] = [
         { name: searchRegex },
         { email: searchRegex },
@@ -653,11 +680,9 @@ export async function getTrainerAssignedUsers(
       ];
     }
 
-    // Fetch all users with their details
-    const savedUsers = await UserModel.aggregate([
-      {
-        $match: queryObj, // ✅ Apply filters to the query
-      },
+    // 3️⃣ Fetch users with their details
+    const users = await UserModel.aggregate([
+      { $match: queryObj },
       {
         $lookup: {
           from: "userdetails",
@@ -666,18 +691,18 @@ export async function getTrainerAssignedUsers(
           as: "userDetails",
         },
       },
+      { $unwind: { path: "$userDetails", preserveNullAndEmptyArrays: true } },
       {
-        $unwind: {
-          path: "$userDetails",
-          preserveNullAndEmptyArrays: true,
+        $project: {
+          phoneNumber: 0,
         },
       },
     ]);
 
     return {
-      message: "Users fetched successfully found",
+      message: "Users fetched successfully",
       success: true,
-      data: savedUsers,
+      data: users,
     };
   } catch (error) {
     return {
@@ -716,6 +741,63 @@ export async function addTrainer(data: Record<string, any>) {
     };
   } catch (error) {
     throw new Error(error);
+  }
+}
+export async function getTrainerById(trainerId: string) {
+  try {
+    if (!mongoose.Types.ObjectId.isValid(trainerId)) {
+      return { success: false, message: "Invalid trainer ID", data: [] };
+    }
+
+    const trainers = await UserModel.aggregate([
+      {
+        $match: {
+          _id: new mongoose.Types.ObjectId(trainerId),
+          role: "trainer",
+        },
+      },
+      {
+        $lookup: {
+          from: "trainerdetails",
+          localField: "_id",
+          foreignField: "userId",
+          as: "trainerDetails",
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          phoneNumber: 1,
+          email: 1,
+          name: 1,
+          dob: 1,
+          profilePic: 1,
+          sex: 1,
+          isActive: 1,
+          createdAt: 1,
+          achievements: {
+            $ifNull: [
+              { $arrayElemAt: ["$trainerDetails.achievements", 0] },
+              [],
+            ],
+          },
+        },
+      },
+    ]);
+
+    return {
+      success: true,
+      message: trainers.length
+        ? "Trainer fetched successfully"
+        : "Trainer not found",
+      data: trainers, // ✅ returns array of objects
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "An error occurred",
+      data: [],
+    };
   }
 }
 //// Function for getting all the trainers

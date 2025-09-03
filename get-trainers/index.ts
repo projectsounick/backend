@@ -1,7 +1,11 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 import { init } from "../src/helpers/azure-cosmosdb-mongodb";
-import { checkIfAdmin, verifyAndDecodeToken } from "../src/admin/admin.service";
-import { getAllTrainers } from "../src/users/users.service";
+import {
+  checkIfAdmin,
+  getUserRole,
+  verifyAndDecodeToken,
+} from "../src/admin/admin.service";
+import { getAllTrainers, getTrainerById } from "../src/users/users.service";
 
 const httpTrigger: AzureFunction = async function (
   context: Context,
@@ -24,7 +28,8 @@ const httpTrigger: AzureFunction = async function (
     }
     await init(context);
 
-    if (!checkIfAdmin(userId)) {
+    const userRoleResponse = await getUserRole(userId);
+    if (!userRoleResponse.status) {
       context.res = {
         status: 401,
         body: {
@@ -36,12 +41,23 @@ const httpTrigger: AzureFunction = async function (
     }
 
     const { isActive, search, page, limit } = req.query;
-    
-    const parsedIsActive = isActive === "true" ? true : isActive === "false" ? false : null;
+
+    const parsedIsActive =
+      isActive === "true" ? true : isActive === "false" ? false : null;
     const parsedPage = page ? parseInt(page, 10) : 1;
     const parsedLimit = limit ? parseInt(limit, 10) : 10;
+    let response: { message: string; success: boolean };
+    if (userRoleResponse.role === "trainer") {
+      response = await getTrainerById(userId);
+    } else if (userRoleResponse.role === "admin") {
+      response = await getAllTrainers(
+        parsedIsActive,
+        search,
+        parsedPage,
+        parsedLimit
+      );
+    }
 
-    const response: { message: string; success: boolean } = await getAllTrainers(parsedIsActive, search, parsedPage, parsedLimit);
     if (response.success) {
       context.res = {
         status: 200,

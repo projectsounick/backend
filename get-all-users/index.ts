@@ -44,13 +44,14 @@ const httpTrigger: AzureFunction = async function (
     }
 
     let response: { message: string; success: boolean };
-    if( userRoleResponse.role == "admin") {
+    if (userRoleResponse.role == "admin") {
       response = await getAllUsers(req.query);
-    }else if( userRoleResponse.role == "trainer") {
-      response = await getTrainerAssignedUsers(userId,req.query);
-    }else if( userRoleResponse.role == "hr") {
+    } else if (userRoleResponse.role == "trainer") {
+      console.log("went inside this");
+      response = await getTrainerAssignedUsers(userId, req.query);
+    } else if (userRoleResponse.role == "hr") {
       response = await getAllUsers(req.query);
-    }else{
+    } else {
       context.res = {
         status: 403,
         body: {
@@ -60,7 +61,7 @@ const httpTrigger: AzureFunction = async function (
       };
       return;
     }
-    
+
     if (response.success) {
       context.res = {
         status: 200,

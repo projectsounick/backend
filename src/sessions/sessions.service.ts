@@ -13,7 +13,7 @@ import {
   sendBulkPushNotificationsAndSave,
 } from "../Notification/notification.service";
 import { notificationContentForSessionCanceled, notificationContentForSessionCompleted, notificationContentForSessionCreated } from "../utils/staticNotificaitonContent";
-export async function createNewSession(toBeassignedUserId, data: any) {
+export async function createNewSession(toBeassignedUserId, data: any,callingUserId:string) {
   try {
     if (!data.sessionItems || data.sessionItems.length == 0) {
       return {
@@ -231,7 +231,12 @@ export async function createNewSession(toBeassignedUserId, data: any) {
       sendBulkPushNotificationsAndSave(
         notificationContent.title,
         notificationContent.body,
-        users,
+        users.map((user) => {
+          return {
+            ...user,
+            senderId: callingUserId,
+          };
+        }),
         "user"
       )
         .then(() => console.log("Background notification triggred."))
@@ -555,7 +560,7 @@ export async function getUserSessions(
 export async function updateSession(
   sessionId: string,
   data: Record<string, any>,
-  userId?: string
+  userId: string
 ) {
   console.log("this is data");
   console.log(data);
@@ -630,7 +635,12 @@ export async function updateSession(
         sendBulkPushNotificationsAndSave(
           notificationContent.title,
           notificationContent.body,
-          users,
+          users.map((user) => {
+            return {
+              ...user,
+              senderId: userId,
+            };
+          }),
           "user"
         )
           .then(() => console.log("Background notification triggred."))
@@ -652,7 +662,12 @@ export async function updateSession(
         sendBulkPushNotificationsAndSave(
           notificationContent.title,
           notificationContent.body,
-          users,
+          users.map((user) => {
+            return {
+              ...user,
+              senderId: userId,
+            };
+          }),
           "user"
         )
           .then(() => console.log("Background notification triggred."))

@@ -40,9 +40,9 @@ const httpTrigger: AzureFunction = async function (
     console.log(planType)
     let response: { message: string; success: boolean };
     if(planType === 'plan'){
-      response = await assignPlanToUser(userToGetAssigendId, req.body.planId, req.body.planItemId);
+      response = await assignPlanToUser(userToGetAssigendId, req.body.planId, req.body.planItemId,userId);
     }else{
-      response = await assignDietPlanToUser(userToGetAssigendId, req.body.dietPlanId)
+      response = await assignDietPlanToUser(userToGetAssigendId, req.body.dietPlanId,userId)
     }
     if (response.success) {
       context.res = {

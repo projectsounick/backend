@@ -557,7 +557,8 @@ export async function updateDietPlanPdf(
 export async function assignPlanToUser(
   userId: string,
   planId: string,
-  planItemId: string
+  planItemId: string,
+  callingUserId:string
 ) {
   try {
     const alreadyActivePlans = await UserActivePlansModel.findOne({
@@ -626,7 +627,12 @@ export async function assignPlanToUser(
       sendBulkPushNotificationsAndSave(
         notificationContent.title,
         notificationContent.body,
-        users,
+        users.map((user) => {
+          return {
+            ...user,
+            senderId: callingUserId,
+          };
+        }),
         "user"
       )
         .then(() => console.log("Background notification triggred."))
@@ -644,7 +650,7 @@ export async function assignPlanToUser(
   }
 }
 
-export async function assignDietPlanToUser(userId: string, dietPlanId: string) {
+export async function assignDietPlanToUser(userId: string, dietPlanId: string,callingUserId:string) {
   try {
     const alreadyActivePlans = await UserActivePlansModel.findOne({
       userId: new mongoose.Types.ObjectId(userId),

@@ -21,7 +21,6 @@ export const notificationContentForSteps = {
   body: "Track your steps and keep moving towards your goal!",
 };
 
-
 export const notificationContentForSessionCreated = {
   title: "New Session Scheduled 📅",
   body: "You have a new session scheduled. Check your calender for details.",
@@ -37,7 +36,6 @@ export const notificationContentForSessionCompleted = {
   body: "Great job on completing your session! Keep up the good work.",
 };
 
-
 export const notificationContentForPlanAssign = {
   title: "New Plan Assigned 📋",
   body: "A new plan has been assigned to you. Start your journey today!",
@@ -46,4 +44,8 @@ export const notificationContentForPlanAssign = {
 export const notificationContentForPlanExpire = {
   title: "Plan Expiring Soon ⏳",
   body: "Your current plan is expiring soon. Renew now to continue your progress!",
+};
+export const notificationContentForPlanEnd = {
+  title: "Plan Expired ❌",
+  body: "Your current plan has expired. Renew now to continue your progress!",
 };

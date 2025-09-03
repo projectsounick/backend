@@ -564,7 +564,7 @@ export async function assignPlanToUser(
       userId: new mongoose.Types.ObjectId(userId),
       "plan.planId": new mongoose.Types.ObjectId(planId),
     });
-    if (alreadyActivePlans) {
+    if (alreadyActivePlans && alreadyActivePlans.isActive === true) {
       return {
         message: "Plan already assigned to user",
         success: false,

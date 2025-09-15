@@ -12,8 +12,12 @@ import {
   createNotification,
   sendBulkPushNotificationsAndSave,
 } from "../Notification/notification.service";
-import { notificationContentForSessionCanceled, notificationContentForSessionCompleted, notificationContentForSessionCreated } from "../utils/staticNotificaitonContent";
-export async function createNewSession(toBeassignedUserId, data: any,callingUserId:string) {
+import {
+  notificationContentForSessionCanceled,
+  notificationContentForSessionCompleted,
+  notificationContentForSessionCreated,
+} from "../utils/staticNotificaitonContent";
+export async function createNewSession(toBeassignedUserId, data: any) {
   try {
     if (!data.sessionItems || data.sessionItems.length == 0) {
       return {
@@ -130,7 +134,6 @@ export async function createNewSession(toBeassignedUserId, data: any,callingUser
       }
 
       let savedSession = await SessionModel.create(sessionItemObj);
-      
 
       let savedWorkoutItems = [];
 
@@ -154,7 +157,6 @@ export async function createNewSession(toBeassignedUserId, data: any,callingUser
         workoutItems: savedWorkoutItems,
       });
     }
-
 
     if (data.sessionAgainstType == "againstPlan") {
       const currentRemainingSessions =
@@ -301,6 +303,8 @@ export async function getUserSessions(
         activeServiceId
       );
     }
+    console.log("this is queryobj");
+    console.log(queryObj);
 
     const userSessions = await SessionModel.aggregate([
       { $match: queryObj },

@@ -104,6 +104,11 @@ export interface UserDetails extends Document {
     slot: string;
     address: string;
   };
+  appleHealth: {
+    stepSync: boolean;
+    sleepSync: boolean;
+    lastSync: Date;
+  };
 }
 const userDetailsSchema: Schema<UserDetails> = new Schema<UserDetails>({
   userId: {
@@ -117,6 +122,23 @@ const userDetailsSchema: Schema<UserDetails> = new Schema<UserDetails>({
       ref: "coupons", // Make sure your Coupon model is named "coupons"
     },
   ],
+  appleHealth: {
+    stepSync: {
+      type: Boolean,
+      default: false,
+      required: false,
+    },
+    sleepSync: {
+      type: Boolean,
+      default: false,
+      requred: false,
+    },
+    lastSync: {
+      type: Date,
+      default: null,
+      required: false,
+    },
+  },
   height: {
     type: String,
     required: false,

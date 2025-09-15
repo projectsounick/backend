@@ -397,13 +397,14 @@ export async function sendBulkPushNotificationsAndSave(
       await expo.sendPushNotificationsAsync(messages);
     }
 
+    const AdminId = '6824c9555c0f5d5253ed8d3f'
     postBatchNotification(
       users.map((user) => {
         return {
           title: title,
           body: body,
           receiverId: user._id,
-          senderId: "6824c9555c0f5d5253ed8d3f",
+          senderId: user.senderId ?  user.senderId : "6824c9555c0f5d5253ed8d3f",
         };
       })
     )

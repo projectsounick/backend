@@ -17,7 +17,7 @@ import {
   notificationContentForSessionCompleted,
   notificationContentForSessionCreated,
 } from "../utils/staticNotificaitonContent";
-export async function createNewSession(toBeassignedUserId, data: any) {
+export async function createNewSession(toBeassignedUserId, data: any,callingUserId:string) {
   try {
     if (!data.sessionItems || data.sessionItems.length == 0) {
       return {

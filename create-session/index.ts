@@ -48,7 +48,7 @@ const httpTrigger: AzureFunction = async function (
 
     const toBeassignedUserId = req.params.userId;
 
-    const response: { message: string; success: boolean } = await createNewSession(toBeassignedUserId,req.body);
+    const response: { message: string; success: boolean } = await createNewSession(toBeassignedUserId,req.body,userId);
     if (response.success) {
       context.res = {
         status: 200,

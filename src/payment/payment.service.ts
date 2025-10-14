@@ -85,55 +85,6 @@ async function getAuthToken() {
     throw new Error(error.message);
   }
 }
-async function createOrder(amount: number, orderId: string) {
-  try {
-    const authToken = await getAuthToken();
-
-    const requestBody = {
-      merchantOrderId: orderId,
-      amount: amount * 100,
-      expireAfter: 3600,
-      paymentFlow: {
-        type: "PG_CHECKOUT",
-        paymentModeConfig: {
-          enabledPaymentModes: [
-            {
-              type: "UPI_INTENT",
-            },
-            {
-              type: "UPI_COLLECT",
-            },
-            {
-              type: "UPI_QR",
-            },
-            {
-              type: "NET_BANKING",
-            },
-            {
-              type: "CARD",
-              cardTypes: ["DEBIT_CARD", "CREDIT_CARD"],
-            },
-          ],
-        },
-      },
-    };
-    const devURl =
-      "https://api-preprod.phonepe.com/apis/pg-sandbox/checkout/v2/sdk/order";
-    const prodURL = "https://api.phonepe.com/apis/pg/checkout/v2/sdk/order";
-    const response = await axios.post(prodURL, requestBody, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `O-Bearer ${authToken}`,
-      },
-    });
-
-    console.log("Payment Response:", response.data);
-    return response.data;
-  } catch (error) {
-    console.error("Error initiating payment:", error);
-    throw new Error(error.message);
-  }
-}
 async function initiatePayment(amount: number, orderId: string) {
   try {
     const authToken = await getAuthToken();
@@ -1346,5 +1297,102 @@ export async function getPaymentReceipt(orderId: string, userId: string) {
       message: error.message,
       receipt: null,
     };
+  }
+}
+
+
+
+/// new payment flow
+export async function addPaymentItemv2(
+  userId: string,
+  amount: number,
+  items: Array<string>,
+  couponCode: string,
+  deliveryAddess: string
+) {
+  try {
+    if (items.length === 0) {
+      return {
+        message: "items cannot be empty",
+        success: false,
+      };
+    }
+    const orderId = uuidv4();
+    console.log(orderId);
+    const orderObj = await createOrder(amount, orderId);
+    // console.log(redirectUrl);
+    const paymentObj: any = {
+      userId: new mongoose.Types.ObjectId(userId),
+      amount: amount,
+      status: "pending",
+      items: items,
+      orderId: orderId,
+      // paymentUrl: redirectUrl,
+    };
+    if (couponCode) {
+      paymentObj["couponCode"] = couponCode;
+    }
+    if (deliveryAddess) {
+      paymentObj["deliveryAddess"] = deliveryAddess;
+    }
+    const savedPaymentItem = await PaymentModel.create({ ...paymentObj });
+    return {
+      message: "added successfully",
+      success: true,
+      data: savedPaymentItem,
+      orderId: orderObj.orderId,
+      orderToken: orderObj.token,
+    };
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+async function createOrder(amount: number, orderId: string) {
+  try {
+    const authToken = await getAuthToken();
+
+    const requestBody = {
+      merchantOrderId: orderId,
+      amount: amount * 100,
+      expireAfter: 3600,
+      paymentFlow: {
+        type: "PG_CHECKOUT",
+        paymentModeConfig: {
+          enabledPaymentModes: [
+            {
+              type: "UPI_INTENT",
+            },
+            {
+              type: "UPI_COLLECT",
+            },
+            {
+              type: "UPI_QR",
+            },
+            {
+              type: "NET_BANKING",
+            },
+            {
+              type: "CARD",
+              cardTypes: ["DEBIT_CARD", "CREDIT_CARD"],
+            },
+          ],
+        },
+      },
+    };
+    const devURl =
+      "https://api-preprod.phonepe.com/apis/pg-sandbox/checkout/v2/sdk/order";
+    const prodURL = "https://api.phonepe.com/apis/pg/checkout/v2/sdk/order";
+    const response = await axios.post(prodURL, requestBody, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `O-Bearer ${authToken}`,
+      },
+    });
+
+    console.log("Payment Response:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error initiating payment:", error);
+    throw new Error(error.message);
   }
 }

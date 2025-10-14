@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import PlanModel, { DietPlanModel, PlanItemModel } from "../Plans/plan.model";
 import CartModel from "./cart.model";
-import { addPaymentItem, getTransactionData } from "../payment/payment.service";
+import { addPaymentItem, addPaymentItemv2, getTransactionData } from "../payment/payment.service";
 import ProductModel, { ProductVariationModel } from "../products/product.model";
 import DiscountCouponModel from "../DiscountCoupon/discountCoupon.model";
 import ServiceModel from "../services/services.model";
@@ -778,6 +778,225 @@ export async function cartCheckout(
     //   cartItemsId
     // );
     const paymentResponse = await addPaymentItem(
+      userId,
+      totalAmount,
+      cartItemsId,
+      couponDetails ? couponDetails.code : "",
+      deliveryAddess ? deliveryAddess : ""
+    );
+    if (paymentResponse.success) {
+      return paymentResponse;
+    } else
+      return {
+        success: false,
+        message: "Some error has happened",
+      };
+
+    // // Mark all cart items as deleted
+    // await CartModel.updateMany(
+    //   { _id: { $in: cartItemsId } },
+    //   { $set: { isDeleted: true, isBought: true } }
+    // );
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+
+export async function cartCheckoutv2(
+  userId: string,
+  couponCode: string,
+  deliveryAddess: string
+) {
+  try {
+    let couponDetails = null;
+    if (couponCode) {
+      couponDetails = await DiscountCouponModel.findOne({ code: couponCode });
+      if (!couponDetails) {
+        return {
+          message: "Coupon details not found",
+          success: false,
+        };
+      }
+    }
+    const queryObj: any = {
+      userId: new mongoose.Types.ObjectId(userId),
+      isDeleted: false,
+    };
+
+    const cartItems = await CartModel.aggregate([
+      { $match: queryObj },
+      { $sort: { createdAt: -1 } },
+
+      // Lookup diet plan details (if applicable)
+      {
+        $lookup: {
+          from: "dietplans",
+          localField: "dietPlanId",
+          foreignField: "_id",
+          as: "dietPlanDetails",
+        },
+      },
+
+      // Lookup service details (if applicable)
+      {
+        $lookup: {
+          from: "services",
+          localField: "serviceId",
+          foreignField: "_id",
+          as: "serviceDetails",
+        },
+      },
+
+      //Lookup plan details using the nested `plan.planId`
+      {
+        $lookup: {
+          from: "plans",
+          let: { planId: "$plan.planId" },
+          pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$planId"] } } }],
+          as: "planDetails",
+        },
+      },
+
+      //Lookup plan item details using the nested `plan.planItemId`
+      {
+        $lookup: {
+          from: "planitems",
+          let: { planItemId: "$plan.planItemId" },
+          pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$planItemId"] } } }],
+          as: "planItemDetails",
+        },
+      },
+      // Lookup diet plan details from `planDetails.dietPlanId`
+      {
+        $lookup: {
+          from: "dietplans",
+          let: { dietPlanId: { $arrayElemAt: ["$planDetails.dietPlanId", 0] } },
+          pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$dietPlanId"] } } }],
+          as: "planDietPlanDetails",
+        },
+      },
+
+      // Convert `planDetails`, `planItemDetails`, and `planDietPlanDetails` into a structured plan object
+      {
+        $addFields: {
+          plan: {
+            $cond: {
+              if: { $gt: [{ $size: "$planDetails" }, 0] }, // Only add if plan exists
+              then: {
+                $mergeObjects: [
+                  { $arrayElemAt: ["$planDetails", 0] }, // Extract plan object
+                  {
+                    planItem: { $arrayElemAt: ["$planItemDetails", 0] }, //  Nest planItem inside plan
+                    dietPlanDetails: {
+                      $arrayElemAt: ["$planDietPlanDetails", 0],
+                    }, //  Nest dietPlanDetails inside plan
+                  },
+                ],
+              },
+              else: "$$REMOVE", //  Completely remove plan if no data exists
+            },
+          },
+        },
+      },
+
+      //Lookup product details using the nested `product.productId`
+      {
+        $lookup: {
+          from: "products",
+          let: { productId: "$product.productId" },
+          pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$productId"] } } }],
+          as: "productDetails",
+        },
+      },
+
+      //Lookup variation item details using the nested `product.variationId`
+      {
+        $lookup: {
+          from: "productvariations",
+          let: { variationId: "$product.variationId" },
+          pipeline: [{ $match: { $expr: { $eq: ["$_id", "$$variationId"] } } }],
+          as: "variationDetails",
+        },
+      },
+      // Convert `productDetails`, and `variationDetails` into a structured product object
+      {
+        $addFields: {
+          product: {
+            $cond: {
+              if: { $gt: [{ $size: "$productDetails" }, 0] }, // Only add if product exists
+              then: {
+                $mergeObjects: [
+                  { $arrayElemAt: ["$productDetails", 0] }, // Extract product object
+                  {
+                    variation: { $arrayElemAt: ["$variationDetails", 0] }, //  Nest variation inside plan
+                  },
+                ],
+              },
+              else: "$$REMOVE", //  Completely remove product if no data exists
+            },
+          },
+        },
+      },
+
+      //Ensure final structure
+      {
+        $project: {
+          _id: 1,
+          userId: 1,
+          quantity: 1,
+          isDeleted: 1,
+          isBought: 1,
+          createdAt: 1,
+          updatedAt: 1,
+          dietPlanDetails: { $arrayElemAt: ["$dietPlanDetails", 0] },
+          plan: 1, //Plan object will appear only if data exists
+          product: 1,
+          serviceDetails: { $arrayElemAt: ["$serviceDetails", 0] },
+        },
+      },
+    ]);
+
+    if (cartItems.length === 0) {
+      return {
+        message: "No items in the cart",
+        success: false,
+      };
+    }
+
+    let totalAmount = 0;
+    const cartItemsId = [];
+
+    cartItems.forEach((item: any) => {
+      if (item.product) {
+        if (item.product.variation) {
+          totalAmount += item.product.variation.price * item.quantity;
+        } else {
+          totalAmount += item.product.basePrice * item.quantity;
+        }
+      } else if (item.dietPlanDetails) {
+        totalAmount += item.dietPlanDetails.price * item.quantity;
+      } else if (item.serviceDetails) {
+        totalAmount += item.serviceDetails.price * item.quantity;
+      }else {
+        totalAmount += item.plan.planItem.price * item.quantity;
+      }
+      cartItemsId.push(item._id);
+    });
+    console.log(totalAmount);
+    console.log(cartItemsId);
+    console.log(couponDetails);
+
+    if (couponDetails) {
+      totalAmount = Math.max(totalAmount - couponDetails.discountPrice, 0);
+    }
+
+    // const paymentResponse = await getTransactionData(
+    //   userId,
+    //   totalAmount,
+    //   phoneNumber,
+    //   cartItemsId
+    // );
+    const paymentResponse = await addPaymentItemv2(
       userId,
       totalAmount,
       cartItemsId,

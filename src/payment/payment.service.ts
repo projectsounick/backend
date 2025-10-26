@@ -118,6 +118,7 @@ async function initiatePayment(amount: number, orderId: string) {
   }
 }
 
+
 export async function getTransactionData(
   userId: string,
   amount: number,
@@ -186,6 +187,8 @@ export async function getTransactionData(
     message: "Order placed successfully",
   };
 }
+
+
 async function getPaymentStatus(orderId: string) {
   try {
     const authToken = await getAuthToken();
@@ -199,7 +202,7 @@ async function getPaymentStatus(orderId: string) {
       }
     );
 
-    console.log("Payment status Response:", response.data);
+    console.log("Payment status Response:", response);
     return response.data.state;
   } catch (error) {
     console.error("Error initiating payment:", error);
@@ -207,6 +210,7 @@ async function getPaymentStatus(orderId: string) {
   }
 }
 export async function getUpdatePaymentStatus(orderId: string) {
+  console.log("Updating payment status for orderId:", orderId);
   try {
     const orderStatus = await getPaymentStatus(orderId);
     const newStatus =
@@ -457,6 +461,7 @@ export async function getUpdatePaymentStatus(orderId: string) {
     throw new Error(error);
   }
 }
+
 
 export async function validatePayment(receivedData: any) {
   try {
@@ -1318,15 +1323,13 @@ export async function addPaymentItemv2(
       };
     }
     const orderId = uuidv4();
-    console.log(orderId);
     const orderObj = await createOrder(amount, orderId);
-    // console.log(redirectUrl);
     const paymentObj: any = {
       userId: new mongoose.Types.ObjectId(userId),
       amount: amount,
       status: "pending",
       items: items,
-      orderId: orderId,
+      orderId: orderObj.orderId,
       // paymentUrl: redirectUrl,
     };
     if (couponCode) {
@@ -1347,9 +1350,35 @@ export async function addPaymentItemv2(
     throw new Error(error);
   }
 }
+async function getAuthTokenv2() {
+  try {
+    const formData = new URLSearchParams();
+    formData.append("client_id", process.env.CLIENT_ID);
+    formData.append("client_version", "1");
+    formData.append("client_secret", process.env.CLIENT_SECRET);
+    formData.append("grant_type", "client_credentials");
+
+    const response = await axios.post(
+      process.env.TOKEN_URL,
+      formData.toString(),
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      }
+    );
+    return response.data.access_token;
+  } catch (error) {
+    console.error(
+      "Error fetching token:",
+      error.response?.data || error.message
+    );
+    throw new Error(error.message);
+  }
+}
 async function createOrder(amount: number, orderId: string) {
   try {
-    const authToken = await getAuthToken();
+    const authToken = await getAuthTokenv2();
 
     const requestBody = {
       merchantOrderId: orderId,
@@ -1388,8 +1417,6 @@ async function createOrder(amount: number, orderId: string) {
         Authorization: `O-Bearer ${authToken}`,
       },
     });
-
-    console.log("Payment Response:", response.data);
     return response.data;
   } catch (error) {
     console.error("Error initiating payment:", error);

@@ -1,16 +1,5 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
 import { init } from "../src/helpers/azure-cosmosdb-mongodb";
-import { verifyAndDecodeToken } from "../src/admin/admin.service";
-import {
-  getSleepTracking,
-  getWalkTracking,
-  getWaterTracking,
-} from "../src/tracking/tracking.service";
-import {
-  addTransformationImages,
-  getTransformationImagesByUserId,
-} from "../src/TransformationImages.tsx/transformationImages.service";
-import { postSupportChat } from "../src/SupportChat/supportchat.service";
 import { fetchBlogOverallData } from "../src/Blogs/blogs.service";
 
 const httpTrigger: AzureFunction = async function (
@@ -18,24 +7,10 @@ const httpTrigger: AzureFunction = async function (
   req: HttpRequest
 ): Promise<void> {
   try {
-    let userId: string;
-    const authResponse = await verifyAndDecodeToken(req);
-    if (authResponse) {
-      userId = authResponse;
-    } else {
-      context.res = {
-        status: 401,
-        body: {
-          message: "Unauthorized",
-          success: false,
-        },
-      };
-      return;
-    }
-
     await init(context);
-
+    console.log("this is called");
     let response = await fetchBlogOverallData();
+    console.log(response);
     if (response.success) {
       context.res = {
         status: 200,

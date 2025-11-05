@@ -8,21 +8,6 @@ const httpTrigger: AzureFunction = async function (
   req: HttpRequest
 ): Promise<void> {
   try {
-    let userId: string;
-    const authResponse = await verifyAndDecodeToken(req);
-    if (authResponse) {
-      userId = authResponse;
-    } else {
-      context.res = {
-        status: 401,
-        body: {
-          message: "Unauthorized",
-          success: false,
-        },
-      };
-      return;
-    }
-
     await init(context);
     const { isActive, page, limit } = req.query;
 

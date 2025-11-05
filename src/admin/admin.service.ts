@@ -95,6 +95,7 @@ export function verifyAndDecodeToken(req: any): string | null {
 
     // Verify and decode the JWT token
     const decodedToken = jwt.verify(token, secretKey) as { _id: string };
+    console.log(decodedToken);
     if (decodedToken._id) {
       // Return the user ID (_id) if token is valid
       return decodedToken._id;

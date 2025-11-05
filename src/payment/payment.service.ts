@@ -28,30 +28,30 @@ export async function addPaymentItem(
     }
     const orderId = uuidv4();
     console.log(orderId);
-    // const orderObj = await createOrder(amount, orderId);
-    const redirectUrl = await initiatePayment(amount, orderId);
-    console.log(redirectUrl);
-    const paymentObj: any = {
-      userId: new mongoose.Types.ObjectId(userId),
-      amount: amount,
-      status: "pending",
-      items: items,
-      orderId: orderId,
-      paymentUrl: redirectUrl,
-    };
-    if (couponCode) {
-      paymentObj["couponCode"] = couponCode;
-    }
-    if (deliveryAddess) {
-      paymentObj["deliveryAddess"] = deliveryAddess;
-    }
-    const savedPaymentItem = await PaymentModel.create({ ...paymentObj });
+    const orderObj = await createOrder(amount, orderId);
+    // const redirectUrl = await initiatePayment(amount, orderId);
+
+    // const paymentObj: any = {
+    //   userId: new mongoose.Types.ObjectId(userId),
+    //   amount: amount,
+    //   status: "pending",
+    //   items: items,
+    //   orderId: orderId,
+    //   paymentUrl: redirectUrl,
+    // };
+    // if (couponCode) {
+    //   paymentObj["couponCode"] = couponCode;
+    // }
+    // if (deliveryAddess) {
+    //   paymentObj["deliveryAddess"] = deliveryAddess;
+    // }
+    // const savedPaymentItem = await PaymentModel.create({ ...paymentObj });
     return {
       message: "added successfully",
       success: true,
-      data: savedPaymentItem,
-      // orderId: orderObj.orderId,
-      // orderToken: orderObj.token,
+      // data: savedPaymentItem,
+      orderId: orderObj.orderId,
+      orderToken: orderObj.token,
     };
   } catch (error) {
     throw new Error(error);
@@ -1299,8 +1299,6 @@ export async function getPaymentReceipt(orderId: string, userId: string) {
     };
   }
 }
-
-
 
 /// new payment flow
 export async function addPaymentItemv2(

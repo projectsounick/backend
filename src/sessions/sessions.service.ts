@@ -17,7 +17,11 @@ import {
   notificationContentForSessionCompleted,
   notificationContentForSessionCreated,
 } from "../utils/staticNotificaitonContent";
-export async function createNewSession(toBeassignedUserId, data: any,callingUserId:string) {
+export async function createNewSession(
+  toBeassignedUserId,
+  data: any,
+  callingUserId: string
+) {
   try {
     if (!data.sessionItems || data.sessionItems.length == 0) {
       return {
@@ -264,7 +268,8 @@ export async function getUserSessions(
   startDate: string,
   endDate: string,
   activePlanId: string,
-  activeServiceId: string
+  activeServiceId: string,
+  latest: any
 ) {
   try {
     // if (!userId || !startDate || !endDate) {

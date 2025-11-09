@@ -129,11 +129,7 @@ export async function getTransactionData(
   const SALT_KEY = process.env.CLIENT_SECRET!;
   const SALT_INDEX = "1";
   const orderId = uuidv4();
-  console.log(SALT_KEY);
-  console.log(SALT_INDEX);
-  console.log(MERCHANT_ID);
-  console.log(userId);
-  console.log(orderId);
+ 
 
   const requestBody = {
     merchantId: MERCHANT_ID,

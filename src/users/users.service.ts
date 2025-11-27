@@ -16,6 +16,13 @@ import CommunityModel from "../community/community.model";
 import { postSupportChat } from "../SupportChat/supportchat.service";
 import UserActivePlansModel from "../userActivePlans/activePlans.model";
 import UserActiveServicesModel from "../userActivePlans/activeServices.model";
+import {
+  parseUserFilterParams,
+  buildUserFilterQuery,
+  buildUserAggregationPipeline,
+  buildBaseUserQuery,
+  buildTrainerUserAggregationPipeline,
+} from "../utils/userFilterUtils";
 const { adminLoginOtpEmailTemplate } = require("../template/otpEmail");
 const { sendEmail } = require("../helpers/send-email");
 
@@ -518,77 +525,35 @@ export async function updateUserData(
 ///// Functions For Getting All User Data Start////
 export async function getAllUsers(query: Record<string, any>) {
   try {
-    const gender = query.gender?.split(",") || [];
-    const age = query.age?.split(",").map(Number) || [];
-    const isCorporateUser = query.isCorporateUser === "true";
-    const search = query.search || "";
+    // Parse filter parameters from query
+    const filterParams = parseUserFilterParams(query);
 
-    const queryObj: any = { role: "user" };
+    console.log("getAllUsers filters:", filterParams);
 
-    if (gender.length > 0) {
-      queryObj["sex"] = { $in: gender };
-    }
-    if (age.length > 0) {
-      queryObj["$expr"] = {
-        $and: [
-          {
-            $gte: [
-              { $subtract: [new Date().getFullYear(), { $year: "$dob" }] },
-              Math.min(...age),
-            ],
-          },
-          {
-            $lte: [
-              { $subtract: [new Date().getFullYear(), { $year: "$dob" }] },
-              Math.max(...age),
-            ],
-          },
-        ],
+    // Build filter query using utility functions
+    const filterQuery = await buildUserFilterQuery(filterParams);
+
+    // Early return if no users match the plans/services criteria
+    if (filterQuery.requiresEarlyReturn) {
+      return {
+        message: "Users fetched successfully",
+        success: true,
+        data: [],
       };
     }
-    if (isCorporateUser) {
-      queryObj["userDetails.companyId"] = { $exists: true };
-    }
-    if (search) {
-      const searchRegex = { $regex: search, $options: "i" };
 
-      queryObj["$or"] = [
-        { name: searchRegex },
-        { email: searchRegex },
-        { phoneNumber: searchRegex },
-        {
-          _id: {
-            $eq: search.match(/^[0-9a-fA-F]{24}$/)
-              ? new mongoose.Types.ObjectId(search)
-              : null,
-          },
-        },
-      ];
-    }
+    // Build aggregation pipeline
+    const pipeline = buildUserAggregationPipeline(
+      filterQuery.baseQuery,
+      filterQuery.userIds,
+      filterParams.isCorporateUser,
+      filterParams.hasMedicalConditions
+    );
 
     // Fetch all users with their details
-    const savedUsers = await UserModel.aggregate([
-      {
-        $match: queryObj,
-      },
-      {
-        $lookup: {
-          from: "userdetails",
-          localField: "_id",
-          foreignField: "userId",
-          as: "userDetails",
-        },
-      },
-      {
-        $unwind: {
-          path: "$userDetails",
-          preserveNullAndEmptyArrays: true,
-        },
-      },
-      {
-        $sort: { createdAt: -1 },
-      },
-    ]);
+    const savedUsers = await UserModel.aggregate(pipeline);
+
+    console.log(`getAllUsers: Found ${savedUsers.length} users`);
 
     return {
       message: "Users fetched successfully found",
@@ -596,9 +561,11 @@ export async function getAllUsers(query: Record<string, any>) {
       data: savedUsers,
     };
   } catch (error) {
+    console.error("getAllUsers error:", error);
     return {
       message: error instanceof Error ? error.message : "An error occurred",
       success: false,
+      data: [],
     };
   }
 }
@@ -607,10 +574,8 @@ export async function getTrainerAssignedUsers(
   query: Record<string, any>
 ) {
   try {
-    const gender = query.gender?.split(",") || [];
-    const age = query.age?.split(",").map(Number) || [];
-    const isCorporateUser = query.isCorporateUser === "true";
-    const search = query.search || "";
+    // Parse filter parameters from query
+    const filterParams = parseUserFilterParams(query);
 
     // 1️⃣ Get all userIds assigned to this trainer from both collections
     const [planUsers, serviceUsers] = await Promise.all([
@@ -627,7 +592,7 @@ export async function getTrainerAssignedUsers(
     // Combine unique userIds
     const assignedUserIds = Array.from(
       new Set([...planUsers, ...serviceUsers])
-    );
+    ).map((id: any) => new mongoose.Types.ObjectId(id));
 
     if (!assignedUserIds.length) {
       return {
@@ -637,67 +602,18 @@ export async function getTrainerAssignedUsers(
       };
     }
 
-    // 2️⃣ Build query for fetching users
-    const queryObj: any = { role: "user", _id: { $in: assignedUserIds } };
+    // 2️⃣ Build base query using utility function
+    const baseQuery = buildBaseUserQuery(filterParams);
 
-    if (gender.length > 0) {
-      queryObj["sex"] = { $in: gender };
-    }
-    if (age.length > 0) {
-      queryObj["$expr"] = {
-        $and: [
-          {
-            $gte: [
-              { $subtract: [new Date().getFullYear(), { $year: "$dob" }] },
-              Math.min(...age),
-            ],
-          },
-          {
-            $lte: [
-              { $subtract: [new Date().getFullYear(), { $year: "$dob" }] },
-              Math.max(...age),
-            ],
-          },
-        ],
-      };
-    }
-    if (isCorporateUser) {
-      queryObj["userDetails.companyId"] = { $exists: true };
-    }
-    if (search) {
-      const searchRegex = { $regex: search, $options: "i" };
-      queryObj["$or"] = [
-        { name: searchRegex },
-        { email: searchRegex },
-        { phoneNumber: searchRegex },
-        {
-          _id: {
-            $eq: search.match(/^[0-9a-fA-F]{24}$/)
-              ? new mongoose.Types.ObjectId(search)
-              : null,
-          },
-        },
-      ];
-    }
+    // 3️⃣ Build aggregation pipeline using utility function
+    const pipeline = buildTrainerUserAggregationPipeline(
+      baseQuery,
+      assignedUserIds,
+      filterParams.isCorporateUser
+    );
 
-    // 3️⃣ Fetch users with their details
-    const users = await UserModel.aggregate([
-      { $match: queryObj },
-      {
-        $lookup: {
-          from: "userdetails",
-          localField: "_id",
-          foreignField: "userId",
-          as: "userDetails",
-        },
-      },
-      { $unwind: { path: "$userDetails", preserveNullAndEmptyArrays: true } },
-      {
-        $project: {
-          phoneNumber: 0,
-        },
-      },
-    ]);
+    // 4️⃣ Fetch users with their details
+    const users = await UserModel.aggregate(pipeline);
 
     return {
       message: "Users fetched successfully",
@@ -705,9 +621,11 @@ export async function getTrainerAssignedUsers(
       data: users,
     };
   } catch (error) {
+    console.error("getTrainerAssignedUsers error:", error);
     return {
       message: error instanceof Error ? error.message : "An error occurred",
       success: false,
+      data: [],
     };
   }
 }

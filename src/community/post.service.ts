@@ -149,8 +149,24 @@ export async function deletePostById(postId: string, userId: string) {
       };
     }
 
-    // Ensure only the creator can delete the post
-    if (post.createdBy.toString() !== userId) {
+    // Get the community to check if user is admin
+    const communityId = post.community.toString ? post.community.toString() : post.community;
+    const community = await CommunityModel.findById(communityId);
+    
+    if (!community) {
+      return {
+        message: "Community not found",
+        success: false,
+      };
+    }
+
+    // Check if user is the creator or an admin of the community
+    const isCreator = post.createdBy.toString() === userId;
+    const isAdmin = community.admins && community.admins.some(
+      (adminId: any) => adminId.toString() === userId
+    );
+
+    if (!isCreator && !isAdmin) {
       return {
         message: "You are not authorized to delete this post",
         success: false,

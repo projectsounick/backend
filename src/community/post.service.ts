@@ -173,6 +173,20 @@ export async function deletePostById(postId: string, userId: string) {
       };
     }
 
+    // If admin (not creator) is deleting the post, send notification to the post creator
+    if (isAdmin && !isCreator) {
+      try {
+        await sendingNotificationByTakingTwoUserId(
+          userId, // senderId (admin who deleted)
+          post.createdBy.toString(), // receiverId (post creator)
+          "post_deleted"
+        );
+      } catch (error) {
+        console.error("Failed to send post deletion notification:", error);
+        // Continue with deletion even if notification fails
+      }
+    }
+
     await PostModel.findByIdAndDelete(postId);
 
     return {

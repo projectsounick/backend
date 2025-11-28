@@ -324,6 +324,9 @@ export async function sendingNotificationByTakingTwoUserId(
           title = `Hey ${reciverName},`;
           body = `Someone commented on your post.`;
         }
+      } else if (notificationType === "post_deleted") {
+        title = `Hey ${reciverName},`;
+        body = `Your post has been removed. If you have any concerns, please contact us.`;
       }
 
       sendPushNotifications(title, body, [reciverToken], {});

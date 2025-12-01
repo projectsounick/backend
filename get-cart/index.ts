@@ -60,6 +60,7 @@ const httpTrigger: AzureFunction = async function (
 
     let response: any;
     if (userRoleResponse.role === "user") {
+      console.log('wnet here')
       response = await getCartUser(parsedUserId, parsedIsDeleted);
     } else {
       if (
@@ -72,6 +73,7 @@ const httpTrigger: AzureFunction = async function (
           data: [],
         };
       } else {
+        console.log('get cart here')
         response = await getCart(parsedUserId, parsedIsDeleted);
       }
     }

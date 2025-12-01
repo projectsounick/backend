@@ -268,6 +268,35 @@ export async function getCart(userId: string, status: boolean | null) {
         },
       },
 
+      // Ensure price field is always included in dietPlanDetails
+      {
+        $addFields: {
+          dietPlanDetails: {
+            $cond: {
+              if: { $gt: [{ $size: "$dietPlanDetails" }, 0] },
+              then: {
+                $let: {
+                  vars: {
+                    dietPlan: { $arrayElemAt: ["$dietPlanDetails", 0] }
+                  },
+                  in: {
+                    $mergeObjects: [
+                      "$$dietPlan",
+                      {
+                        price: {
+                          $ifNull: ["$$dietPlan.price", 0]
+                        }
+                      }
+                    ]
+                  }
+                }
+              },
+              else: "$$REMOVE"
+            }
+          }
+        }
+      },
+
       //Ensure final structure
       {
         $project: {
@@ -278,7 +307,7 @@ export async function getCart(userId: string, status: boolean | null) {
           isBought: 1,
           createdAt: 1,
           updatedAt: 1,
-          dietPlanDetails: { $arrayElemAt: ["$dietPlanDetails", 0] },
+          dietPlanDetails: 1,
           plan: 1, //Plan object will appear only if data exists
           product: 1,
           serviceDetails: { $arrayElemAt: ["$serviceDetails", 0] },
@@ -297,6 +326,7 @@ export async function getCart(userId: string, status: boolean | null) {
 }
 export async function getCartUser(userId: string, status: boolean | null) {
   try {
+    console.log('get cart user here')
     const queryObj: any = {};
 
     // Only filter by userId if it's provided
@@ -328,6 +358,7 @@ export async function getCartUser(userId: string, status: boolean | null) {
                 title: 1,
                 imgUrl: 1,
                 duration: 1,
+                price: 1,
                 durationType: 1,
               },
             },
@@ -408,6 +439,7 @@ export async function getCartUser(userId: string, status: boolean | null) {
                 imgUrl: 1,
                 duration: 1,
                 durationType: 1,
+                price: 1,
               },
             },
           ],

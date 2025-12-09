@@ -243,7 +243,14 @@ export async function createNewSession(
             senderId: callingUserId,
           };
         }),
-        "user"
+        "user",
+        {
+          type: "session",
+          navigationData: {
+            screen: "dashboard/tabs",
+            params: {},
+          },
+        }
       )
         .then(() => console.log("Background notification triggred."))
         .catch((err) =>

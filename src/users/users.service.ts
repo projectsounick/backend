@@ -420,6 +420,255 @@ export async function userOtpVerify(
 }
 ///// Functions For Login Flow For App End////
 
+///// Functions For Google Sign-In Start////
+export async function googleSignIn(
+  idToken: string,
+  expoPushToken?: string
+): Promise<{
+  data: any;
+  message: string;
+  success: boolean;
+}> {
+  try {
+    const { OAuth2Client } = require("google-auth-library");
+    const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+    // Verify the ID token
+    const ticket = await client.verifyIdToken({
+      idToken: idToken,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+    const { email, name, picture } = payload;
+
+    if (!email) {
+      return {
+        success: false,
+        message: "Email not provided by Google",
+        data: null,
+      };
+    }
+
+    // Find or create user by email
+    let user: any = await UserModel.findOne({ email: email });
+
+    if (!user) {
+      // Create new user
+      user = await new UserModel({
+        email: email,
+        name: name || "",
+        profilePic: picture || "",
+        role: "user",
+        onboarding: false,
+      }).save();
+    } else {
+      // Update profile picture if available
+      if (picture && !user.profilePic) {
+        await UserModel.findOneAndUpdate(
+          { _id: user._id },
+          { $set: { profilePic: picture } }
+        );
+        user.profilePic = picture;
+      }
+      // Update name if not present
+      if (name && !user.name) {
+        await UserModel.findOneAndUpdate(
+          { _id: user._id },
+          { $set: { name: name } }
+        );
+        user.name = name;
+      }
+    }
+
+    // Update expo push token if provided
+    if (expoPushToken) {
+      await UserModel.findOneAndUpdate(
+        { _id: user._id },
+        { $set: { expoPushToken: expoPushToken } }
+      );
+    }
+
+    // Get user details
+    let userDetails = await UserDetailsModel.findOne({
+      userId: user._id,
+    });
+
+    // Generate JWT token
+    const jwtToken = generateJWT(user._id);
+    const userData = user.toObject();
+    const userDetailsData = userDetails ? userDetails.toObject() : {};
+
+    // Attach jwt token
+    userData.jwtToken = jwtToken;
+
+    // Merge userDetails fields into userData
+    Object.entries(userDetailsData).forEach(([key, value]) => {
+      if (key !== "_id" && key !== "__v" && key !== "userId") {
+        userData[key] = value;
+      }
+    });
+
+    return {
+      message: "Google sign-in successful",
+      success: true,
+      data: { ...userData, accessToken: jwtToken },
+    };
+  } catch (error: any) {
+    console.error("Google sign-in error:", error);
+    return {
+      success: false,
+      message: `Google sign-in failed: ${error.message}`,
+      data: null,
+    };
+  }
+}
+///// Functions For Google Sign-In End////
+
+///// Functions For Apple Sign-In Start////
+export async function appleSignIn(
+  identityToken: string,
+  userIdentifier: string,
+  email?: string,
+  fullName?: { givenName?: string; familyName?: string },
+  expoPushToken?: string
+): Promise<{
+  data: any;
+  message: string;
+  success: boolean;
+}> {
+  try {
+    const jwt = require("jsonwebtoken");
+    const jwksClient = require("jwks-rsa");
+
+    // Decode the token to get the key ID
+    const decoded = jwt.decode(identityToken, { complete: true });
+    if (!decoded || !decoded.header || !decoded.header.kid) {
+      return {
+        success: false,
+        message: "Invalid Apple identity token",
+        data: null,
+      };
+    }
+
+    // Get Apple's public keys
+    const client = jwksClient({
+      jwksUri: "https://appleid.apple.com/auth/keys",
+      cache: true,
+      cacheMaxAge: 86400000, // 24 hours
+    });
+
+    const key = await client.getSigningKey(decoded.header.kid);
+    const signingKey = key.getPublicKey();
+
+    // Verify the token
+    const verified = jwt.verify(identityToken, signingKey, {
+      algorithms: ["RS256"],
+    });
+
+    // Verify the audience and issuer
+    if (
+      verified.iss !== "https://appleid.apple.com" ||
+      verified.aud !== process.env.APPLE_CLIENT_ID
+    ) {
+      return {
+        success: false,
+        message: "Invalid Apple token issuer or audience",
+        data: null,
+      };
+    }
+
+    // Extract user information
+    const appleId = userIdentifier;
+    const userName = fullName
+      ? `${fullName.givenName || ""} ${fullName.familyName || ""}`.trim()
+      : "";
+
+    // Find or create user
+    let user: any = await UserModel.findOne({
+      $or: [{ email: email }, { appleId: appleId }],
+    });
+
+    if (!user) {
+      // Create new user
+      user = await new UserModel({
+        email: email || undefined,
+        appleId: appleId,
+        name: userName || "",
+        role: "user",
+        onboarding: false,
+      }).save();
+    } else {
+      // Update existing user with Apple ID if not present
+      if (!user.appleId) {
+        await UserModel.findOneAndUpdate(
+          { _id: user._id },
+          { $set: { appleId: appleId } }
+        );
+        user.appleId = appleId;
+      }
+      // Update email if not present
+      if (email && !user.email) {
+        await UserModel.findOneAndUpdate(
+          { _id: user._id },
+          { $set: { email: email } }
+        );
+        user.email = email;
+      }
+      // Update name if not present
+      if (userName && !user.name) {
+        await UserModel.findOneAndUpdate(
+          { _id: user._id },
+          { $set: { name: userName } }
+        );
+        user.name = userName;
+      }
+    }
+
+    // Update expo push token if provided
+    if (expoPushToken) {
+      await UserModel.findOneAndUpdate(
+        { _id: user._id },
+        { $set: { expoPushToken: expoPushToken } }
+      );
+    }
+
+    // Get user details
+    let userDetails = await UserDetailsModel.findOne({
+      userId: user._id,
+    });
+
+    // Generate JWT token
+    const jwtToken = generateJWT(user._id);
+    const userData = user.toObject();
+    const userDetailsData = userDetails ? userDetails.toObject() : {};
+
+    // Attach jwt token
+    userData.jwtToken = jwtToken;
+
+    // Merge userDetails fields into userData
+    Object.entries(userDetailsData).forEach(([key, value]) => {
+      if (key !== "_id" && key !== "__v" && key !== "userId") {
+        userData[key] = value;
+      }
+    });
+
+    return {
+      message: "Apple sign-in successful",
+      success: true,
+      data: { ...userData, accessToken: jwtToken },
+    };
+  } catch (error: any) {
+    console.error("Apple sign-in error:", error);
+    return {
+      success: false,
+      message: `Apple sign-in failed: ${error.message}`,
+      data: null,
+    };
+  }
+}
+///// Functions For Apple Sign-In End////
+
 ///// Functions For Getting Loggedin User Profile using token Start////
 export async function getUserProfile(userId: string) {
   try {

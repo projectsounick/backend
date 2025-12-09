@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import PodcastModel, { Podcast } from "./podcast.model";
-import { sendNotificationToALLUser } from "../Notification/notification.service";
-import { notificationContentForNewVideo } from "../utils/staticNotificaitonContent";
+import { sendBulkPushNotificationsAndSave } from "../Notification/notification.service";
+import UserModel from "../users/user.model";
 
 ///// Function for fetching the podcasts -------------------------------------/
 export async function fetchPodcasts(): Promise<{
@@ -30,10 +30,43 @@ export async function createPodcast(data: Podcast): Promise<{
   try {
     const dataToSave = new PodcastModel(data);
     let response = await dataToSave.save();
-    await sendNotificationToALLUser(
-      notificationContentForNewVideo.title,
-      notificationContentForNewVideo.body
-    );
+
+    // Send notification to all users about new podcast
+    try {
+      // Fetch ALL users (not just those with push tokens)
+      // This ensures notifications are saved in DB for all users
+      const allUsers = await UserModel.find({}).select("_id expoPushToken").lean();
+
+      if (allUsers.length > 0) {
+        const adminId = "6824c9555c0f5d5253ed8d3f";
+        const usersWithSenderId = allUsers.map((user) => ({
+          ...user,
+          senderId: adminId,
+        }));
+
+        await sendBulkPushNotificationsAndSave(
+          "New Podcast Available!",
+          `Check out our latest podcast: ${data.podcastName}`,
+          usersWithSenderId,
+          "user",
+          {
+            type: "podcast",
+            navigationData: {
+              screen: "/dashboard/media",
+              params: {},
+            },
+          }
+        );
+        
+        console.log(`Podcast notification sent to ${allUsers.length} users`);
+      } else {
+        console.log("No users found to send podcast notification");
+      }
+    } catch (notificationError) {
+      console.error("Error sending podcast notification:", notificationError);
+      // Don't fail podcast creation if notification fails
+    }
+
     return {
       message: "Podcast has been Created",
       success: true,

@@ -348,46 +348,83 @@ export async function addUserTracking(data: TrackingPayload) {
   try {
     const results: any = {};
 
-    // Insert steps (WalkTracking)
+    // Upsert steps (WalkTracking) - update if exists, insert if not
     if (data.steps && data.steps.length > 0) {
-      const stepDocs = data.steps.map((item) => ({
-        userId: new mongoose.Types.ObjectId(item.userId),
-        steps: item.steps,
-        date: new Date(item.date),
-      }));
-      results.steps = await WalkTrackingModel.insertMany(stepDocs);
+      const stepPromises = data.steps.map(async (item) => {
+        const normalizedDate = new Date(item.date).toLocaleDateString("en-CA");
+        return await WalkTrackingModel.findOneAndUpdate(
+          {
+            userId: new mongoose.Types.ObjectId(item.userId),
+            date: normalizedDate,
+          },
+          {
+            userId: new mongoose.Types.ObjectId(item.userId),
+            steps: item.steps,
+            date: normalizedDate,
+          },
+          {
+            upsert: true,
+            new: true,
+          }
+        );
+      });
+      results.steps = await Promise.all(stepPromises);
     }
 
-    // Insert water intake (WaterTracking)
+    // Upsert water intake (WaterTracking)
     if (data.water && data.water.length > 0) {
-      const waterDocs = data.water.map((item) => ({
-        userId: new mongoose.Types.ObjectId(item.userId),
-        waterIntake: item.waterIntake,
-        date: new Date(item.date),
-      }));
-      results.water = await WaterTrackingModel.insertMany(waterDocs);
+      const waterPromises = data.water.map(async (item) => {
+        return await WaterTrackingModel.findOneAndUpdate(
+          {
+            userId: new mongoose.Types.ObjectId(item.userId),
+            date: new Date(item.date),
+          },
+          {
+            userId: new mongoose.Types.ObjectId(item.userId),
+            waterIntake: item.waterIntake,
+            date: new Date(item.date),
+          },
+          {
+            upsert: true,
+            new: true,
+          }
+        );
+      });
+      results.water = await Promise.all(waterPromises);
     }
 
-    // Insert sleep duration (SleepTracking)
+    // Upsert sleep duration (SleepTracking)
     if (data.sleep && data.sleep.length > 0) {
-      const sleepDocs = data.sleep.map((item) => ({
-        userId: new mongoose.Types.ObjectId(item.userId),
-        sleepDuration: item.sleepDuration,
-        date: new Date(item.date),
-      }));
-      results.sleep = await SleepTrackingModel.insertMany(sleepDocs);
+      const sleepPromises = data.sleep.map(async (item) => {
+        return await SleepTrackingModel.findOneAndUpdate(
+          {
+            userId: new mongoose.Types.ObjectId(item.userId),
+            date: new Date(item.date),
+          },
+          {
+            userId: new mongoose.Types.ObjectId(item.userId),
+            sleepDuration: item.sleepDuration,
+            date: new Date(item.date),
+          },
+          {
+            upsert: true,
+            new: true,
+          }
+        );
+      });
+      results.sleep = await Promise.all(sleepPromises);
     }
 
     return {
       success: true,
-      message: "Tracking data added successfully",
+      message: "Tracking data synced successfully",
       data: results,
     };
   } catch (error: any) {
     console.error(error);
     return {
       success: false,
-      message: "Failed to add tracking data",
+      message: "Failed to sync tracking data",
       error: error.message,
     };
   }

@@ -235,14 +235,39 @@ export async function sendSupportMessageNotification(
         tokens.push(userDetails.expoPushToken);
       }
 
+      // Prepare navigation data for support message
+      const navigationData = {
+        screen: "dashboard/supportchat",
+        params: {},
+      };
+
       // Send notifications if we have at least one token
       if (tokens.length > 0) {
-        await sendBulkPushNotifications(
+        await sendPushNotifications(
           notificationContentForNewMessage.title,
           notificationContentForNewMessage.body,
-          tokens
+          tokens,
+          { navigationData }
         );
       }
+
+      // Also create user notification with navigation data
+      try {
+        const AdminId = '6824c9555c0f5d5253ed8d3f';
+        await createUserNotification({
+          title: notificationContentForNewMessage.title,
+          body: notificationContentForNewMessage.body,
+          senderId: AdminId,
+          receiverId: userId,
+          data: {
+            type: "support_message",
+            navigationData: navigationData,
+          },
+        });
+      } catch (error) {
+        console.error("Error creating user notification:", error);
+      }
+
       return;
     } else {
       return;
@@ -329,13 +354,36 @@ export async function sendingNotificationByTakingTwoUserId(
         body = `Your post has been removed. If you have any concerns, please contact us.`;
       }
 
-      sendPushNotifications(title, body, [reciverToken], {});
+      // Prepare navigation data based on notification type
+      let navigationData = null;
+      if (notificationType === "like" || notificationType === "comment") {
+        navigationData = {
+          screen: "dashboard/tabs/feed",
+          params: {},
+        };
+      } else if (notificationType === "post_deleted") {
+        navigationData = {
+          screen: "dashboard/tabs/feed",
+          params: {},
+        };
+      }
+
+      sendPushNotifications(
+        title,
+        body,
+        [reciverToken],
+        navigationData ? { navigationData } : {}
+      );
       try {
         createUserNotification({
           title: title,
           body: body,
           senderId: senderId,
           receiverId: reciverId,
+          data: {
+            type: notificationType === "like" ? "post_like" : notificationType === "comment" ? "comment" : "post_deleted",
+            navigationData: navigationData,
+          },
         });
       } catch (error) {}
     }
@@ -369,7 +417,8 @@ export async function sendBulkPushNotificationsAndSave(
   title: string,
   body: string,
   users: any[],
-  notificationFor: "admin" | "hr" | "trainer" | "user"
+  notificationFor: "admin" | "hr" | "trainer" | "user",
+  notificationData?: { type: string; navigationData?: any }
 ) {
   const tokens = [
     ...new Set(
@@ -390,12 +439,22 @@ export async function sendBulkPushNotificationsAndSave(
 
   try {
     for (const batch of batches) {
-      const messages = batch.map((token) => ({
-        to: token,
-        sound: "default",
-        title,
-        body,
-      }));
+      const messages = batch.map((token) => {
+        const message: any = {
+          to: token,
+          sound: "default",
+          title,
+          body,
+        };
+        // Include navigation data and type in push notification if provided
+        if (notificationData) {
+          message.data = {
+            type: notificationData.type,
+            ...(notificationData.navigationData && { navigationData: notificationData.navigationData }),
+          };
+        }
+        return message;
+      });
 
       await expo.sendPushNotificationsAsync(messages);
     }
@@ -408,6 +467,7 @@ export async function sendBulkPushNotificationsAndSave(
           body: body,
           receiverId: user._id,
           senderId: user.senderId ?  user.senderId : "6824c9555c0f5d5253ed8d3f",
+          data: notificationData || undefined,
         };
       })
     )

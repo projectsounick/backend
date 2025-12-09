@@ -1,10 +1,15 @@
 import mongoose, { Schema, Document } from "mongoose";
 
 export interface AdminNotificationData {
-  screenName: string;
-  videoCallId: mongoose.Types.ObjectId;
-  channelName: string;
-  type: "video";
+  screenName?: string;
+  videoCallId?: mongoose.Types.ObjectId;
+  channelName?: string;
+  type: "video" | "post_like" | "session" | "support_message" | "comment" | "post_deleted" | "blog" | "podcast";
+  // Navigation data for routing
+  navigationData?: {
+    screen: string; // e.g., "feed", "dashboard/tabs", "dashboard/session", "dashboard/supportchat", "dashboard/media"
+    params?: Record<string, any>; // Optional route parameters
+  };
 }
 
 export interface AdminNotification extends Document {
@@ -35,6 +40,17 @@ const AdminNotificationDataSchema = new Schema<AdminNotificationData>(
     type: {
       type: String,
       required: false,
+      enum: ["video", "post_like", "session", "support_message", "comment", "post_deleted", "blog", "podcast"],
+    },
+    navigationData: {
+      screen: {
+        type: String,
+        required: false,
+      },
+      params: {
+        type: mongoose.Schema.Types.Mixed,
+        required: false,
+      },
     },
   },
   { _id: false }

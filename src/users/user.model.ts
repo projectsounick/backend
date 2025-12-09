@@ -15,6 +15,7 @@ export interface User extends Document {
   expoPushToken: string;
   updatedAt: Date;
   profilePic: string;
+  appleId?: string;
 }
 const userSchema: Schema<User> = new Schema<User>({
   phoneNumber: {
@@ -78,6 +79,12 @@ const userSchema: Schema<User> = new Schema<User>({
     default: () => {
       return Date.now();
     },
+  },
+  appleId: {
+    type: String,
+    required: false,
+    unique: true,
+    sparse: true,
   },
 });
 const UserModel = mongoose.model<User>("users", userSchema);

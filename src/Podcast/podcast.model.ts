@@ -58,6 +58,11 @@ const podcastSchema: Schema<Podcast> = new Schema<Podcast>(
   { timestamps: true }
 );
 
+// Add indexes for better query performance
+podcastSchema.index({ createdAt: -1 }); // Index for sorting by creation date
+podcastSchema.index({ category: 1 }); // Index for filtering by category (if needed in future)
+podcastSchema.index({ createdBy: 1 }); // Index for filtering by creator (if needed in future)
+
 const PodcastModel = mongoose.model<Podcast>("Podcast", podcastSchema);
 
 export default PodcastModel;

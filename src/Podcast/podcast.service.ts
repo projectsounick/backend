@@ -4,17 +4,82 @@ import { sendBulkPushNotificationsAndSave } from "../Notification/notification.s
 import UserModel from "../users/user.model";
 
 ///// Function for fetching the podcasts -------------------------------------/
-export async function fetchPodcasts(): Promise<{
+export async function fetchPodcasts(
+  lastId?: string,
+  limit?: string
+): Promise<{
   message: string;
   success: boolean;
   data: Podcast[];
+  hasMore: boolean;
+  lastId?: string;
 }> {
   try {
-    const response = await PodcastModel.find({});
+    // Select only needed fields to reduce data transfer
+    // Note: interactions is included for comments display, but it's an array so be mindful of size
+    const selectFields = "podcastName podcastLink category thumbnailImageLink description likes interactions createdAt updatedAt";
+    
+    // Parse limit, default to 4 for initial load, 20 for subsequent loads
+    const parsedLimit = limit ? parseInt(limit, 10) : (lastId ? 20 : 4);
+    const itemsPerPage = parsedLimit > 0 ? parsedLimit : (lastId ? 20 : 4);
+
+    // Build query - if lastId is provided, fetch podcasts created before that ID
+    const query: any = {};
+    if (lastId) {
+      try {
+        const lastObjectId = new mongoose.Types.ObjectId(lastId);
+        // Fetch the last podcast to get its createdAt timestamp
+        const lastPodcast = await PodcastModel.findById(lastObjectId).select("createdAt").lean();
+        if (lastPodcast && lastPodcast.createdAt) {
+          // Query for podcasts with createdAt less than the last one
+          query.createdAt = { $lt: new Date(lastPodcast.createdAt) };
+        } else {
+          // Fallback: use _id comparison (ObjectIds contain timestamp info)
+          query._id = { $lt: lastObjectId };
+        }
+      } catch (error) {
+        // If lastId is invalid, just ignore it and fetch from start
+        console.warn("Invalid lastId provided, fetching from start:", error);
+      }
+    }
+
+    // Fetch one extra to check if there are more items
+    // Sort by createdAt descending (newest first) - newest podcasts appear first
+    const podcasts = await PodcastModel.find(query)
+      .select(selectFields)
+      .sort({ id: -1 }) // Sort by newest first (descending)
+      .limit(itemsPerPage + 1) // Fetch one extra to check hasMore
+      .lean();
+
+    // Check if there are more items
+    const hasMore = podcasts.length > itemsPerPage;
+    
+    // Remove the extra item if it exists
+    const resultPodcasts = hasMore ? podcasts.slice(0, itemsPerPage) : podcasts;
+    
+    // Get the last ID for next page - always set it if we have results
+    let newLastId: string | undefined = undefined;
+    if (resultPodcasts.length > 0) {
+      const lastPodcast = resultPodcasts[resultPodcasts.length - 1];
+      // Ensure we get the _id properly - handle both ObjectId and string formats
+      if (lastPodcast && (lastPodcast as any)._id) {
+        const lastIdValue = (lastPodcast as any)._id;
+        // Convert to string if it's an ObjectId, otherwise use as is
+        newLastId = typeof lastIdValue === 'string' 
+          ? lastIdValue 
+          : lastIdValue.toString();
+      }
+    }
+
+    // Log for debugging
+    console.log(`Fetched ${resultPodcasts.length} podcasts, hasMore: ${hasMore}, lastId: ${newLastId}`);
+
     return {
       message: "Podcasts has been fetched",
       success: true,
-      data: response,
+      data: resultPodcasts as Podcast[],
+      hasMore,
+      lastId: newLastId,
     };
   } catch (error) {
     throw new Error(`unable to fetch the podcasts ${error.message}`);

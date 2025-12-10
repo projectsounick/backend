@@ -53,6 +53,10 @@ const blogSchema: Schema<Blog> = new Schema<Blog>(
   { timestamps: true } // Adds createdAt and updatedAt
 );
 
+// Add indexes for better query performance
+blogSchema.index({ createdAt: -1 }); // Index for sorting by creation date (newest first)
+blogSchema.index({ createdBy: 1 }); // Index for filtering by creator (if needed in future)
+
 const BlogModel = mongoose.model<Blog>("Blog", blogSchema);
 
 export default BlogModel;

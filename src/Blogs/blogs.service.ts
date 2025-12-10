@@ -18,7 +18,8 @@ export const getBlogs = async (
 }> => {
   try {
     if (id) {
-      const blog = await BlogModel.findById(id);
+      // For single blog, fetch all fields but use lean() for performance
+      const blog = await BlogModel.findById(id).lean();
 
       return {
         message: "Blogs has been fetched",
@@ -26,7 +27,11 @@ export const getBlogs = async (
         data: [blog],
       };
     } else {
-      const blogs = await BlogModel.find();
+      // For all blogs, select only needed fields, sort, and use lean()
+      const blogs = await BlogModel.find()
+        .select("title coverImage createdAt updatedAt _id createdBy")
+        .sort({ createdAt: -1 }) // Sort by newest first
+        .lean(); // Returns plain JS objects (faster)
 
       return {
         message: "Blogs has been fetched",
@@ -42,7 +47,12 @@ export const getBlogs = async (
 /////Funciton for fetching the blog overall data ------------------------------/
 export async function fetchBlogOverallData() {
   try {
-    const blogs = await BlogModel.find().select("coverImage title");
+    // Select only needed fields and use lean() for better performance
+    // Sort by newest first (createdAt descending)
+    const blogs = await BlogModel.find()
+      .select("coverImage title createdAt updatedAt _id")
+      .sort({ createdAt: -1 }) // Sort by newest first
+      .lean(); // Returns plain JS objects instead of Mongoose documents (faster)
 
     return {
       message: "Blogs has been fetched",

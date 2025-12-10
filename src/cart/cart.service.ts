@@ -268,35 +268,6 @@ export async function getCart(userId: string, status: boolean | null) {
         },
       },
 
-      // Ensure price field is always included in dietPlanDetails
-      {
-        $addFields: {
-          dietPlanDetails: {
-            $cond: {
-              if: { $gt: [{ $size: "$dietPlanDetails" }, 0] },
-              then: {
-                $let: {
-                  vars: {
-                    dietPlan: { $arrayElemAt: ["$dietPlanDetails", 0] }
-                  },
-                  in: {
-                    $mergeObjects: [
-                      "$$dietPlan",
-                      {
-                        price: {
-                          $ifNull: ["$$dietPlan.price", 0]
-                        }
-                      }
-                    ]
-                  }
-                }
-              },
-              else: "$$REMOVE"
-            }
-          }
-        }
-      },
-
       //Ensure final structure
       {
         $project: {
@@ -307,13 +278,15 @@ export async function getCart(userId: string, status: boolean | null) {
           isBought: 1,
           createdAt: 1,
           updatedAt: 1,
-          dietPlanDetails: 1,
+          dietPlanDetails: { $arrayElemAt: ["$dietPlanDetails", 0] },
           plan: 1, //Plan object will appear only if data exists
           product: 1,
           serviceDetails: { $arrayElemAt: ["$serviceDetails", 0] },
         },
       },
     ]);
+
+
 
     return {
       message: "Cart items fetched successfully",
@@ -381,7 +354,8 @@ export async function getCartUser(userId: string, status: boolean | null) {
               $project: {
                 _id: 1,
                 title: 1,
-                imgUrl: 1
+                imgUrl: 1,
+                price: 1,
               },
             },
           ],

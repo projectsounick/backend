@@ -97,6 +97,11 @@ const CartSchema: Schema<Cart> = new Schema<Cart>({
         },
     },
 });
+// Add indexes for better query performance
+CartSchema.index({ userId: 1, isDeleted: 1 });
+CartSchema.index({ createdAt: -1 }); 
+CartSchema.index({ userId: 1, isBought: 1 }); 
+
 const CartModel = mongoose.model<Cart>("cart", CartSchema);
 export default CartModel;
 

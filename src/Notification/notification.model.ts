@@ -9,6 +9,7 @@ export interface Notification extends Document {
   isTrainer: boolean;
   isHr: boolean;
   userId?: string; // optional in case it's a broadcast
+  trainerId?: string; // for trainer-specific notifications
   createdAt: Date;
   updatedAt: Date;
   userName: string;
@@ -43,6 +44,10 @@ const notificationSchema: Schema<Notification> = new Schema<Notification>(
     userId: {
       type: String,
       ref: "User", // assuming the collection/model is named 'User'
+    },
+    trainerId: {
+      type: String,
+      ref: "User", // trainer is also a User
     },
   },
   {

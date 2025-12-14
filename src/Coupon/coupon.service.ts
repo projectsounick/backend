@@ -9,33 +9,15 @@ import mongoose from "mongoose";
  */
 
 /// Fetching the coupons ---------------------------------------------------------------/
-export const fetchCoupons = async (couponIds?: string[]) => {
+export const fetchCoupons = async (userId) => {
   try {
-    let coupons;
-
-    if (couponIds && couponIds.length > 0) {
-      // Filter valid ObjectIds
-      const validIds = couponIds
-        .filter((id) => mongoose.Types.ObjectId.isValid(id))
-        .map((id) => new mongoose.Types.ObjectId(id));
-
-      coupons = await CouponModel.find({ _id: { $in: validIds } }).select(
-        "-assignedUsers"
-      );
-
-      return {
-        success: true,
-        message: "Filtered coupons fetched successfully",
-        data: coupons,
-      };
-    }
-
-    // Fetch all coupons with assigned users
-    coupons = await CouponModel.find();
+    const coupons = await CouponModel.find({
+      assignedUsers: userId
+    }).select('-assignedUsers');
 
     return {
       success: true,
-      message: "All coupons fetched successfully",
+      message: "Filtered coupons fetched successfully",
       data: coupons,
     };
   } catch (error: any) {

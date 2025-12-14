@@ -12,6 +12,7 @@ interface GetNotificationsOptions {
   page?: number;
   limit?: number;
   userId?: string;
+  trainerId?: string;
   isAdmin?: boolean;
   isTrainer?: boolean;
   isHr?: boolean;
@@ -154,6 +155,7 @@ export async function getNotifications(options: GetNotificationsOptions = {}) {
 
     const filter: any = {};
     if (options.userId) filter.userId = options.userId;
+    if (options.trainerId) filter.trainerId = options.trainerId;
     if (roleFilters.length > 0) filter.$or = roleFilters;
 
     const [notifications, total] = await Promise.all([
@@ -489,6 +491,8 @@ interface CreateNotificationParams {
   title: string;
   body: string;
   userId?: string;
+  trainerId?: string;
+  userName?: string; // Sender's name
   isAdmin?: boolean;
   isTrainer?: boolean;
   isHr?: boolean;
@@ -500,19 +504,29 @@ export const createNotification = async (params: CreateNotificationParams) => {
       title,
       body,
       userId,
+      trainerId,
+      userName: providedUserName,
       isAdmin = false,
       isTrainer = false,
       isHr = false,
     } = params;
-    let userName;
-    try {
-      const data = await UserModel.findById(userId).select("name");
-      userName = data.name || null;
-    } catch (error) {}
+    
+    let userName = providedUserName;
+    
+    // If userName is not provided, try to get it from userId or trainerId
+    if (!userName) {
+      try {
+        const data = await UserModel.findById(userId || trainerId).select("name");
+        userName = data?.name || null;
+      } catch (error) {
+        console.error("Error fetching user name:", error);
+      }
+    }
+    
     // Validate at least one target (user or role) is set
-    if (!userId && !isAdmin && !isTrainer && !isHr) {
+    if (!userId && !trainerId && !isAdmin && !isTrainer && !isHr) {
       throw new Error(
-        "Notification must have at least one target: userId or a role flag."
+        "Notification must have at least one target: userId, trainerId or a role flag."
       );
     }
 
@@ -520,10 +534,11 @@ export const createNotification = async (params: CreateNotificationParams) => {
       title,
       body,
       userId,
+      trainerId,
       isAdmin,
       isTrainer,
       isHr,
-      userName: userName,
+      userName: userName || null,
     });
 
     const savedNotification = await notification.save();

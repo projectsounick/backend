@@ -49,6 +49,7 @@ const httpTrigger: AzureFunction = async function (
       isTrainer: parseBoolean(req.query.isTrainer),
       isHr: parseBoolean(req.query.isHr),
       userId: req.query.userId as string,
+      trainerId: req.query.trainerId as string,
       page: req.query.page ? parseInt(req.query.page as string) : undefined,
       limit: req.query.limit ? parseInt(req.query.limit as string) : undefined,
     });

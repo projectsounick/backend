@@ -878,6 +878,67 @@ export async function getUserServiceHistoryNew(
     throw new Error(error);
   }
 }
+export async function getUserTrainers(userId: string) {
+  try {
+    // Get all active plans with trainerId where isActive is true
+    const activePlans = await UserActivePlansModel.find({
+      userId: new mongoose.Types.ObjectId(userId),
+      isActive: true,
+      trainerId: { $exists: true, $ne: null },
+    }).select("trainerId");
+
+    // Get all active services with trainerId where isActive is true
+    const activeServices = await UserActiveServicesModel.find({
+      userId: new mongoose.Types.ObjectId(userId),
+      isActive: true,
+      trainerId: { $exists: true, $ne: null },
+    }).select("trainerId");
+
+    // Extract unique trainer IDs
+    const trainerIds = new Set<string>();
+    activePlans.forEach((plan) => {
+      if (plan.trainerId) {
+        trainerIds.add(plan.trainerId.toString());
+      }
+    });
+    activeServices.forEach((service) => {
+      if (service.trainerId) {
+        trainerIds.add(service.trainerId.toString());
+      }
+    });
+
+    // Convert Set to Array of ObjectIds
+    const uniqueTrainerIds = Array.from(trainerIds).map(
+      (id) => new mongoose.Types.ObjectId(id)
+    );
+
+    if (uniqueTrainerIds.length === 0) {
+      return {
+        message: "No trainers found for this user",
+        success: true,
+        data: [],
+      };
+    }
+
+    // Fetch trainer details (excluding mobile and email)
+    const trainers = await UserModel.find({
+      _id: { $in: uniqueTrainerIds },
+      role: "trainer",
+      isActive: true,
+    })
+      .select("-phoneNumber -email -otp -expoPushToken -appleId")
+      .lean();
+
+    return {
+      message: "Trainers fetched successfully",
+      success: true,
+      data: trainers,
+    };
+  } catch (error) {
+    throw new Error(error);
+  }
+}
+
 export async function updateActiveService(
   activeServiceId: string,
   data: Record<string, any>

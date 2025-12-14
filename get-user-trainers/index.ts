@@ -1,23 +1,17 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
-
 import { init } from "../src/helpers/azure-cosmosdb-mongodb";
-import { Podcast } from "../src/Podcast/podcast.model";
+import { getUserRole, verifyAndDecodeToken } from "../src/admin/admin.service";
+import { getUserTrainers } from "../src/userActivePlans/activePlans.service";
 
-import { fetchCoupons } from "../src/Coupon/coupon.service";
-import { verifyAndDecodeToken } from "../src/admin/admin.service";
-
-//// Main login function ------------------------------------------------------------------------------/
 const httpTrigger: AzureFunction = async function (
   context: Context,
   req: HttpRequest
 ): Promise<void> {
   try {
-    /// Building connection with the cosmos database -----------------/
-    await init(context);
-    let userId: string;
+    let callingUserId: string;
     const authResponse = await verifyAndDecodeToken(req);
     if (authResponse) {
-      userId = authResponse;
+      callingUserId = authResponse;
     } else {
       context.res = {
         status: 401,
@@ -28,12 +22,26 @@ const httpTrigger: AzureFunction = async function (
       };
       return;
     }
-    /// replace this query _id with jsonwebtoken _id later on
+    await init(context);
 
-    /// Calling the service function ----------------------/
-    const response =
-      await fetchCoupons(userId);
+    const userRoleResponse = await getUserRole(callingUserId);
+    if (!userRoleResponse.status) {
+      context.res = {
+        status: 401,
+        body: {
+          message: "Unauthorized",
+          success: false,
+        },
+      };
+      return;
+    }
 
+    const { userId } = req.query;
+    const parsedUserId =
+      userRoleResponse.role === "user" ? callingUserId : userId || callingUserId;
+
+    const response = await getUserTrainers(parsedUserId);
+    
     if (response.success) {
       context.res = {
         status: 200,
@@ -45,7 +53,7 @@ const httpTrigger: AzureFunction = async function (
         body: response,
       };
     }
-  } catch (error) {
+  } catch (error: any) {
     context.res = {
       status: 500,
       body: {

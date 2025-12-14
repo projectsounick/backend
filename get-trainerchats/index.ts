@@ -1,23 +1,18 @@
 import { AzureFunction, Context, HttpRequest } from "@azure/functions";
-
 import { init } from "../src/helpers/azure-cosmosdb-mongodb";
-import { Podcast } from "../src/Podcast/podcast.model";
-
-import { fetchCoupons } from "../src/Coupon/coupon.service";
 import { verifyAndDecodeToken } from "../src/admin/admin.service";
+import { getTrainerChats } from "../src/TrainerChat/trainerchat.service";
 
-//// Main login function ------------------------------------------------------------------------------/
 const httpTrigger: AzureFunction = async function (
   context: Context,
   req: HttpRequest
 ): Promise<void> {
   try {
-    /// Building connection with the cosmos database -----------------/
-    await init(context);
-    let userId: string;
+    let trainerId: string;
     const authResponse = await verifyAndDecodeToken(req);
+
     if (authResponse) {
-      userId = authResponse;
+      trainerId = authResponse;
     } else {
       context.res = {
         status: 401,
@@ -28,11 +23,14 @@ const httpTrigger: AzureFunction = async function (
       };
       return;
     }
-    /// replace this query _id with jsonwebtoken _id later on
 
-    /// Calling the service function ----------------------/
-    const response =
-      await fetchCoupons(userId);
+    await init(context);
+    
+    // If trainerId is provided in params, use it; otherwise use authenticated user
+    const paramTrainerId = req.params.trainerId;
+    const finalTrainerId = paramTrainerId || trainerId;
+
+    let response = await getTrainerChats(finalTrainerId);
 
     if (response.success) {
       context.res = {
@@ -45,7 +43,7 @@ const httpTrigger: AzureFunction = async function (
         body: response,
       };
     }
-  } catch (error) {
+  } catch (error: any) {
     context.res = {
       status: 500,
       body: {

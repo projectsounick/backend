@@ -36,6 +36,11 @@ export const notificationContentForSessionCompleted = {
   body: "Great job on completing your session! Keep up the good work.",
 };
 
+export const notificationContentForSessionEdited = {
+  title: "Session Updated 📝",
+  body: "Your session details have been updated. Check your calendar for the latest information.",
+};
+
 export const notificationContentForPlanAssign = {
   title: "New Plan Assigned 📋",
   body: "A new plan has been assigned to you. Start your journey today!",

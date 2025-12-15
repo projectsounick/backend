@@ -16,7 +16,58 @@ import {
   notificationContentForSessionCanceled,
   notificationContentForSessionCompleted,
   notificationContentForSessionCreated,
+  notificationContentForSessionEdited,
 } from "../utils/staticNotificaitonContent";
+
+/**
+ * Common function to send session notifications with navigation data
+ * @param title - Notification title
+ * @param body - Notification body
+ * @param userId - User ID to send notification to
+ * @param callingUserId - User ID who triggered the action (sender)
+ */
+async function sessionNotification(
+  title: string,
+  body: string,
+  userId: string,
+  callingUserId: string
+) {
+  try {
+    const users = await UserModel.find({
+      _id: new mongoose.Types.ObjectId(userId),
+    })
+      .select("expoPushToken")
+      .lean();
+
+    if (users.length > 0) {
+      sendBulkPushNotificationsAndSave(
+        title,
+        body,
+        users.map((user) => {
+          return {
+            ...user,
+            senderId: callingUserId,
+          };
+        }),
+        "user",
+        {
+          type: "session",
+          navigationData: {
+            screen: "dashboard/tabs",
+            params: {},
+          },
+        }
+      )
+        .then(() => console.log("Session notification triggered."))
+        .catch((err) =>
+          console.error("Error sending session notification:", err)
+        );
+    }
+  } catch (error) {
+    console.error("Error in sessionNotification:", error);
+  }
+}
+
 export async function createNewSession(
   toBeassignedUserId,
   data: any,
@@ -227,36 +278,13 @@ export async function createNewSession(
     // const userSessions = await SessionModel.insertMany(data);
 
     // To Send Notification to user about the new session assigned to them
-    const users = await UserModel.find({
-      _id: new mongoose.Types.ObjectId(toBeassignedUserId),
-    })
-      .select("expoPushToken")
-      .lean();
     const notificationContent = notificationContentForSessionCreated;
-    if (users.length > 0) {
-      sendBulkPushNotificationsAndSave(
-        notificationContent.title,
-        notificationContent.body,
-        users.map((user) => {
-          return {
-            ...user,
-            senderId: callingUserId,
-          };
-        }),
-        "user",
-        {
-          type: "session",
-          navigationData: {
-            screen: "dashboard/tabs",
-            params: {},
-          },
-        }
-      )
-        .then(() => console.log("Background notification triggred."))
-        .catch((err) =>
-          console.error("Error generating sending notification:", err)
-        );
-    }
+    await sessionNotification(
+      notificationContent.title,
+      notificationContent.body,
+      toBeassignedUserId,
+      callingUserId
+    );
 
     return {
       message: "Sessions created successfully",
@@ -609,11 +637,40 @@ export async function updateSession(
         };
       }
     }
+    const sessionDetailsBeforeUpdate = await SessionModel.findById(sessionId);
     const updatedSession = await SessionModel.findByIdAndUpdate(
       sessionId,
       { ...data, updatedAt: new Date() },
       { new: true }
     );
+
+    // Send notification if session is edited (but not cancelled or completed, those are handled separately)
+    if (
+      data.sessionStatus !== "cancelled" &&
+      data.sessionStatus !== "completed" &&
+      sessionDetailsBeforeUpdate
+    ) {
+      // Check if any meaningful fields were updated (excluding status changes)
+      const hasSignificantChanges =
+        data.sessionDate ||
+        data.sessionTime ||
+        data.trainerId ||
+        data.sessionItems ||
+        data.sessionAgainstPlan !== undefined ||
+        data.activePlanId ||
+        data.activeServiceId;
+
+      if (hasSignificantChanges) {
+        const notificationContent = notificationContentForSessionEdited;
+        await sessionNotification(
+          notificationContent.title,
+          notificationContent.body,
+          sessionDetailsBeforeUpdate.userId.toString(),
+          userId
+        );
+      }
+    }
+
     if (data.sessionStatus == "cancelled") {
       const sessionDetails = await SessionModel.findById(sessionId);
       if (sessionDetails.sessionAgainstPlan) {
@@ -668,29 +725,13 @@ export async function updateSession(
 
     if (data.sessionStatus == "completed") {
       const sessionDetails = await SessionModel.findById(sessionId);
-      const users = await UserModel.find({
-        _id: new mongoose.Types.ObjectId(sessionDetails.userId),
-      })
-        .select("expoPushToken")
-        .lean();
       const notificationContent = notificationContentForSessionCompleted;
-      if (users.length > 0) {
-        sendBulkPushNotificationsAndSave(
-          notificationContent.title,
-          notificationContent.body,
-          users.map((user) => {
-            return {
-              ...user,
-              senderId: userId,
-            };
-          }),
-          "user"
-        )
-          .then(() => console.log("Background notification triggred."))
-          .catch((err) =>
-            console.error("Error generating sending notification:", err)
-          );
-      }
+      await sessionNotification(
+        notificationContent.title,
+        notificationContent.body,
+        sessionDetails.userId.toString(),
+        userId
+      );
     }
 
     if (!updatedSession) {

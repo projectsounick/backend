@@ -1266,8 +1266,7 @@ export async function getPaymentReceipt(orderId: string, userId: string) {
         },
       },
     ]);
-    console.log("this is response");
-    console.log(response);
+
 
     if (!response || response.length === 0) {
       return {

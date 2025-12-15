@@ -53,8 +53,7 @@ const httpTrigger: AzureFunction = async function (
       userId,
       req.body
     );
-    console.log("this is response");
-    console.log(response);
+
 
     if (response.success) {
       context.res = {

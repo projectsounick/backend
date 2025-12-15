@@ -116,6 +116,7 @@ export interface UserDetails extends Document {
     sleepSync: boolean;
     lastSync: Date;
   };
+  versionModalClicked?: string;
 }
 const userDetailsSchema: Schema<UserDetails> = new Schema<UserDetails>({
   userId: {
@@ -145,6 +146,10 @@ const userDetailsSchema: Schema<UserDetails> = new Schema<UserDetails>({
       default: null,
       required: false,
     },
+  },
+  versionModalClicked: {
+    type: String,
+    required: false,
   },
   height: {
     type: String,

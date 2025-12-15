@@ -7,6 +7,7 @@ import {
 import jwt from "jsonwebtoken";
 import UserModel from "../users/user.model";
 import axios from "axios";
+import { sendNotificationToALLUser } from "../Notification/notification.service";
 const { sendEmail } = require("../helpers/send-email");
 ////// Function for generating the sastoken -------------------------------------/
 /// takes container name and generate sastoken for accessing that ----/
@@ -280,6 +281,22 @@ export async function updatePromotionVideosJson({
   try {
     console.log(fileData);
 
+    // Check if this is a version file and if a new version is being added
+    const isVersionFile = blobName === "androidVersion.json" || blobName === "iosVersion.json";
+    let newVersion: string | null = null;
+    let platform: string = "";
+
+    if (isVersionFile && Array.isArray(fileData) && fileData.length > 0) {
+      // Get the latest version (first entry in array)
+      const latestEntry = fileData[0];
+      if (typeof latestEntry === "string") {
+        newVersion = latestEntry;
+      } else if (latestEntry && typeof latestEntry === "object" && latestEntry.version) {
+        newVersion = latestEntry.version;
+      }
+      platform = blobName === "androidVersion.json" ? "Android" : "iOS";
+    }
+
     // 1. Generate SAS token
     const sasToken = generateSasTokenForAnyContainer(blobName, containerName);
 
@@ -295,9 +312,29 @@ export async function updatePromotionVideosJson({
     });
 
     if (response.status === 201) {
+      // Send notification to all users if a new version was added
+      if (isVersionFile && newVersion) {
+        try {
+          const title = `New ${platform} Version Available! 🎉`;
+          const body = `A new version (${newVersion}) of the ${platform} app is now available. Update now to enjoy the latest features and improvements!`;
+          
+          // Send notification to all users in the background (don't wait for it)
+          sendNotificationToALLUser(title, body).catch((err) => {
+            console.error("Error sending version update notification:", err);
+          });
+          
+          console.log(`Version update notification sent for ${platform} version ${newVersion}`);
+        } catch (notificationError) {
+          console.error("Error sending version notification:", notificationError);
+          // Don't fail the main operation if notification fails
+        }
+      }
+
       return {
         success: true,
-        message: "Promotion Videos.json updated successfully",
+        message: isVersionFile 
+          ? `${platform} version file updated successfully` 
+          : "Promotion Videos.json updated successfully",
       };
     } else {
       return {

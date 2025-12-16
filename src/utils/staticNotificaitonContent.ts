@@ -54,3 +54,11 @@ export const notificationContentForPlanEnd = {
   title: "Plan Expired ❌",
   body: "Your current plan has expired. Renew now to continue your progress!",
 };
+
+/// Function to get version update notification content -----------------------------/
+export const getVersionUpdateNotificationContent = (platform: string, version: string) => {
+  return {
+    title: `New ${platform} Version Available! 🎉`,
+    body: `A new version (${version}) of the ${platform} app is now available. Update now to enjoy the latest features and improvements!`,
+  };
+};

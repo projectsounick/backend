@@ -312,24 +312,6 @@ export async function updatePromotionVideosJson({
     });
 
     if (response.status === 201) {
-      // Send notification to all users if a new version was added
-      if (isVersionFile && newVersion) {
-        try {
-          const title = `New ${platform} Version Available! 🎉`;
-          const body = `A new version (${newVersion}) of the ${platform} app is now available. Update now to enjoy the latest features and improvements!`;
-          
-          // Send notification to all users in the background (don't wait for it)
-          sendNotificationToALLUser(title, body).catch((err) => {
-            console.error("Error sending version update notification:", err);
-          });
-          
-          console.log(`Version update notification sent for ${platform} version ${newVersion}`);
-        } catch (notificationError) {
-          console.error("Error sending version notification:", notificationError);
-          // Don't fail the main operation if notification fails
-        }
-      }
-
       return {
         success: true,
         message: isVersionFile 

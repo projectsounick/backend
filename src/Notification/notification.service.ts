@@ -27,14 +27,22 @@ export async function sendBulkPushNotifications(
   // Keep only valid tokens
   const validTokens = expoPushTokens.filter(Expo.isExpoPushToken);
 
+  if (validTokens.length === 0) {
+    return { success: false, message: "No valid tokens found" };
+  }
+
   // Break into batches of 100
   const batches = [];
   for (let i = 0; i < validTokens.length; i += 100) {
     batches.push(validTokens.slice(i, i + 100));
   }
 
-  try {
-    for (const batch of batches) {
+  let successCount = 0;
+  let failCount = 0;
+  const errors: any[] = [];
+
+  for (const batch of batches) {
+    try {
       const messages = batch.map((token) => ({
         to: token,
         sound: "default",
@@ -42,15 +50,99 @@ export async function sendBulkPushNotifications(
         body,
       }));
 
-      await expo.sendPushNotificationsAsync(messages);
+      console.log(`[sendBulkPushNotifications] Attempting to send batch of ${batch.length} tokens`);
+      
+      const tickets = await expo.sendPushNotificationsAsync(messages);
+      
+      // Check tickets for errors
+      tickets.forEach((ticket, index) => {
+        if (ticket.status === "error") {
+          failCount++;
+          errors.push({
+            token: batch[index],
+            error: ticket.message || "Unknown error",
+            details: ticket.details,
+          });
+          
+          // If it's a project mismatch error, try sending individually
+          if (ticket.message && ticket.message.includes("same project")) {
+            console.log(`[sendBulkPushNotifications] Project mismatch for token, will retry individually: ${batch[index]}`);
+          }
+        } else {
+          successCount++;
+        }
+      });
+    } catch (batchError: any) {
+      console.log(`[sendBulkPushNotifications] Batch error caught:`, batchError.message);
+      console.log(`[sendBulkPushNotifications] Error details:`, JSON.stringify(batchError, null, 2));
+      
+      // Check if error is about project mismatch (check both message and error string)
+      const errorMessage = batchError.message || batchError.toString() || "";
+      const isProjectMismatch = errorMessage.includes("same project") || 
+                                errorMessage.includes("conflicting tokens") ||
+                                (batchError.error && batchError.error.includes("same project"));
+      
+      if (isProjectMismatch) {
+        console.log(`[sendBulkPushNotifications] Detected project mismatch error, sending ${batch.length} tokens individually...`);
+        
+        for (const token of batch) {
+          try {
+            const ticket = await expo.sendPushNotificationsAsync([{
+              to: token,
+              sound: "default",
+              title,
+              body,
+            }]);
+            
+            if (ticket[0]?.status === "error") {
+              failCount++;
+              errors.push({
+                token,
+                error: ticket[0].message || "Unknown error",
+              });
+              console.log(`[sendBulkPushNotifications] Failed to send to individual token: ${token.substring(0, 20)}...`);
+            } else {
+              successCount++;
+              console.log(`[sendBulkPushNotifications] Successfully sent to individual token: ${token.substring(0, 20)}...`);
+            }
+          } catch (individualError: any) {
+            failCount++;
+            errors.push({
+              token,
+              error: individualError.message || "Failed to send",
+            });
+            console.log(`[sendBulkPushNotifications] Individual send error for token ${token.substring(0, 20)}...:`, individualError.message);
+          }
+        }
+      } else {
+        // Other errors - fail the whole batch
+        console.log(`[sendBulkPushNotifications] Non-project-mismatch error, failing entire batch`);
+        failCount += batch.length;
+        errors.push({
+          batchError: batchError.message || batchError.toString(),
+          tokensInBatch: batch.length,
+        });
+      }
     }
+  }
 
-    return { success: true, message: "Notifications sent successfully" };
-  } catch (err) {
+  if (successCount > 0) {
+    console.log(`[sendBulkPushNotifications] Completed: ${successCount} succeeded, ${failCount} failed`);
+    return { 
+      success: true, 
+      message: `Notifications sent successfully to ${successCount} users`,
+      successCount,
+      failCount,
+      errors: errors.length > 0 ? errors : undefined,
+    };
+  } else {
+    console.log(`[sendBulkPushNotifications] All notifications failed: ${failCount} total failures`);
     return {
       success: false,
       message: "Failed to send notifications",
-      error: err.message,
+      successCount: 0,
+      failCount,
+      errors,
     };
   }
 }
@@ -278,30 +370,82 @@ export async function sendSupportMessageNotification(
     console.error("Error sending push notification:", error);
   }
 }
+/// Function to get unique Expo push tokens from an array -----------------------------/
+function getUniqueExpoPushTokens(tokens: string[]): string[] {
+  // Filter out null/undefined/empty tokens and get unique values
+  const validTokens = tokens.filter((token) => token && typeof token === "string" && token.trim() !== "");
+  
+  // Use Set to get unique tokens (case-sensitive)
+  const uniqueTokens = Array.from(new Set(validTokens));
+  
+  console.log(`[getUniqueExpoPushTokens] Input: ${validTokens.length} valid tokens, Output: ${uniqueTokens.length} unique tokens`);
+  
+  if (validTokens.length !== uniqueTokens.length) {
+    console.log(`[getUniqueExpoPushTokens] Removed ${validTokens.length - uniqueTokens.length} duplicate tokens`);
+  }
+  
+  return uniqueTokens;
+}
+
 export async function sendNotificationToALLUser(title: string, body: string) {
   try {
-    // 1. Fetch all users with a valid fcmToken
-    const usersWithTokens = await UserModel.find({
-      expoPushToken: { $exists: true, $ne: "" }, // token exists and is not empty
-    }).select("expoPushToken");
+    console.log("[sendNotificationToALLUser] Starting notification send process");
+    console.log("[sendNotificationToALLUser] Title:", title);
+    console.log("[sendNotificationToALLUser] Body:", body);
 
-    // 2. Extract all tokens into an array
-    const tokens = usersWithTokens.map((user) => user.expoPushToken);
+    // 1. Fetch all users with a valid expoPushToken
+    const usersWithTokens = await UserModel.find({
+      expoPushToken: { $exists: true, $ne: null, $nin: [null, ""] }, // token exists and is not empty
+      role: "user", // Only send to regular users, not admins/trainers
+    }).select("expoPushToken _id");
+
+    console.log(`[sendNotificationToALLUser] Found ${usersWithTokens.length} users with tokens`);
+
+    // 2. Extract all tokens into an array, filtering out null/undefined/empty
+    const allTokens = usersWithTokens
+      .map((user) => user.expoPushToken)
+      .filter((token) => token && token.trim() !== "");
+
+    console.log(`[sendNotificationToALLUser] Valid tokens count (before deduplication): ${allTokens.length}`);
+
+    // 3. Get unique tokens only
+    const tokens = getUniqueExpoPushTokens(allTokens);
+
+    console.log(`[sendNotificationToALLUser] Unique tokens count: ${tokens.length}`);
+    console.log("[sendNotificationToALLUser] Sample tokens (first 3):", tokens.slice(0, 3));
 
     if (tokens.length === 0) {
-      console.log("No valid FCM tokens found.");
-      return;
+      console.log("[sendNotificationToALLUser] No valid expo push tokens found.");
+      return { success: false, message: "No valid tokens found", sentCount: 0 };
     }
-    console.log("this are tokens");
 
-    console.log(tokens);
+    // 4. Send bulk notification
+    const result = await sendBulkPushNotifications(title, body, tokens);
 
-    // 3. Send bulk notification
-    await sendBulkPushNotifications(title, body, tokens);
-
-    console.log(`New video notification sent to ${tokens.length} users.`);
+    console.log(`[sendNotificationToALLUser] Notification sending result:`, JSON.stringify(result, null, 2));
+    
+    if (result.success) {
+      console.log(`[sendNotificationToALLUser] Successfully sent to ${result.successCount || 0} users. Failed: ${result.failCount || 0}`);
+      return { 
+        success: true, 
+        message: "Notifications sent", 
+        sentCount: result.successCount || 0,
+        failCount: result.failCount || 0,
+      };
+    } else {
+      console.log(`[sendNotificationToALLUser] Failed to send notifications. Error: ${result.message}`);
+      return { 
+        success: false, 
+        message: result.message || "Failed to send notifications",
+        sentCount: result.successCount || 0,
+        failCount: result.failCount || tokens.length,
+        errors: result.errors,
+      };
+    }
   } catch (error) {
-    console.error("Error sending new video notification:", error);
+    console.error("[sendNotificationToALLUser] Error sending notification:", error);
+    console.error("[sendNotificationToALLUser] Error stack:", error.stack);
+    return { success: false, message: error.message, error };
   }
 }
 

@@ -277,6 +277,7 @@ export async function getUserPlanHostoryNew(
                 imgUrl: { $arrayElemAt: ["$planDetails.imgUrl", 0] },
                 descItems: { $arrayElemAt: ["$planDetails.descItems", 0] },
                 isActive: { $arrayElemAt: ["$planDetails.isActive", 0] },
+               
               },
               else: "$$REMOVE",
             },
@@ -289,10 +290,14 @@ export async function getUserPlanHostoryNew(
         $project: {
           _id: 1,
           isActive: 1,
+          totalSessions: 1,
+          planStartDate: 1,
+          planEndDate: 1,
           "plan.title": 1,
           "plan.imgUrl": 1,
           "plan.descItems": 1,
           "plan.isActive": 1,
+          
         },
       },
     ]);
@@ -861,6 +866,7 @@ export async function getUserServiceHistoryNew(
         $project: {
           _id: 1,
           isActive: 1,
+          totalSessions: 1,
           "serviceDetails.title": 1,
           "serviceDetails.imgUrl": 1,
           "serviceDetails.descItems": 1,

@@ -111,10 +111,13 @@ export interface UserDetails extends Document {
     slot: string;
     address: string;
   };
-  appleHealth: {
+  healthSync: {
     stepSync: boolean;
     sleepSync: boolean;
-    lastSync: Date;
+    lastSyncedStepsValue?: number; // Last HealthKit steps value synced (for today)
+    lastSyncedStepsDate?: Date; // Date when lastSyncedStepsValue was recorded (also indicates last steps sync time)
+    lastSyncedSleepValue?: number; // Last HealthKit sleep value synced (for today)
+    lastSyncedSleepDate?: Date; // Date when lastSyncedSleepValue was recorded (also indicates last sleep sync time)
   };
   versionModalClicked?: string;
 }
@@ -130,7 +133,8 @@ const userDetailsSchema: Schema<UserDetails> = new Schema<UserDetails>({
       ref: "coupons", // Make sure your Coupon model is named "coupons"
     },
   ],
-  appleHealth: {
+  // Health sync field (supports iOS and Android)
+  healthSync: {
     stepSync: {
       type: Boolean,
       default: false,
@@ -139,9 +143,24 @@ const userDetailsSchema: Schema<UserDetails> = new Schema<UserDetails>({
     sleepSync: {
       type: Boolean,
       default: false,
-      requred: false,
+      required: false,
     },
-    lastSync: {
+    lastSyncedStepsValue: {
+      type: Number,
+      default: null,
+      required: false,
+    },
+    lastSyncedStepsDate: {
+      type: Date,
+      default: null,
+      required: false,
+    },
+    lastSyncedSleepValue: {
+      type: Number,
+      default: null,
+      required: false,
+    },
+    lastSyncedSleepDate: {
       type: Date,
       default: null,
       required: false,

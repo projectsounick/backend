@@ -77,7 +77,7 @@ const httpTrigger: AzureFunction = async function (
     } else if (action === "status") {
       // Get sync status
       const response = await getHealthSyncStatus(userId);
-      
+      console.log("it is response sync", response);
       if (response.success) {
         context.res = {
           status: 200,

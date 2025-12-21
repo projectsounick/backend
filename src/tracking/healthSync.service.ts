@@ -43,6 +43,7 @@ interface SyncResult {
 interface SyncStatus {
   stepSync: boolean;
   sleepSync: boolean;
+  syncModalShown: boolean;
   lastSyncedStepsValue?: number | null;
   lastSyncedStepsDate?: Date | null; // Also serves as lastSyncIOS equivalent
   lastSyncedSleepValue?: number | null;
@@ -130,8 +131,11 @@ async function syncStepsData(
   const operations = steps.map(async (entry) => {
     const normalizedDate = normalizeDate(entry.date);
     const stepsValue = Math.max(0, Math.round(entry.value || 0));
+    
+    // If totalHealthKitValue is provided, use it for upsert (prevents duplicates on re-sync)
+    const totalHealthKitValue = entry.totalHealthKitValue ? Math.round(entry.totalHealthKitValue) : null;
 
-    if (stepsValue === 0) return null;
+    if (stepsValue === 0 && !totalHealthKitValue) return null;
 
     try {
       const existing = await WalkTrackingModel.findOne({
@@ -140,7 +144,34 @@ async function syncStepsData(
       });
 
       if (existing) {
-        // Merge: add new value to existing
+        // If totalHealthKitValue is provided, use max logic to prevent duplicates
+        // This handles re-sync scenarios where same data might be sent again
+        if (totalHealthKitValue !== null) {
+          // Check if this is likely a duplicate sync by comparing values
+          const existingValue = existing.steps || 0;
+          const existingHealthKitValue = existing.healthKitValue || 0;
+          
+          if (totalHealthKitValue <= existingHealthKitValue) {
+            // Already synced this or more data, skip to prevent duplicates
+            console.log(
+              `${LOG_PREFIX} Steps skipped for ${normalizedDate}: HealthKit ${totalHealthKitValue} <= existing HealthKit ${existingHealthKitValue}`
+            );
+            return existing;
+          }
+          
+          // Calculate incremental difference
+          const increment = totalHealthKitValue - existingHealthKitValue;
+          existing.steps = existingValue + increment;
+          existing.healthKitValue = totalHealthKitValue;
+          await existing.save();
+          
+          console.log(
+            `${LOG_PREFIX} Steps updated for ${normalizedDate}: ${existingValue} + ${increment} = ${existing.steps} (HealthKit: ${totalHealthKitValue})`
+          );
+          return existing;
+        }
+        
+        // Legacy: simple additive merge (for incremental updates within same day)
         const previousValue = existing.steps || 0;
         existing.steps = previousValue + stepsValue;
         await existing.save();
@@ -153,11 +184,12 @@ async function syncStepsData(
         // Create new entry
         const newEntry = await WalkTrackingModel.create({
           userId,
-          steps: stepsValue,
+          steps: totalHealthKitValue || stepsValue,
+          healthKitValue: totalHealthKitValue || stepsValue,
           date: normalizedDate,
         });
 
-        console.log(`${LOG_PREFIX} Steps created for ${normalizedDate}: ${stepsValue}`);
+        console.log(`${LOG_PREFIX} Steps created for ${normalizedDate}: ${newEntry.steps}`);
         return newEntry;
       }
     } catch (error) {
@@ -184,8 +216,11 @@ async function syncSleepData(
     const sleepDate = new Date(entry.date);
     sleepDate.setHours(0, 0, 0, 0);
     const sleepValue = Math.max(0, Math.round(entry.value * 10) / 10); // Round to 1 decimal
+    
+    // If totalHealthKitValue is provided, use it for upsert (prevents duplicates on re-sync)
+    const totalHealthKitValue = entry.totalHealthKitValue ? Math.round(entry.totalHealthKitValue * 10) / 10 : null;
 
-    if (sleepValue === 0) return null;
+    if (sleepValue === 0 && !totalHealthKitValue) return null;
 
     try {
       const existing = await SleepTrackingModel.findOne({
@@ -194,7 +229,32 @@ async function syncSleepData(
       });
 
       if (existing) {
-        // Merge: add new value to existing
+        // If totalHealthKitValue is provided, use max logic to prevent duplicates
+        if (totalHealthKitValue !== null) {
+          const existingValue = existing.sleepDuration || 0;
+          const existingHealthKitValue = existing.healthKitValue || 0;
+          
+          if (totalHealthKitValue <= existingHealthKitValue) {
+            // Already synced this or more data, skip to prevent duplicates
+            console.log(
+              `${LOG_PREFIX} Sleep skipped for ${sleepDate.toISOString()}: HealthKit ${totalHealthKitValue} <= existing HealthKit ${existingHealthKitValue}`
+            );
+            return existing;
+          }
+          
+          // Calculate incremental difference
+          const increment = totalHealthKitValue - existingHealthKitValue;
+          existing.sleepDuration = existingValue + increment;
+          existing.healthKitValue = totalHealthKitValue;
+          await existing.save();
+          
+          console.log(
+            `${LOG_PREFIX} Sleep updated for ${sleepDate.toISOString()}: ${existingValue} + ${increment} = ${existing.sleepDuration} (HealthKit: ${totalHealthKitValue})`
+          );
+          return existing;
+        }
+        
+        // Legacy: simple additive merge
         const previousValue = existing.sleepDuration || 0;
         existing.sleepDuration = previousValue + sleepValue;
         await existing.save();
@@ -207,11 +267,12 @@ async function syncSleepData(
         // Create new entry
         const newEntry = await SleepTrackingModel.create({
           userId,
-          sleepDuration: sleepValue,
+          sleepDuration: totalHealthKitValue || sleepValue,
+          healthKitValue: totalHealthKitValue || sleepValue,
           date: sleepDate,
         });
 
-        console.log(`${LOG_PREFIX} Sleep created for ${sleepDate.toISOString()}: ${sleepValue}`);
+        console.log(`${LOG_PREFIX} Sleep created for ${sleepDate.toISOString()}: ${newEntry.sleepDuration}`);
         return newEntry;
       }
     } catch (error) {
@@ -243,6 +304,7 @@ async function updateUserSyncStatus(
 
   if (data.steps?.length) {
     updateFields["healthSync.stepSync"] = true;
+    updateFields["healthSync.syncModalShown"] = true; // Mark modal as shown when sync is enabled
     
     // Find today's steps entry and store the total HealthKit value
     const todaySteps = data.steps.find(entry => {
@@ -300,6 +362,7 @@ async function updateUserSyncStatus(
 
   if (data.sleep?.length) {
     updateFields["healthSync.sleepSync"] = true;
+    updateFields["healthSync.syncModalShown"] = true; // Mark modal as shown when sync is enabled
     
     // Find today's sleep entry and store the total HealthKit value
     const todaySleep = data.sleep.find(entry => {
@@ -373,6 +436,7 @@ async function updateUserSyncStatus(
       const newHealthSync: any = {
         stepSync: !!data.steps?.length,
         sleepSync: !!data.sleep?.length,
+        syncModalShown: true, // Mark modal as shown when sync is enabled
       };
       
       if (data.steps?.length) {
@@ -448,20 +512,22 @@ export async function getHealthSyncStatus(userId: string): Promise<{
     const userDetails = await UserDetailsModel.findOne({
       userId: new mongoose.Types.ObjectId(userId),
     });
-
+console.log("it is userDetails sync", userDetails);
     // Default status for users without healthSync field
     const defaultStatus: SyncStatus = {
+      syncModalShown: false,
       stepSync: false,
       sleepSync: false,
     };
-
+console.log("it is defaultStatus sync", defaultStatus);
     const syncData = userDetails?.healthSync;
-    
+    console.log("it is syncData sync", syncData);
     if (!syncData) {
       return { success: true, data: defaultStatus };
     }
 
     const status: SyncStatus = {
+      syncModalShown: syncData.syncModalShown ?? false,
       stepSync: syncData.stepSync ?? false,
       sleepSync: syncData.sleepSync ?? false,
       lastSyncedStepsValue: syncData.lastSyncedStepsValue ?? null,

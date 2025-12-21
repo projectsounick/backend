@@ -11,6 +11,7 @@ interface SleepTrackingHistory extends Document {
 interface SleepTracking extends Document {
     userId: mongoose.Schema.Types.ObjectId;
     sleepDuration: number;
+    healthKitValue?: number; // Tracks HealthKit value separately for deduplication
     date: Date;
 }
 const sleepTrackingSchema: Schema<SleepTracking> = new Schema<SleepTracking>({
@@ -22,6 +23,11 @@ const sleepTrackingSchema: Schema<SleepTracking> = new Schema<SleepTracking>({
     sleepDuration: {
         type: Number,
         required: true,
+    },
+    healthKitValue: {
+        type: Number,
+        required: false,
+        default: 0,
     },
     date: {
         type: Date,

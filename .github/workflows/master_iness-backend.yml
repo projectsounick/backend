@@ -1,34 +1,37 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/azure/functions-action
-# More GitHub Actions for Azure: https://github.com/Azure/actions
+# Docs for the Azure Web Apps Deploy action:
+# https://github.com/azure/functions-action
+# More GitHub Actions for Azure:
+# https://github.com/Azure/actions
 
-name: Build and deploy Node.js project to Azure Function App - iness-backend
+name: Build and deploy Node.js project to Azure Function Apps
 
 on:
   push:
     branches:
       - master
+      - backend-new
   workflow_dispatch:
 
 env:
-  AZURE_FUNCTIONAPP_PACKAGE_PATH: '.' # set this to the path to your web app project, defaults to the repository root
-  NODE_VERSION: '20.x' # set this to the node version to use (supports 8.x, 10.x, 12.x)
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: '.'   # Path to function app
+  NODE_VERSION: '20.x'
 
 jobs:
   build:
     runs-on: windows-latest
     permissions:
-      contents: read #This is required for actions/checkout
-      
+      contents: read
+
     steps:
-      - name: 'Checkout GitHub Action'
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node ${{ env.NODE_VERSION }} Environment
+      - name: Setup Node.js ${{ env.NODE_VERSION }}
         uses: actions/setup-node@v3
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: 'Resolve Project Dependencies Using Npm'
+      - name: Install dependencies, build & test
         shell: pwsh
         run: |
           pushd './${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}'
@@ -37,7 +40,7 @@ jobs:
           npm run test --if-present
           popd
 
-      - name: Upload artifact for deployment job
+      - name: Upload artifact for deploy job
         uses: actions/upload-artifact@v4
         with:
           name: node-app
@@ -47,27 +50,36 @@ jobs:
     runs-on: windows-latest
     needs: build
     permissions:
-      id-token: write #This is required for requesting the JWT
-      contents: read #This is required for actions/checkout
+      id-token: write
+      contents: read
 
     steps:
-      - name: Download artifact from build job
+      - name: Download artifact
         uses: actions/download-artifact@v4
         with:
           name: node-app
-      
-      - name: Login to Azure
+
+      - name: Azure Login
         uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_9B425934D07845E4B833882773725BD8 }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_278A4E692EE040BAA22F78A288BEE3C9 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_CD91AE8892114240977EB4808ECE6DE5 }}
 
-      - name: 'Run Azure Functions Action'
+      # Deploy when pushing to master
+      - name: Deploy to iness-backend (master)
+        if: github.ref == 'refs/heads/master'
         uses: Azure/functions-action@v1
-        id: fa
         with:
           app-name: 'iness-backend'
           slot-name: 'Production'
           package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
-          
+
+      # Deploy when pushing to backend-new
+      - name: Deploy to iness-backend-new (backend-new)
+        if: github.ref == 'refs/heads/backend-new'
+        uses: Azure/functions-action@v1
+        with:
+          app-name: 'iness-backend-new'
+          slot-name: 'Production'
+          package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}

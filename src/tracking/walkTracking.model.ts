@@ -11,6 +11,7 @@ interface WalkTrackingHistory extends Document {
 interface WalkTracking extends Document {
     userId: mongoose.Schema.Types.ObjectId;
     steps: number;
+    healthKitValue?: number; // Tracks HealthKit value separately for deduplication
     date: Date;
 }
 const walkTrackingSchema: Schema<WalkTracking> = new Schema<WalkTracking>({
@@ -22,6 +23,11 @@ const walkTrackingSchema: Schema<WalkTracking> = new Schema<WalkTracking>({
     steps: {
         type: Number,
         required: true,
+    },
+    healthKitValue: {
+        type: Number,
+        required: false,
+        default: 0,
     },
     date: {
         type: Date,

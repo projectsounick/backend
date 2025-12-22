@@ -63,11 +63,13 @@ const LOG_PREFIX = "[HealthSync]";
 /**
  * Sync health data (steps and/or sleep) for a user
  * Merges with existing data - additive for same dates
+ * @param timezoneOffset - User's timezone offset in minutes (e.g., -300 for EST, +330 for IST)
  */
 export async function syncHealthData(
   userId: string,
   data: SyncData,
-  platform: Platform
+  platform: Platform,
+  timezoneOffset?: number
 ): Promise<SyncResult> {
   try {
     console.log(`${LOG_PREFIX} Starting sync for user ${userId}, platform: ${platform}`);
@@ -90,12 +92,12 @@ export async function syncHealthData(
 
     // Sync steps
     if (data.steps?.length) {
-      stepsCount = await syncStepsData(userObjectId, data.steps);
+      stepsCount = await syncStepsData(userObjectId, data.steps, timezoneOffset);
     }
 
     // Sync sleep
     if (data.sleep?.length) {
-      sleepCount = await syncSleepData(userObjectId, data.sleep);
+      sleepCount = await syncSleepData(userObjectId, data.sleep, timezoneOffset);
     }
 
     // Update user sync status
@@ -124,12 +126,13 @@ export async function syncHealthData(
 
 async function syncStepsData(
   userId: mongoose.Types.ObjectId,
-  steps: HealthDataEntry[]
+  steps: HealthDataEntry[],
+  timezoneOffset?: number
 ): Promise<number> {
-  console.log(`${LOG_PREFIX} Syncing ${steps.length} step entries`);
+  console.log(`${LOG_PREFIX} Syncing ${steps.length} step entries${timezoneOffset !== undefined ? ` (timezone offset: ${timezoneOffset} minutes)` : ''}`);
 
   const operations = steps.map(async (entry) => {
-    const normalizedDate = normalizeDate(entry.date);
+    const normalizedDate = normalizeDate(entry.date, timezoneOffset);
     const stepsValue = Math.max(0, Math.round(entry.value || 0));
     
     // If totalHealthKitValue is provided, use it for upsert (prevents duplicates on re-sync)
@@ -208,13 +211,18 @@ async function syncStepsData(
 
 async function syncSleepData(
   userId: mongoose.Types.ObjectId,
-  sleep: HealthDataEntry[]
+  sleep: HealthDataEntry[],
+  timezoneOffset?: number
 ): Promise<number> {
-  console.log(`${LOG_PREFIX} Syncing ${sleep.length} sleep entries`);
+  console.log(`${LOG_PREFIX} Syncing ${sleep.length} sleep entries${timezoneOffset !== undefined ? ` (timezone offset: ${timezoneOffset} minutes)` : ''}`);
 
   const operations = sleep.map(async (entry) => {
-    const sleepDate = new Date(entry.date);
-    sleepDate.setHours(0, 0, 0, 0);
+    // Normalize date using user's timezone offset (returns YYYY-MM-DD string)
+    const normalizedDateStr = normalizeDate(entry.date, timezoneOffset);
+    // Parse the normalized date string (YYYY-MM-DD) and create a Date object at midnight UTC
+    // This ensures the date is stored correctly regardless of server timezone
+    const [year, month, day] = normalizedDateStr.split('-').map(Number);
+    const sleepDate = new Date(Date.UTC(year, month - 1, day, 0, 0, 0, 0));
     const sleepValue = Math.max(0, Math.round(entry.value * 10) / 10); // Round to 1 decimal
     
     // If totalHealthKitValue is provided, use it for upsert (prevents duplicates on re-sync)
@@ -512,16 +520,16 @@ export async function getHealthSyncStatus(userId: string): Promise<{
     const userDetails = await UserDetailsModel.findOne({
       userId: new mongoose.Types.ObjectId(userId),
     });
-console.log("it is userDetails sync", userDetails);
+
     // Default status for users without healthSync field
     const defaultStatus: SyncStatus = {
       syncModalShown: false,
       stepSync: false,
       sleepSync: false,
     };
-console.log("it is defaultStatus sync", defaultStatus);
+
     const syncData = userDetails?.healthSync;
-    console.log("it is syncData sync", syncData);
+
     if (!syncData) {
       return { success: true, data: defaultStatus };
     }
@@ -590,8 +598,39 @@ export async function disableHealthSync(
 // Helpers
 // ============================================
 
-function normalizeDate(dateString: string): string {
+/**
+ * Normalize date string to YYYY-MM-DD format using user's timezone offset
+ * @param dateString - ISO date string from frontend (UTC)
+ * @param timezoneOffset - User's timezone offset in minutes from JavaScript's getTimezoneOffset()
+ *                        Positive values are behind UTC (e.g., 300 for EST/UTC-5)
+ *                        Negative values are ahead of UTC (e.g., -330 for IST/UTC+5:30)
+ *                        If not provided, uses server's local timezone (fallback for backward compatibility)
+ */
+function normalizeDate(dateString: string, timezoneOffset?: number): string {
   const date = new Date(dateString);
+  
+  // If timezone offset is provided, convert UTC date to user's local date
+  if (timezoneOffset !== undefined && timezoneOffset !== null) {
+    // JavaScript's getTimezoneOffset() returns offset in minutes:
+    // - Positive for timezones behind UTC (e.g., 300 for EST/UTC-5)
+    // - Negative for timezones ahead of UTC (e.g., -330 for IST/UTC+5:30)
+    // To convert UTC time to local time: UTC - offset
+    // Example: UTC 08:00 - 300 minutes = EST 03:00 (same day if before midnight)
+    const utcTime = date.getTime();
+    // Convert offset from minutes to milliseconds and subtract (because offset is positive for behind UTC)
+    const localTime = utcTime - (timezoneOffset * 60 * 1000);
+    const localDate = new Date(localTime);
+    
+    // Get UTC components (after conversion, these represent the local date)
+    // Since we've already converted the time, the UTC components of the converted date
+    // represent the local date components we want
+    const year = localDate.getUTCFullYear();
+    const month = String(localDate.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(localDate.getUTCDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+  
+  // Fallback: use server's local timezone (for backward compatibility)
   return date.toLocaleDateString("en-CA"); // YYYY-MM-DD format
 }
 

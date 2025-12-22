@@ -255,7 +255,17 @@ export async function getUserPlanHostoryNew(
       { $match: queryObj },
       { $sort: { createdAt: -1 } },
 
-      // Lookup plan details
+      // Lookup diet plan details (direct assignment via dietPlanId)
+      {
+        $lookup: {
+          from: "dietplans",
+          localField: "dietPlanId",
+          foreignField: "_id",
+          as: "dietPlanDetails",
+        },
+      },
+
+      // Lookup plan details (workout plans)
       {
         $lookup: {
           from: "plans",
@@ -282,6 +292,23 @@ export async function getUserPlanHostoryNew(
               else: "$$REMOVE",
             },
           },
+          dietPlanDetails: {
+            $cond: {
+              if: { $gt: [{ $size: "$dietPlanDetails" }, 0] },
+              then: {
+                _id: { $arrayElemAt: ["$dietPlanDetails._id", 0] },
+                title: { $arrayElemAt: ["$dietPlanDetails.title", 0] },
+                imgUrl: { $arrayElemAt: ["$dietPlanDetails.imgUrl", 0] },
+                descItems: { $arrayElemAt: ["$dietPlanDetails.descItems", 0] },
+             
+                duration: { $arrayElemAt: ["$dietPlanDetails.duration", 0] },
+                durationType: { $arrayElemAt: ["$dietPlanDetails.durationType", 0] },
+          
+                isActive: { $arrayElemAt: ["$dietPlanDetails.isActive", 0] },
+              },
+              else: "$$REMOVE",
+            },
+          },
         },
       },
 
@@ -293,11 +320,19 @@ export async function getUserPlanHostoryNew(
           totalSessions: 1,
           planStartDate: 1,
           planEndDate: 1,
+          dietPlanAssignDate: 1,
+          dietPlanUrl: 1,
           "plan.title": 1,
           "plan.imgUrl": 1,
           "plan.descItems": 1,
           "plan.isActive": 1,
-          
+          "dietPlanDetails._id": 1,
+          "dietPlanDetails.title": 1,
+          "dietPlanDetails.imgUrl": 1,
+          "dietPlanDetails.descItems": 1,
+          "dietPlanDetails.durationType": 1,
+          "dietPlanDetails.duration": 1,
+          "dietPlanDetails.isActive": 1,
         },
       },
     ]);

@@ -1,5 +1,2717 @@
 [
   {
+    "timestamp": "2025-12-22T21:02:07.034Z",
+    "userId": "68646dfc9e507d389f5ce1ac",
+    "platform": "ios",
+    "stepsCount": 31,
+    "sleepCount": 0,
+    "steps": [
+      {
+        "index": 0,
+        "date": "2025-12-22T18:30:00.000Z",
+        "dateFormatted": "12/23/2025",
+        "value": 255
+      },
+      {
+        "index": 1,
+        "date": "2025-12-21T18:30:00.000Z",
+        "dateFormatted": "12/22/2025",
+        "value": 19696
+      },
+      {
+        "index": 2,
+        "date": "2025-12-20T18:30:00.000Z",
+        "dateFormatted": "12/21/2025",
+        "value": 11006
+      },
+      {
+        "index": 3,
+        "date": "2025-12-19T18:30:00.000Z",
+        "dateFormatted": "12/20/2025",
+        "value": 9975
+      },
+      {
+        "index": 4,
+        "date": "2025-12-18T18:30:00.000Z",
+        "dateFormatted": "12/19/2025",
+        "value": 11603
+      },
+      {
+        "index": 5,
+        "date": "2025-12-17T18:30:00.000Z",
+        "dateFormatted": "12/18/2025",
+        "value": 14590
+      },
+      {
+        "index": 6,
+        "date": "2025-12-16T18:30:00.000Z",
+        "dateFormatted": "12/17/2025",
+        "value": 12608
+      },
+      {
+        "index": 7,
+        "date": "2025-12-15T18:30:00.000Z",
+        "dateFormatted": "12/16/2025",
+        "value": 13342
+      },
+      {
+        "index": 8,
+        "date": "2025-12-14T18:30:00.000Z",
+        "dateFormatted": "12/15/2025",
+        "value": 16837
+      },
+      {
+        "index": 9,
+        "date": "2025-12-13T18:30:00.000Z",
+        "dateFormatted": "12/14/2025",
+        "value": 6319
+      },
+      {
+        "index": 10,
+        "date": "2025-12-12T18:30:00.000Z",
+        "dateFormatted": "12/13/2025",
+        "value": 12212
+      },
+      {
+        "index": 11,
+        "date": "2025-12-11T18:30:00.000Z",
+        "dateFormatted": "12/12/2025",
+        "value": 14744
+      },
+      {
+        "index": 12,
+        "date": "2025-12-10T18:30:00.000Z",
+        "dateFormatted": "12/11/2025",
+        "value": 12818
+      },
+      {
+        "index": 13,
+        "date": "2025-12-09T18:30:00.000Z",
+        "dateFormatted": "12/10/2025",
+        "value": 8008
+      },
+      {
+        "index": 14,
+        "date": "2025-12-08T18:30:00.000Z",
+        "dateFormatted": "12/9/2025",
+        "value": 6982
+      },
+      {
+        "index": 15,
+        "date": "2025-12-07T18:30:00.000Z",
+        "dateFormatted": "12/8/2025",
+        "value": 10666
+      },
+      {
+        "index": 16,
+        "date": "2025-12-06T18:30:00.000Z",
+        "dateFormatted": "12/7/2025",
+        "value": 910
+      },
+      {
+        "index": 17,
+        "date": "2025-12-05T18:30:00.000Z",
+        "dateFormatted": "12/6/2025",
+        "value": 5726
+      },
+      {
+        "index": 18,
+        "date": "2025-12-04T18:30:00.000Z",
+        "dateFormatted": "12/5/2025",
+        "value": 6356
+      },
+      {
+        "index": 19,
+        "date": "2025-12-03T18:30:00.000Z",
+        "dateFormatted": "12/4/2025",
+        "value": 5248
+      },
+      {
+        "index": 20,
+        "date": "2025-12-02T18:30:00.000Z",
+        "dateFormatted": "12/3/2025",
+        "value": 3681
+      },
+      {
+        "index": 21,
+        "date": "2025-12-01T18:30:00.000Z",
+        "dateFormatted": "12/2/2025",
+        "value": 4700
+      },
+      {
+        "index": 22,
+        "date": "2025-11-30T18:30:00.000Z",
+        "dateFormatted": "12/1/2025",
+        "value": 1746
+      },
+      {
+        "index": 23,
+        "date": "2025-11-29T18:30:00.000Z",
+        "dateFormatted": "11/30/2025",
+        "value": 5139
+      },
+      {
+        "index": 24,
+        "date": "2025-11-28T18:30:00.000Z",
+        "dateFormatted": "11/29/2025",
+        "value": 8388
+      },
+      {
+        "index": 25,
+        "date": "2025-11-27T18:30:00.000Z",
+        "dateFormatted": "11/28/2025",
+        "value": 5566
+      },
+      {
+        "index": 26,
+        "date": "2025-11-26T18:30:00.000Z",
+        "dateFormatted": "11/27/2025",
+        "value": 2264
+      },
+      {
+        "index": 27,
+        "date": "2025-11-25T18:30:00.000Z",
+        "dateFormatted": "11/26/2025",
+        "value": 7295
+      },
+      {
+        "index": 28,
+        "date": "2025-11-24T18:30:00.000Z",
+        "dateFormatted": "11/25/2025",
+        "value": 8328
+      },
+      {
+        "index": 29,
+        "date": "2025-11-23T18:30:00.000Z",
+        "dateFormatted": "11/24/2025",
+        "value": 4812
+      },
+      {
+        "index": 30,
+        "date": "2025-11-22T18:30:00.000Z",
+        "dateFormatted": "11/23/2025",
+        "value": 1261
+      }
+    ],
+    "summary": {
+      "steps": {
+        "total": 253081,
+        "average": 8164,
+        "min": 255,
+        "max": 19696
+      },
+      "sleep": null
+    }
+  },
+  {
+    "timestamp": "2025-12-22T20:51:58.123Z",
+    "userId": "68646dfc9e507d389f5ce1ac",
+    "platform": "ios",
+    "stepsCount": 31,
+    "sleepCount": 0,
+    "steps": [
+      {
+        "index": 0,
+        "date": "2025-12-22T18:30:00.000Z",
+        "dateFormatted": "12/23/2025",
+        "value": 255
+      },
+      {
+        "index": 1,
+        "date": "2025-12-21T18:30:00.000Z",
+        "dateFormatted": "12/22/2025",
+        "value": 19696
+      },
+      {
+        "index": 2,
+        "date": "2025-12-20T18:30:00.000Z",
+        "dateFormatted": "12/21/2025",
+        "value": 11006
+      },
+      {
+        "index": 3,
+        "date": "2025-12-19T18:30:00.000Z",
+        "dateFormatted": "12/20/2025",
+        "value": 9975
+      },
+      {
+        "index": 4,
+        "date": "2025-12-18T18:30:00.000Z",
+        "dateFormatted": "12/19/2025",
+        "value": 11603
+      },
+      {
+        "index": 5,
+        "date": "2025-12-17T18:30:00.000Z",
+        "dateFormatted": "12/18/2025",
+        "value": 14590
+      },
+      {
+        "index": 6,
+        "date": "2025-12-16T18:30:00.000Z",
+        "dateFormatted": "12/17/2025",
+        "value": 12608
+      },
+      {
+        "index": 7,
+        "date": "2025-12-15T18:30:00.000Z",
+        "dateFormatted": "12/16/2025",
+        "value": 13342
+      },
+      {
+        "index": 8,
+        "date": "2025-12-14T18:30:00.000Z",
+        "dateFormatted": "12/15/2025",
+        "value": 16837
+      },
+      {
+        "index": 9,
+        "date": "2025-12-13T18:30:00.000Z",
+        "dateFormatted": "12/14/2025",
+        "value": 6319
+      },
+      {
+        "index": 10,
+        "date": "2025-12-12T18:30:00.000Z",
+        "dateFormatted": "12/13/2025",
+        "value": 12212
+      },
+      {
+        "index": 11,
+        "date": "2025-12-11T18:30:00.000Z",
+        "dateFormatted": "12/12/2025",
+        "value": 14744
+      },
+      {
+        "index": 12,
+        "date": "2025-12-10T18:30:00.000Z",
+        "dateFormatted": "12/11/2025",
+        "value": 12818
+      },
+      {
+        "index": 13,
+        "date": "2025-12-09T18:30:00.000Z",
+        "dateFormatted": "12/10/2025",
+        "value": 8008
+      },
+      {
+        "index": 14,
+        "date": "2025-12-08T18:30:00.000Z",
+        "dateFormatted": "12/9/2025",
+        "value": 6982
+      },
+      {
+        "index": 15,
+        "date": "2025-12-07T18:30:00.000Z",
+        "dateFormatted": "12/8/2025",
+        "value": 10666
+      },
+      {
+        "index": 16,
+        "date": "2025-12-06T18:30:00.000Z",
+        "dateFormatted": "12/7/2025",
+        "value": 910
+      },
+      {
+        "index": 17,
+        "date": "2025-12-05T18:30:00.000Z",
+        "dateFormatted": "12/6/2025",
+        "value": 5726
+      },
+      {
+        "index": 18,
+        "date": "2025-12-04T18:30:00.000Z",
+        "dateFormatted": "12/5/2025",
+        "value": 6356
+      },
+      {
+        "index": 19,
+        "date": "2025-12-03T18:30:00.000Z",
+        "dateFormatted": "12/4/2025",
+        "value": 5248
+      },
+      {
+        "index": 20,
+        "date": "2025-12-02T18:30:00.000Z",
+        "dateFormatted": "12/3/2025",
+        "value": 3681
+      },
+      {
+        "index": 21,
+        "date": "2025-12-01T18:30:00.000Z",
+        "dateFormatted": "12/2/2025",
+        "value": 4700
+      },
+      {
+        "index": 22,
+        "date": "2025-11-30T18:30:00.000Z",
+        "dateFormatted": "12/1/2025",
+        "value": 1746
+      },
+      {
+        "index": 23,
+        "date": "2025-11-29T18:30:00.000Z",
+        "dateFormatted": "11/30/2025",
+        "value": 5139
+      },
+      {
+        "index": 24,
+        "date": "2025-11-28T18:30:00.000Z",
+        "dateFormatted": "11/29/2025",
+        "value": 8388
+      },
+      {
+        "index": 25,
+        "date": "2025-11-27T18:30:00.000Z",
+        "dateFormatted": "11/28/2025",
+        "value": 5566
+      },
+      {
+        "index": 26,
+        "date": "2025-11-26T18:30:00.000Z",
+        "dateFormatted": "11/27/2025",
+        "value": 2264
+      },
+      {
+        "index": 27,
+        "date": "2025-11-25T18:30:00.000Z",
+        "dateFormatted": "11/26/2025",
+        "value": 7295
+      },
+      {
+        "index": 28,
+        "date": "2025-11-24T18:30:00.000Z",
+        "dateFormatted": "11/25/2025",
+        "value": 8328
+      },
+      {
+        "index": 29,
+        "date": "2025-11-23T18:30:00.000Z",
+        "dateFormatted": "11/24/2025",
+        "value": 4812
+      },
+      {
+        "index": 30,
+        "date": "2025-11-22T18:30:00.000Z",
+        "dateFormatted": "11/23/2025",
+        "value": 1261
+      }
+    ],
+    "summary": {
+      "steps": {
+        "total": 253081,
+        "average": 8164,
+        "min": 255,
+        "max": 19696
+      },
+      "sleep": null
+    }
+  },
+  {
+    "timestamp": "2025-12-22T20:41:28.092Z",
+    "userId": "68646dfc9e507d389f5ce1ac",
+    "platform": "ios",
+    "stepsCount": 31,
+    "sleepCount": 0,
+    "steps": [
+      {
+        "index": 0,
+        "date": "2025-12-22T18:30:00.000Z",
+        "dateFormatted": "12/23/2025",
+        "value": 255
+      },
+      {
+        "index": 1,
+        "date": "2025-12-21T18:30:00.000Z",
+        "dateFormatted": "12/22/2025",
+        "value": 19696
+      },
+      {
+        "index": 2,
+        "date": "2025-12-20T18:30:00.000Z",
+        "dateFormatted": "12/21/2025",
+        "value": 11006
+      },
+      {
+        "index": 3,
+        "date": "2025-12-19T18:30:00.000Z",
+        "dateFormatted": "12/20/2025",
+        "value": 9975
+      },
+      {
+        "index": 4,
+        "date": "2025-12-18T18:30:00.000Z",
+        "dateFormatted": "12/19/2025",
+        "value": 11603
+      },
+      {
+        "index": 5,
+        "date": "2025-12-17T18:30:00.000Z",
+        "dateFormatted": "12/18/2025",
+        "value": 14590
+      },
+      {
+        "index": 6,
+        "date": "2025-12-16T18:30:00.000Z",
+        "dateFormatted": "12/17/2025",
+        "value": 12608
+      },
+      {
+        "index": 7,
+        "date": "2025-12-15T18:30:00.000Z",
+        "dateFormatted": "12/16/2025",
+        "value": 13342
+      },
+      {
+        "index": 8,
+        "date": "2025-12-14T18:30:00.000Z",
+        "dateFormatted": "12/15/2025",
+        "value": 16837
+      },
+      {
+        "index": 9,
+        "date": "2025-12-13T18:30:00.000Z",
+        "dateFormatted": "12/14/2025",
+        "value": 6319
+      },
+      {
+        "index": 10,
+        "date": "2025-12-12T18:30:00.000Z",
+        "dateFormatted": "12/13/2025",
+        "value": 12212
+      },
+      {
+        "index": 11,
+        "date": "2025-12-11T18:30:00.000Z",
+        "dateFormatted": "12/12/2025",
+        "value": 14744
+      },
+      {
+        "index": 12,
+        "date": "2025-12-10T18:30:00.000Z",
+        "dateFormatted": "12/11/2025",
+        "value": 12818
+      },
+      {
+        "index": 13,
+        "date": "2025-12-09T18:30:00.000Z",
+        "dateFormatted": "12/10/2025",
+        "value": 8008
+      },
+      {
+        "index": 14,
+        "date": "2025-12-08T18:30:00.000Z",
+        "dateFormatted": "12/9/2025",
+        "value": 6982
+      },
+      {
+        "index": 15,
+        "date": "2025-12-07T18:30:00.000Z",
+        "dateFormatted": "12/8/2025",
+        "value": 10666
+      },
+      {
+        "index": 16,
+        "date": "2025-12-06T18:30:00.000Z",
+        "dateFormatted": "12/7/2025",
+        "value": 910
+      },
+      {
+        "index": 17,
+        "date": "2025-12-05T18:30:00.000Z",
+        "dateFormatted": "12/6/2025",
+        "value": 5726
+      },
+      {
+        "index": 18,
+        "date": "2025-12-04T18:30:00.000Z",
+        "dateFormatted": "12/5/2025",
+        "value": 6356
+      },
+      {
+        "index": 19,
+        "date": "2025-12-03T18:30:00.000Z",
+        "dateFormatted": "12/4/2025",
+        "value": 5248
+      },
+      {
+        "index": 20,
+        "date": "2025-12-02T18:30:00.000Z",
+        "dateFormatted": "12/3/2025",
+        "value": 3681
+      },
+      {
+        "index": 21,
+        "date": "2025-12-01T18:30:00.000Z",
+        "dateFormatted": "12/2/2025",
+        "value": 4700
+      },
+      {
+        "index": 22,
+        "date": "2025-11-30T18:30:00.000Z",
+        "dateFormatted": "12/1/2025",
+        "value": 1746
+      },
+      {
+        "index": 23,
+        "date": "2025-11-29T18:30:00.000Z",
+        "dateFormatted": "11/30/2025",
+        "value": 5139
+      },
+      {
+        "index": 24,
+        "date": "2025-11-28T18:30:00.000Z",
+        "dateFormatted": "11/29/2025",
+        "value": 8388
+      },
+      {
+        "index": 25,
+        "date": "2025-11-27T18:30:00.000Z",
+        "dateFormatted": "11/28/2025",
+        "value": 5566
+      },
+      {
+        "index": 26,
+        "date": "2025-11-26T18:30:00.000Z",
+        "dateFormatted": "11/27/2025",
+        "value": 2264
+      },
+      {
+        "index": 27,
+        "date": "2025-11-25T18:30:00.000Z",
+        "dateFormatted": "11/26/2025",
+        "value": 7295
+      },
+      {
+        "index": 28,
+        "date": "2025-11-24T18:30:00.000Z",
+        "dateFormatted": "11/25/2025",
+        "value": 8328
+      },
+      {
+        "index": 29,
+        "date": "2025-11-23T18:30:00.000Z",
+        "dateFormatted": "11/24/2025",
+        "value": 4812
+      },
+      {
+        "index": 30,
+        "date": "2025-11-22T18:30:00.000Z",
+        "dateFormatted": "11/23/2025",
+        "value": 1261
+      }
+    ],
+    "summary": {
+      "steps": {
+        "total": 253081,
+        "average": 8164,
+        "min": 255,
+        "max": 19696
+      },
+      "sleep": null
+    }
+  },
+  {
+    "timestamp": "2025-12-22T20:38:01.758Z",
+    "userId": "68646dfc9e507d389f5ce1ac",
+    "platform": "ios",
+    "stepsCount": 31,
+    "sleepCount": 0,
+    "steps": [
+      {
+        "index": 0,
+        "date": "2025-12-22T18:30:00.000Z",
+        "dateFormatted": "12/23/2025",
+        "value": 250
+      },
+      {
+        "index": 1,
+        "date": "2025-12-21T18:30:00.000Z",
+        "dateFormatted": "12/22/2025",
+        "value": 19696
+      },
+      {
+        "index": 2,
+        "date": "2025-12-20T18:30:00.000Z",
+        "dateFormatted": "12/21/2025",
+        "value": 11006
+      },
+      {
+        "index": 3,
+        "date": "2025-12-19T18:30:00.000Z",
+        "dateFormatted": "12/20/2025",
+        "value": 9975
+      },
+      {
+        "index": 4,
+        "date": "2025-12-18T18:30:00.000Z",
+        "dateFormatted": "12/19/2025",
+        "value": 11603
+      },
+      {
+        "index": 5,
+        "date": "2025-12-17T18:30:00.000Z",
+        "dateFormatted": "12/18/2025",
+        "value": 14590
+      },
+      {
+        "index": 6,
+        "date": "2025-12-16T18:30:00.000Z",
+        "dateFormatted": "12/17/2025",
+        "value": 12608
+      },
+      {
+        "index": 7,
+        "date": "2025-12-15T18:30:00.000Z",
+        "dateFormatted": "12/16/2025",
+        "value": 13342
+      },
+      {
+        "index": 8,
+        "date": "2025-12-14T18:30:00.000Z",
+        "dateFormatted": "12/15/2025",
+        "value": 16837
+      },
+      {
+        "index": 9,
+        "date": "2025-12-13T18:30:00.000Z",
+        "dateFormatted": "12/14/2025",
+        "value": 6319
+      },
+      {
+        "index": 10,
+        "date": "2025-12-12T18:30:00.000Z",
+        "dateFormatted": "12/13/2025",
+        "value": 12212
+      },
+      {
+        "index": 11,
+        "date": "2025-12-11T18:30:00.000Z",
+        "dateFormatted": "12/12/2025",
+        "value": 14744
+      },
+      {
+        "index": 12,
+        "date": "2025-12-10T18:30:00.000Z",
+        "dateFormatted": "12/11/2025",
+        "value": 12818
+      },
+      {
+        "index": 13,
+        "date": "2025-12-09T18:30:00.000Z",
+        "dateFormatted": "12/10/2025",
+        "value": 8008
+      },
+      {
+        "index": 14,
+        "date": "2025-12-08T18:30:00.000Z",
+        "dateFormatted": "12/9/2025",
+        "value": 6982
+      },
+      {
+        "index": 15,
+        "date": "2025-12-07T18:30:00.000Z",
+        "dateFormatted": "12/8/2025",
+        "value": 10666
+      },
+      {
+        "index": 16,
+        "date": "2025-12-06T18:30:00.000Z",
+        "dateFormatted": "12/7/2025",
+        "value": 910
+      },
+      {
+        "index": 17,
+        "date": "2025-12-05T18:30:00.000Z",
+        "dateFormatted": "12/6/2025",
+        "value": 5726
+      },
+      {
+        "index": 18,
+        "date": "2025-12-04T18:30:00.000Z",
+        "dateFormatted": "12/5/2025",
+        "value": 6356
+      },
+      {
+        "index": 19,
+        "date": "2025-12-03T18:30:00.000Z",
+        "dateFormatted": "12/4/2025",
+        "value": 5248
+      },
+      {
+        "index": 20,
+        "date": "2025-12-02T18:30:00.000Z",
+        "dateFormatted": "12/3/2025",
+        "value": 3681
+      },
+      {
+        "index": 21,
+        "date": "2025-12-01T18:30:00.000Z",
+        "dateFormatted": "12/2/2025",
+        "value": 4700
+      },
+      {
+        "index": 22,
+        "date": "2025-11-30T18:30:00.000Z",
+        "dateFormatted": "12/1/2025",
+        "value": 1746
+      },
+      {
+        "index": 23,
+        "date": "2025-11-29T18:30:00.000Z",
+        "dateFormatted": "11/30/2025",
+        "value": 5139
+      },
+      {
+        "index": 24,
+        "date": "2025-11-28T18:30:00.000Z",
+        "dateFormatted": "11/29/2025",
+        "value": 8388
+      },
+      {
+        "index": 25,
+        "date": "2025-11-27T18:30:00.000Z",
+        "dateFormatted": "11/28/2025",
+        "value": 5566
+      },
+      {
+        "index": 26,
+        "date": "2025-11-26T18:30:00.000Z",
+        "dateFormatted": "11/27/2025",
+        "value": 2264
+      },
+      {
+        "index": 27,
+        "date": "2025-11-25T18:30:00.000Z",
+        "dateFormatted": "11/26/2025",
+        "value": 7295
+      },
+      {
+        "index": 28,
+        "date": "2025-11-24T18:30:00.000Z",
+        "dateFormatted": "11/25/2025",
+        "value": 8328
+      },
+      {
+        "index": 29,
+        "date": "2025-11-23T18:30:00.000Z",
+        "dateFormatted": "11/24/2025",
+        "value": 4812
+      },
+      {
+        "index": 30,
+        "date": "2025-11-22T18:30:00.000Z",
+        "dateFormatted": "11/23/2025",
+        "value": 1261
+      }
+    ],
+    "summary": {
+      "steps": {
+        "total": 253076,
+        "average": 8164,
+        "min": 250,
+        "max": 19696
+      },
+      "sleep": null
+    }
+  },
+  {
+    "timestamp": "2025-12-22T20:34:08.422Z",
+    "userId": "68646dfc9e507d389f5ce1ac",
+    "platform": "ios",
+    "stepsCount": 31,
+    "sleepCount": 0,
+    "steps": [
+      {
+        "index": 0,
+        "date": "2025-12-22T18:30:00.000Z",
+        "dateFormatted": "12/23/2025",
+        "value": 250
+      },
+      {
+        "index": 1,
+        "date": "2025-12-21T18:30:00.000Z",
+        "dateFormatted": "12/22/2025",
+        "value": 19696
+      },
+      {
+        "index": 2,
+        "date": "2025-12-20T18:30:00.000Z",
+        "dateFormatted": "12/21/2025",
+        "value": 11006
+      },
+      {
+        "index": 3,
+        "date": "2025-12-19T18:30:00.000Z",
+        "dateFormatted": "12/20/2025",
+        "value": 9975
+      },
+      {
+        "index": 4,
+        "date": "2025-12-18T18:30:00.000Z",
+        "dateFormatted": "12/19/2025",
+        "value": 11603
+      },
+      {
+        "index": 5,
+        "date": "2025-12-17T18:30:00.000Z",
+        "dateFormatted": "12/18/2025",
+        "value": 14590
+      },
+      {
+        "index": 6,
+        "date": "2025-12-16T18:30:00.000Z",
+        "dateFormatted": "12/17/2025",
+        "value": 12608
+      },
+      {
+        "index": 7,
+        "date": "2025-12-15T18:30:00.000Z",
+        "dateFormatted": "12/16/2025",
+        "value": 13342
+      },
+      {
+        "index": 8,
+        "date": "2025-12-14T18:30:00.000Z",
+        "dateFormatted": "12/15/2025",
+        "value": 16837
+      },
+      {
+        "index": 9,
+        "date": "2025-12-13T18:30:00.000Z",
+        "dateFormatted": "12/14/2025",
+        "value": 6319
+      },
+      {
+        "index": 10,
+        "date": "2025-12-12T18:30:00.000Z",
+        "dateFormatted": "12/13/2025",
+        "value": 12212
+      },
+      {
+        "index": 11,
+        "date": "2025-12-11T18:30:00.000Z",
+        "dateFormatted": "12/12/2025",
+        "value": 14744
+      },
+      {
+        "index": 12,
+        "date": "2025-12-10T18:30:00.000Z",
+        "dateFormatted": "12/11/2025",
+        "value": 12818
+      },
+      {
+        "index": 13,
+        "date": "2025-12-09T18:30:00.000Z",
+        "dateFormatted": "12/10/2025",
+        "value": 8008
+      },
+      {
+        "index": 14,
+        "date": "2025-12-08T18:30:00.000Z",
+        "dateFormatted": "12/9/2025",
+        "value": 6982
+      },
+      {
+        "index": 15,
+        "date": "2025-12-07T18:30:00.000Z",
+        "dateFormatted": "12/8/2025",
+        "value": 10666
+      },
+      {
+        "index": 16,
+        "date": "2025-12-06T18:30:00.000Z",
+        "dateFormatted": "12/7/2025",
+        "value": 910
+      },
+      {
+        "index": 17,
+        "date": "2025-12-05T18:30:00.000Z",
+        "dateFormatted": "12/6/2025",
+        "value": 5726
+      },
+      {
+        "index": 18,
+        "date": "2025-12-04T18:30:00.000Z",
+        "dateFormatted": "12/5/2025",
+        "value": 6356
+      },
+      {
+        "index": 19,
+        "date": "2025-12-03T18:30:00.000Z",
+        "dateFormatted": "12/4/2025",
+        "value": 5248
+      },
+      {
+        "index": 20,
+        "date": "2025-12-02T18:30:00.000Z",
+        "dateFormatted": "12/3/2025",
+        "value": 3681
+      },
+      {
+        "index": 21,
+        "date": "2025-12-01T18:30:00.000Z",
+        "dateFormatted": "12/2/2025",
+        "value": 4700
+      },
+      {
+        "index": 22,
+        "date": "2025-11-30T18:30:00.000Z",
+        "dateFormatted": "12/1/2025",
+        "value": 1746
+      },
+      {
+        "index": 23,
+        "date": "2025-11-29T18:30:00.000Z",
+        "dateFormatted": "11/30/2025",
+        "value": 5139
+      },
+      {
+        "index": 24,
+        "date": "2025-11-28T18:30:00.000Z",
+        "dateFormatted": "11/29/2025",
+        "value": 8388
+      },
+      {
+        "index": 25,
+        "date": "2025-11-27T18:30:00.000Z",
+        "dateFormatted": "11/28/2025",
+        "value": 5566
+      },
+      {
+        "index": 26,
+        "date": "2025-11-26T18:30:00.000Z",
+        "dateFormatted": "11/27/2025",
+        "value": 2264
+      },
+      {
+        "index": 27,
+        "date": "2025-11-25T18:30:00.000Z",
+        "dateFormatted": "11/26/2025",
+        "value": 7295
+      },
+      {
+        "index": 28,
+        "date": "2025-11-24T18:30:00.000Z",
+        "dateFormatted": "11/25/2025",
+        "value": 8328
+      },
+      {
+        "index": 29,
+        "date": "2025-11-23T18:30:00.000Z",
+        "dateFormatted": "11/24/2025",
+        "value": 4812
+      },
+      {
+        "index": 30,
+        "date": "2025-11-22T18:30:00.000Z",
+        "dateFormatted": "11/23/2025",
+        "value": 1261
+      }
+    ],
+    "summary": {
+      "steps": {
+        "total": 253076,
+        "average": 8164,
+        "min": 250,
+        "max": 19696
+      },
+      "sleep": null
+    }
+  },
+  {
+    "timestamp": "2025-12-22T20:30:11.742Z",
+    "userId": "68646dfc9e507d389f5ce1ac",
+    "platform": "ios",
+    "stepsCount": 0,
+    "sleepCount": 2,
+    "sleep": [
+      {
+        "index": 0,
+        "date": "2025-12-19T18:30:00.000Z",
+        "dateFormatted": "12/20/2025",
+        "value": 17
+      },
+      {
+        "index": 1,
+        "date": "2025-12-16T18:30:00.000Z",
+        "dateFormatted": "12/17/2025",
+        "value": 5
+      }
+    ],
+    "summary": {
+      "steps": null,
+      "sleep": {
+        "total": 22,
+        "average": 11,
+        "min": 5,
+        "max": 17
+      }
+    }
+  },
+  {
+    "timestamp": "2025-12-22T20:29:47.108Z",
+    "userId": "68646dfc9e507d389f5ce1ac",
+    "platform": "ios",
+    "stepsCount": 31,
+    "sleepCount": 0,
+    "steps": [
+      {
+        "index": 0,
+        "date": "2025-12-22T18:30:00.000Z",
+        "dateFormatted": "12/23/2025",
+        "value": 250
+      },
+      {
+        "index": 1,
+        "date": "2025-12-21T18:30:00.000Z",
+        "dateFormatted": "12/22/2025",
+        "value": 19696
+      },
+      {
+        "index": 2,
+        "date": "2025-12-20T18:30:00.000Z",
+        "dateFormatted": "12/21/2025",
+        "value": 11006
+      },
+      {
+        "index": 3,
+        "date": "2025-12-19T18:30:00.000Z",
+        "dateFormatted": "12/20/2025",
+        "value": 9975
+      },
+      {
+        "index": 4,
+        "date": "2025-12-18T18:30:00.000Z",
+        "dateFormatted": "12/19/2025",
+        "value": 11603
+      },
+      {
+        "index": 5,
+        "date": "2025-12-17T18:30:00.000Z",
+        "dateFormatted": "12/18/2025",
+        "value": 14590
+      },
+      {
+        "index": 6,
+        "date": "2025-12-16T18:30:00.000Z",
+        "dateFormatted": "12/17/2025",
+        "value": 12608
+      },
+      {
+        "index": 7,
+        "date": "2025-12-15T18:30:00.000Z",
+        "dateFormatted": "12/16/2025",
+        "value": 13342
+      },
+      {
+        "index": 8,
+        "date": "2025-12-14T18:30:00.000Z",
+        "dateFormatted": "12/15/2025",
+        "value": 16837
+      },
+      {
+        "index": 9,
+        "date": "2025-12-13T18:30:00.000Z",
+        "dateFormatted": "12/14/2025",
+        "value": 6319
+      },
+      {
+        "index": 10,
+        "date": "2025-12-12T18:30:00.000Z",
+        "dateFormatted": "12/13/2025",
+        "value": 12212
+      },
+      {
+        "index": 11,
+        "date": "2025-12-11T18:30:00.000Z",
+        "dateFormatted": "12/12/2025",
+        "value": 14744
+      },
+      {
+        "index": 12,
+        "date": "2025-12-10T18:30:00.000Z",
+        "dateFormatted": "12/11/2025",
+        "value": 12818
+      },
+      {
+        "index": 13,
+        "date": "2025-12-09T18:30:00.000Z",
+        "dateFormatted": "12/10/2025",
+        "value": 8008
+      },
+      {
+        "index": 14,
+        "date": "2025-12-08T18:30:00.000Z",
+        "dateFormatted": "12/9/2025",
+        "value": 6982
+      },
+      {
+        "index": 15,
+        "date": "2025-12-07T18:30:00.000Z",
+        "dateFormatted": "12/8/2025",
+        "value": 10666
+      },
+      {
+        "index": 16,
+        "date": "2025-12-06T18:30:00.000Z",
+        "dateFormatted": "12/7/2025",
+        "value": 910
+      },
+      {
+        "index": 17,
+        "date": "2025-12-05T18:30:00.000Z",
+        "dateFormatted": "12/6/2025",
+        "value": 5726
+      },
+      {
+        "index": 18,
+        "date": "2025-12-04T18:30:00.000Z",
+        "dateFormatted": "12/5/2025",
+        "value": 6356
+      },
+      {
+        "index": 19,
+        "date": "2025-12-03T18:30:00.000Z",
+        "dateFormatted": "12/4/2025",
+        "value": 5248
+      },
+      {
+        "index": 20,
+        "date": "2025-12-02T18:30:00.000Z",
+        "dateFormatted": "12/3/2025",
+        "value": 3681
+      },
+      {
+        "index": 21,
+        "date": "2025-12-01T18:30:00.000Z",
+        "dateFormatted": "12/2/2025",
+        "value": 4700
+      },
+      {
+        "index": 22,
+        "date": "2025-11-30T18:30:00.000Z",
+        "dateFormatted": "12/1/2025",
+        "value": 1746
+      },
+      {
+        "index": 23,
+        "date": "2025-11-29T18:30:00.000Z",
+        "dateFormatted": "11/30/2025",
+        "value": 5139
+      },
+      {
+        "index": 24,
+        "date": "2025-11-28T18:30:00.000Z",
+        "dateFormatted": "11/29/2025",
+        "value": 8388
+      },
+      {
+        "index": 25,
+        "date": "2025-11-27T18:30:00.000Z",
+        "dateFormatted": "11/28/2025",
+        "value": 5566
+      },
+      {
+        "index": 26,
+        "date": "2025-11-26T18:30:00.000Z",
+        "dateFormatted": "11/27/2025",
+        "value": 2264
+      },
+      {
+        "index": 27,
+        "date": "2025-11-25T18:30:00.000Z",
+        "dateFormatted": "11/26/2025",
+        "value": 7295
+      },
+      {
+        "index": 28,
+        "date": "2025-11-24T18:30:00.000Z",
+        "dateFormatted": "11/25/2025",
+        "value": 8328
+      },
+      {
+        "index": 29,
+        "date": "2025-11-23T18:30:00.000Z",
+        "dateFormatted": "11/24/2025",
+        "value": 4812
+      },
+      {
+        "index": 30,
+        "date": "2025-11-22T18:30:00.000Z",
+        "dateFormatted": "11/23/2025",
+        "value": 1261
+      }
+    ],
+    "summary": {
+      "steps": {
+        "total": 253076,
+        "average": 8164,
+        "min": 250,
+        "max": 19696
+      },
+      "sleep": null
+    }
+  },
+  {
+    "timestamp": "2025-12-22T20:24:08.282Z",
+    "userId": "68646dfc9e507d389f5ce1ac",
+    "platform": "ios",
+    "stepsCount": 31,
+    "sleepCount": 0,
+    "steps": [
+      {
+        "index": 0,
+        "date": "2025-12-22T18:30:00.000Z",
+        "dateFormatted": "12/23/2025",
+        "value": 250
+      },
+      {
+        "index": 1,
+        "date": "2025-12-21T18:30:00.000Z",
+        "dateFormatted": "12/22/2025",
+        "value": 19696
+      },
+      {
+        "index": 2,
+        "date": "2025-12-20T18:30:00.000Z",
+        "dateFormatted": "12/21/2025",
+        "value": 11006
+      },
+      {
+        "index": 3,
+        "date": "2025-12-19T18:30:00.000Z",
+        "dateFormatted": "12/20/2025",
+        "value": 9975
+      },
+      {
+        "index": 4,
+        "date": "2025-12-18T18:30:00.000Z",
+        "dateFormatted": "12/19/2025",
+        "value": 11603
+      },
+      {
+        "index": 5,
+        "date": "2025-12-17T18:30:00.000Z",
+        "dateFormatted": "12/18/2025",
+        "value": 14590
+      },
+      {
+        "index": 6,
+        "date": "2025-12-16T18:30:00.000Z",
+        "dateFormatted": "12/17/2025",
+        "value": 12608
+      },
+      {
+        "index": 7,
+        "date": "2025-12-15T18:30:00.000Z",
+        "dateFormatted": "12/16/2025",
+        "value": 13342
+      },
+      {
+        "index": 8,
+        "date": "2025-12-14T18:30:00.000Z",
+        "dateFormatted": "12/15/2025",
+        "value": 16837
+      },
+      {
+        "index": 9,
+        "date": "2025-12-13T18:30:00.000Z",
+        "dateFormatted": "12/14/2025",
+        "value": 6319
+      },
+      {
+        "index": 10,
+        "date": "2025-12-12T18:30:00.000Z",
+        "dateFormatted": "12/13/2025",
+        "value": 12212
+      },
+      {
+        "index": 11,
+        "date": "2025-12-11T18:30:00.000Z",
+        "dateFormatted": "12/12/2025",
+        "value": 14744
+      },
+      {
+        "index": 12,
+        "date": "2025-12-10T18:30:00.000Z",
+        "dateFormatted": "12/11/2025",
+        "value": 12818
+      },
+      {
+        "index": 13,
+        "date": "2025-12-09T18:30:00.000Z",
+        "dateFormatted": "12/10/2025",
+        "value": 8008
+      },
+      {
+        "index": 14,
+        "date": "2025-12-08T18:30:00.000Z",
+        "dateFormatted": "12/9/2025",
+        "value": 6982
+      },
+      {
+        "index": 15,
+        "date": "2025-12-07T18:30:00.000Z",
+        "dateFormatted": "12/8/2025",
+        "value": 10666
+      },
+      {
+        "index": 16,
+        "date": "2025-12-06T18:30:00.000Z",
+        "dateFormatted": "12/7/2025",
+        "value": 910
+      },
+      {
+        "index": 17,
+        "date": "2025-12-05T18:30:00.000Z",
+        "dateFormatted": "12/6/2025",
+        "value": 5726
+      },
+      {
+        "index": 18,
+        "date": "2025-12-04T18:30:00.000Z",
+        "dateFormatted": "12/5/2025",
+        "value": 6356
+      },
+      {
+        "index": 19,
+        "date": "2025-12-03T18:30:00.000Z",
+        "dateFormatted": "12/4/2025",
+        "value": 5248
+      },
+      {
+        "index": 20,
+        "date": "2025-12-02T18:30:00.000Z",
+        "dateFormatted": "12/3/2025",
+        "value": 3681
+      },
+      {
+        "index": 21,
+        "date": "2025-12-01T18:30:00.000Z",
+        "dateFormatted": "12/2/2025",
+        "value": 4700
+      },
+      {
+        "index": 22,
+        "date": "2025-11-30T18:30:00.000Z",
+        "dateFormatted": "12/1/2025",
+        "value": 1746
+      },
+      {
+        "index": 23,
+        "date": "2025-11-29T18:30:00.000Z",
+        "dateFormatted": "11/30/2025",
+        "value": 5139
+      },
+      {
+        "index": 24,
+        "date": "2025-11-28T18:30:00.000Z",
+        "dateFormatted": "11/29/2025",
+        "value": 8388
+      },
+      {
+        "index": 25,
+        "date": "2025-11-27T18:30:00.000Z",
+        "dateFormatted": "11/28/2025",
+        "value": 5566
+      },
+      {
+        "index": 26,
+        "date": "2025-11-26T18:30:00.000Z",
+        "dateFormatted": "11/27/2025",
+        "value": 2264
+      },
+      {
+        "index": 27,
+        "date": "2025-11-25T18:30:00.000Z",
+        "dateFormatted": "11/26/2025",
+        "value": 7295
+      },
+      {
+        "index": 28,
+        "date": "2025-11-24T18:30:00.000Z",
+        "dateFormatted": "11/25/2025",
+        "value": 8328
+      },
+      {
+        "index": 29,
+        "date": "2025-11-23T18:30:00.000Z",
+        "dateFormatted": "11/24/2025",
+        "value": 4812
+      },
+      {
+        "index": 30,
+        "date": "2025-11-22T18:30:00.000Z",
+        "dateFormatted": "11/23/2025",
+        "value": 1261
+      }
+    ],
+    "summary": {
+      "steps": {
+        "total": 253076,
+        "average": 8164,
+        "min": 250,
+        "max": 19696
+      },
+      "sleep": null
+    }
+  },
+  {
+    "timestamp": "2025-12-22T20:21:09.324Z",
+    "userId": "68646dfc9e507d389f5ce1ac",
+    "platform": "ios",
+    "stepsCount": 31,
+    "sleepCount": 0,
+    "steps": [
+      {
+        "index": 0,
+        "date": "2025-12-22T18:30:00.000Z",
+        "dateFormatted": "12/23/2025",
+        "value": 250
+      },
+      {
+        "index": 1,
+        "date": "2025-12-21T18:30:00.000Z",
+        "dateFormatted": "12/22/2025",
+        "value": 19696
+      },
+      {
+        "index": 2,
+        "date": "2025-12-20T18:30:00.000Z",
+        "dateFormatted": "12/21/2025",
+        "value": 11006
+      },
+      {
+        "index": 3,
+        "date": "2025-12-19T18:30:00.000Z",
+        "dateFormatted": "12/20/2025",
+        "value": 9975
+      },
+      {
+        "index": 4,
+        "date": "2025-12-18T18:30:00.000Z",
+        "dateFormatted": "12/19/2025",
+        "value": 11603
+      },
+      {
+        "index": 5,
+        "date": "2025-12-17T18:30:00.000Z",
+        "dateFormatted": "12/18/2025",
+        "value": 14590
+      },
+      {
+        "index": 6,
+        "date": "2025-12-16T18:30:00.000Z",
+        "dateFormatted": "12/17/2025",
+        "value": 12608
+      },
+      {
+        "index": 7,
+        "date": "2025-12-15T18:30:00.000Z",
+        "dateFormatted": "12/16/2025",
+        "value": 13342
+      },
+      {
+        "index": 8,
+        "date": "2025-12-14T18:30:00.000Z",
+        "dateFormatted": "12/15/2025",
+        "value": 16837
+      },
+      {
+        "index": 9,
+        "date": "2025-12-13T18:30:00.000Z",
+        "dateFormatted": "12/14/2025",
+        "value": 6319
+      },
+      {
+        "index": 10,
+        "date": "2025-12-12T18:30:00.000Z",
+        "dateFormatted": "12/13/2025",
+        "value": 12212
+      },
+      {
+        "index": 11,
+        "date": "2025-12-11T18:30:00.000Z",
+        "dateFormatted": "12/12/2025",
+        "value": 14744
+      },
+      {
+        "index": 12,
+        "date": "2025-12-10T18:30:00.000Z",
+        "dateFormatted": "12/11/2025",
+        "value": 12818
+      },
+      {
+        "index": 13,
+        "date": "2025-12-09T18:30:00.000Z",
+        "dateFormatted": "12/10/2025",
+        "value": 8008
+      },
+      {
+        "index": 14,
+        "date": "2025-12-08T18:30:00.000Z",
+        "dateFormatted": "12/9/2025",
+        "value": 6982
+      },
+      {
+        "index": 15,
+        "date": "2025-12-07T18:30:00.000Z",
+        "dateFormatted": "12/8/2025",
+        "value": 10666
+      },
+      {
+        "index": 16,
+        "date": "2025-12-06T18:30:00.000Z",
+        "dateFormatted": "12/7/2025",
+        "value": 910
+      },
+      {
+        "index": 17,
+        "date": "2025-12-05T18:30:00.000Z",
+        "dateFormatted": "12/6/2025",
+        "value": 5726
+      },
+      {
+        "index": 18,
+        "date": "2025-12-04T18:30:00.000Z",
+        "dateFormatted": "12/5/2025",
+        "value": 6356
+      },
+      {
+        "index": 19,
+        "date": "2025-12-03T18:30:00.000Z",
+        "dateFormatted": "12/4/2025",
+        "value": 5248
+      },
+      {
+        "index": 20,
+        "date": "2025-12-02T18:30:00.000Z",
+        "dateFormatted": "12/3/2025",
+        "value": 3681
+      },
+      {
+        "index": 21,
+        "date": "2025-12-01T18:30:00.000Z",
+        "dateFormatted": "12/2/2025",
+        "value": 4700
+      },
+      {
+        "index": 22,
+        "date": "2025-11-30T18:30:00.000Z",
+        "dateFormatted": "12/1/2025",
+        "value": 1746
+      },
+      {
+        "index": 23,
+        "date": "2025-11-29T18:30:00.000Z",
+        "dateFormatted": "11/30/2025",
+        "value": 5139
+      },
+      {
+        "index": 24,
+        "date": "2025-11-28T18:30:00.000Z",
+        "dateFormatted": "11/29/2025",
+        "value": 8388
+      },
+      {
+        "index": 25,
+        "date": "2025-11-27T18:30:00.000Z",
+        "dateFormatted": "11/28/2025",
+        "value": 5566
+      },
+      {
+        "index": 26,
+        "date": "2025-11-26T18:30:00.000Z",
+        "dateFormatted": "11/27/2025",
+        "value": 2264
+      },
+      {
+        "index": 27,
+        "date": "2025-11-25T18:30:00.000Z",
+        "dateFormatted": "11/26/2025",
+        "value": 7295
+      },
+      {
+        "index": 28,
+        "date": "2025-11-24T18:30:00.000Z",
+        "dateFormatted": "11/25/2025",
+        "value": 8328
+      },
+      {
+        "index": 29,
+        "date": "2025-11-23T18:30:00.000Z",
+        "dateFormatted": "11/24/2025",
+        "value": 4812
+      },
+      {
+        "index": 30,
+        "date": "2025-11-22T18:30:00.000Z",
+        "dateFormatted": "11/23/2025",
+        "value": 1261
+      }
+    ],
+    "summary": {
+      "steps": {
+        "total": 253076,
+        "average": 8164,
+        "min": 250,
+        "max": 19696
+      },
+      "sleep": null
+    }
+  },
+  {
+    "timestamp": "2025-12-22T20:17:22.883Z",
+    "userId": "68646dfc9e507d389f5ce1ac",
+    "platform": "ios",
+    "stepsCount": 0,
+    "sleepCount": 2,
+    "sleep": [
+      {
+        "index": 0,
+        "date": "2025-12-19T18:30:00.000Z",
+        "dateFormatted": "12/20/2025",
+        "value": 17
+      },
+      {
+        "index": 1,
+        "date": "2025-12-16T18:30:00.000Z",
+        "dateFormatted": "12/17/2025",
+        "value": 5
+      }
+    ],
+    "summary": {
+      "steps": null,
+      "sleep": {
+        "total": 22,
+        "average": 11,
+        "min": 5,
+        "max": 17
+      }
+    }
+  },
+  {
+    "timestamp": "2025-12-22T20:16:55.632Z",
+    "userId": "68646dfc9e507d389f5ce1ac",
+    "platform": "ios",
+    "stepsCount": 31,
+    "sleepCount": 0,
+    "steps": [
+      {
+        "index": 0,
+        "date": "2025-12-22T18:30:00.000Z",
+        "dateFormatted": "12/23/2025",
+        "value": 250
+      },
+      {
+        "index": 1,
+        "date": "2025-12-21T18:30:00.000Z",
+        "dateFormatted": "12/22/2025",
+        "value": 19696
+      },
+      {
+        "index": 2,
+        "date": "2025-12-20T18:30:00.000Z",
+        "dateFormatted": "12/21/2025",
+        "value": 11006
+      },
+      {
+        "index": 3,
+        "date": "2025-12-19T18:30:00.000Z",
+        "dateFormatted": "12/20/2025",
+        "value": 9975
+      },
+      {
+        "index": 4,
+        "date": "2025-12-18T18:30:00.000Z",
+        "dateFormatted": "12/19/2025",
+        "value": 11603
+      },
+      {
+        "index": 5,
+        "date": "2025-12-17T18:30:00.000Z",
+        "dateFormatted": "12/18/2025",
+        "value": 14590
+      },
+      {
+        "index": 6,
+        "date": "2025-12-16T18:30:00.000Z",
+        "dateFormatted": "12/17/2025",
+        "value": 12608
+      },
+      {
+        "index": 7,
+        "date": "2025-12-15T18:30:00.000Z",
+        "dateFormatted": "12/16/2025",
+        "value": 13342
+      },
+      {
+        "index": 8,
+        "date": "2025-12-14T18:30:00.000Z",
+        "dateFormatted": "12/15/2025",
+        "value": 16837
+      },
+      {
+        "index": 9,
+        "date": "2025-12-13T18:30:00.000Z",
+        "dateFormatted": "12/14/2025",
+        "value": 6319
+      },
+      {
+        "index": 10,
+        "date": "2025-12-12T18:30:00.000Z",
+        "dateFormatted": "12/13/2025",
+        "value": 12212
+      },
+      {
+        "index": 11,
+        "date": "2025-12-11T18:30:00.000Z",
+        "dateFormatted": "12/12/2025",
+        "value": 14744
+      },
+      {
+        "index": 12,
+        "date": "2025-12-10T18:30:00.000Z",
+        "dateFormatted": "12/11/2025",
+        "value": 12818
+      },
+      {
+        "index": 13,
+        "date": "2025-12-09T18:30:00.000Z",
+        "dateFormatted": "12/10/2025",
+        "value": 8008
+      },
+      {
+        "index": 14,
+        "date": "2025-12-08T18:30:00.000Z",
+        "dateFormatted": "12/9/2025",
+        "value": 6982
+      },
+      {
+        "index": 15,
+        "date": "2025-12-07T18:30:00.000Z",
+        "dateFormatted": "12/8/2025",
+        "value": 10666
+      },
+      {
+        "index": 16,
+        "date": "2025-12-06T18:30:00.000Z",
+        "dateFormatted": "12/7/2025",
+        "value": 910
+      },
+      {
+        "index": 17,
+        "date": "2025-12-05T18:30:00.000Z",
+        "dateFormatted": "12/6/2025",
+        "value": 5726
+      },
+      {
+        "index": 18,
+        "date": "2025-12-04T18:30:00.000Z",
+        "dateFormatted": "12/5/2025",
+        "value": 6356
+      },
+      {
+        "index": 19,
+        "date": "2025-12-03T18:30:00.000Z",
+        "dateFormatted": "12/4/2025",
+        "value": 5248
+      },
+      {
+        "index": 20,
+        "date": "2025-12-02T18:30:00.000Z",
+        "dateFormatted": "12/3/2025",
+        "value": 3681
+      },
+      {
+        "index": 21,
+        "date": "2025-12-01T18:30:00.000Z",
+        "dateFormatted": "12/2/2025",
+        "value": 4700
+      },
+      {
+        "index": 22,
+        "date": "2025-11-30T18:30:00.000Z",
+        "dateFormatted": "12/1/2025",
+        "value": 1746
+      },
+      {
+        "index": 23,
+        "date": "2025-11-29T18:30:00.000Z",
+        "dateFormatted": "11/30/2025",
+        "value": 5139
+      },
+      {
+        "index": 24,
+        "date": "2025-11-28T18:30:00.000Z",
+        "dateFormatted": "11/29/2025",
+        "value": 8388
+      },
+      {
+        "index": 25,
+        "date": "2025-11-27T18:30:00.000Z",
+        "dateFormatted": "11/28/2025",
+        "value": 5566
+      },
+      {
+        "index": 26,
+        "date": "2025-11-26T18:30:00.000Z",
+        "dateFormatted": "11/27/2025",
+        "value": 2264
+      },
+      {
+        "index": 27,
+        "date": "2025-11-25T18:30:00.000Z",
+        "dateFormatted": "11/26/2025",
+        "value": 7295
+      },
+      {
+        "index": 28,
+        "date": "2025-11-24T18:30:00.000Z",
+        "dateFormatted": "11/25/2025",
+        "value": 8328
+      },
+      {
+        "index": 29,
+        "date": "2025-11-23T18:30:00.000Z",
+        "dateFormatted": "11/24/2025",
+        "value": 4812
+      },
+      {
+        "index": 30,
+        "date": "2025-11-22T18:30:00.000Z",
+        "dateFormatted": "11/23/2025",
+        "value": 1261
+      }
+    ],
+    "summary": {
+      "steps": {
+        "total": 253076,
+        "average": 8164,
+        "min": 250,
+        "max": 19696
+      },
+      "sleep": null
+    }
+  },
+  {
+    "timestamp": "2025-12-22T20:13:27.004Z",
+    "userId": "68646dfc9e507d389f5ce1ac",
+    "platform": "ios",
+    "stepsCount": 31,
+    "sleepCount": 0,
+    "steps": [
+      {
+        "index": 0,
+        "date": "2025-12-22T18:30:00.000Z",
+        "dateFormatted": "12/23/2025",
+        "value": 250
+      },
+      {
+        "index": 1,
+        "date": "2025-12-21T18:30:00.000Z",
+        "dateFormatted": "12/22/2025",
+        "value": 19696
+      },
+      {
+        "index": 2,
+        "date": "2025-12-20T18:30:00.000Z",
+        "dateFormatted": "12/21/2025",
+        "value": 11006
+      },
+      {
+        "index": 3,
+        "date": "2025-12-19T18:30:00.000Z",
+        "dateFormatted": "12/20/2025",
+        "value": 9975
+      },
+      {
+        "index": 4,
+        "date": "2025-12-18T18:30:00.000Z",
+        "dateFormatted": "12/19/2025",
+        "value": 11603
+      },
+      {
+        "index": 5,
+        "date": "2025-12-17T18:30:00.000Z",
+        "dateFormatted": "12/18/2025",
+        "value": 14590
+      },
+      {
+        "index": 6,
+        "date": "2025-12-16T18:30:00.000Z",
+        "dateFormatted": "12/17/2025",
+        "value": 12608
+      },
+      {
+        "index": 7,
+        "date": "2025-12-15T18:30:00.000Z",
+        "dateFormatted": "12/16/2025",
+        "value": 13342
+      },
+      {
+        "index": 8,
+        "date": "2025-12-14T18:30:00.000Z",
+        "dateFormatted": "12/15/2025",
+        "value": 16837
+      },
+      {
+        "index": 9,
+        "date": "2025-12-13T18:30:00.000Z",
+        "dateFormatted": "12/14/2025",
+        "value": 6319
+      },
+      {
+        "index": 10,
+        "date": "2025-12-12T18:30:00.000Z",
+        "dateFormatted": "12/13/2025",
+        "value": 12212
+      },
+      {
+        "index": 11,
+        "date": "2025-12-11T18:30:00.000Z",
+        "dateFormatted": "12/12/2025",
+        "value": 14744
+      },
+      {
+        "index": 12,
+        "date": "2025-12-10T18:30:00.000Z",
+        "dateFormatted": "12/11/2025",
+        "value": 12818
+      },
+      {
+        "index": 13,
+        "date": "2025-12-09T18:30:00.000Z",
+        "dateFormatted": "12/10/2025",
+        "value": 8008
+      },
+      {
+        "index": 14,
+        "date": "2025-12-08T18:30:00.000Z",
+        "dateFormatted": "12/9/2025",
+        "value": 6982
+      },
+      {
+        "index": 15,
+        "date": "2025-12-07T18:30:00.000Z",
+        "dateFormatted": "12/8/2025",
+        "value": 10666
+      },
+      {
+        "index": 16,
+        "date": "2025-12-06T18:30:00.000Z",
+        "dateFormatted": "12/7/2025",
+        "value": 910
+      },
+      {
+        "index": 17,
+        "date": "2025-12-05T18:30:00.000Z",
+        "dateFormatted": "12/6/2025",
+        "value": 5726
+      },
+      {
+        "index": 18,
+        "date": "2025-12-04T18:30:00.000Z",
+        "dateFormatted": "12/5/2025",
+        "value": 6356
+      },
+      {
+        "index": 19,
+        "date": "2025-12-03T18:30:00.000Z",
+        "dateFormatted": "12/4/2025",
+        "value": 5248
+      },
+      {
+        "index": 20,
+        "date": "2025-12-02T18:30:00.000Z",
+        "dateFormatted": "12/3/2025",
+        "value": 3681
+      },
+      {
+        "index": 21,
+        "date": "2025-12-01T18:30:00.000Z",
+        "dateFormatted": "12/2/2025",
+        "value": 4700
+      },
+      {
+        "index": 22,
+        "date": "2025-11-30T18:30:00.000Z",
+        "dateFormatted": "12/1/2025",
+        "value": 1746
+      },
+      {
+        "index": 23,
+        "date": "2025-11-29T18:30:00.000Z",
+        "dateFormatted": "11/30/2025",
+        "value": 5139
+      },
+      {
+        "index": 24,
+        "date": "2025-11-28T18:30:00.000Z",
+        "dateFormatted": "11/29/2025",
+        "value": 8388
+      },
+      {
+        "index": 25,
+        "date": "2025-11-27T18:30:00.000Z",
+        "dateFormatted": "11/28/2025",
+        "value": 5566
+      },
+      {
+        "index": 26,
+        "date": "2025-11-26T18:30:00.000Z",
+        "dateFormatted": "11/27/2025",
+        "value": 2264
+      },
+      {
+        "index": 27,
+        "date": "2025-11-25T18:30:00.000Z",
+        "dateFormatted": "11/26/2025",
+        "value": 7295
+      },
+      {
+        "index": 28,
+        "date": "2025-11-24T18:30:00.000Z",
+        "dateFormatted": "11/25/2025",
+        "value": 8328
+      },
+      {
+        "index": 29,
+        "date": "2025-11-23T18:30:00.000Z",
+        "dateFormatted": "11/24/2025",
+        "value": 4812
+      },
+      {
+        "index": 30,
+        "date": "2025-11-22T18:30:00.000Z",
+        "dateFormatted": "11/23/2025",
+        "value": 1261
+      }
+    ],
+    "summary": {
+      "steps": {
+        "total": 253076,
+        "average": 8164,
+        "min": 250,
+        "max": 19696
+      },
+      "sleep": null
+    }
+  },
+  {
+    "timestamp": "2025-12-22T20:06:17.216Z",
+    "userId": "68646dfc9e507d389f5ce1ac",
+    "platform": "ios",
+    "stepsCount": 31,
+    "sleepCount": 0,
+    "steps": [
+      {
+        "index": 0,
+        "date": "2025-12-22T18:30:00.000Z",
+        "dateFormatted": "12/23/2025",
+        "value": 250
+      },
+      {
+        "index": 1,
+        "date": "2025-12-21T18:30:00.000Z",
+        "dateFormatted": "12/22/2025",
+        "value": 19696
+      },
+      {
+        "index": 2,
+        "date": "2025-12-20T18:30:00.000Z",
+        "dateFormatted": "12/21/2025",
+        "value": 11006
+      },
+      {
+        "index": 3,
+        "date": "2025-12-19T18:30:00.000Z",
+        "dateFormatted": "12/20/2025",
+        "value": 9975
+      },
+      {
+        "index": 4,
+        "date": "2025-12-18T18:30:00.000Z",
+        "dateFormatted": "12/19/2025",
+        "value": 11603
+      },
+      {
+        "index": 5,
+        "date": "2025-12-17T18:30:00.000Z",
+        "dateFormatted": "12/18/2025",
+        "value": 14590
+      },
+      {
+        "index": 6,
+        "date": "2025-12-16T18:30:00.000Z",
+        "dateFormatted": "12/17/2025",
+        "value": 12608
+      },
+      {
+        "index": 7,
+        "date": "2025-12-15T18:30:00.000Z",
+        "dateFormatted": "12/16/2025",
+        "value": 13342
+      },
+      {
+        "index": 8,
+        "date": "2025-12-14T18:30:00.000Z",
+        "dateFormatted": "12/15/2025",
+        "value": 16837
+      },
+      {
+        "index": 9,
+        "date": "2025-12-13T18:30:00.000Z",
+        "dateFormatted": "12/14/2025",
+        "value": 6319
+      },
+      {
+        "index": 10,
+        "date": "2025-12-12T18:30:00.000Z",
+        "dateFormatted": "12/13/2025",
+        "value": 12212
+      },
+      {
+        "index": 11,
+        "date": "2025-12-11T18:30:00.000Z",
+        "dateFormatted": "12/12/2025",
+        "value": 14744
+      },
+      {
+        "index": 12,
+        "date": "2025-12-10T18:30:00.000Z",
+        "dateFormatted": "12/11/2025",
+        "value": 12818
+      },
+      {
+        "index": 13,
+        "date": "2025-12-09T18:30:00.000Z",
+        "dateFormatted": "12/10/2025",
+        "value": 8008
+      },
+      {
+        "index": 14,
+        "date": "2025-12-08T18:30:00.000Z",
+        "dateFormatted": "12/9/2025",
+        "value": 6982
+      },
+      {
+        "index": 15,
+        "date": "2025-12-07T18:30:00.000Z",
+        "dateFormatted": "12/8/2025",
+        "value": 10666
+      },
+      {
+        "index": 16,
+        "date": "2025-12-06T18:30:00.000Z",
+        "dateFormatted": "12/7/2025",
+        "value": 910
+      },
+      {
+        "index": 17,
+        "date": "2025-12-05T18:30:00.000Z",
+        "dateFormatted": "12/6/2025",
+        "value": 5726
+      },
+      {
+        "index": 18,
+        "date": "2025-12-04T18:30:00.000Z",
+        "dateFormatted": "12/5/2025",
+        "value": 6356
+      },
+      {
+        "index": 19,
+        "date": "2025-12-03T18:30:00.000Z",
+        "dateFormatted": "12/4/2025",
+        "value": 5248
+      },
+      {
+        "index": 20,
+        "date": "2025-12-02T18:30:00.000Z",
+        "dateFormatted": "12/3/2025",
+        "value": 3681
+      },
+      {
+        "index": 21,
+        "date": "2025-12-01T18:30:00.000Z",
+        "dateFormatted": "12/2/2025",
+        "value": 4700
+      },
+      {
+        "index": 22,
+        "date": "2025-11-30T18:30:00.000Z",
+        "dateFormatted": "12/1/2025",
+        "value": 1746
+      },
+      {
+        "index": 23,
+        "date": "2025-11-29T18:30:00.000Z",
+        "dateFormatted": "11/30/2025",
+        "value": 5139
+      },
+      {
+        "index": 24,
+        "date": "2025-11-28T18:30:00.000Z",
+        "dateFormatted": "11/29/2025",
+        "value": 8388
+      },
+      {
+        "index": 25,
+        "date": "2025-11-27T18:30:00.000Z",
+        "dateFormatted": "11/28/2025",
+        "value": 5566
+      },
+      {
+        "index": 26,
+        "date": "2025-11-26T18:30:00.000Z",
+        "dateFormatted": "11/27/2025",
+        "value": 2264
+      },
+      {
+        "index": 27,
+        "date": "2025-11-25T18:30:00.000Z",
+        "dateFormatted": "11/26/2025",
+        "value": 7295
+      },
+      {
+        "index": 28,
+        "date": "2025-11-24T18:30:00.000Z",
+        "dateFormatted": "11/25/2025",
+        "value": 8328
+      },
+      {
+        "index": 29,
+        "date": "2025-11-23T18:30:00.000Z",
+        "dateFormatted": "11/24/2025",
+        "value": 4812
+      },
+      {
+        "index": 30,
+        "date": "2025-11-22T18:30:00.000Z",
+        "dateFormatted": "11/23/2025",
+        "value": 1261
+      }
+    ],
+    "summary": {
+      "steps": {
+        "total": 253076,
+        "average": 8164,
+        "min": 250,
+        "max": 19696
+      },
+      "sleep": null
+    }
+  },
+  {
+    "timestamp": "2025-12-22T20:01:31.746Z",
+    "userId": "68646dfc9e507d389f5ce1ac",
+    "platform": "ios",
+    "stepsCount": 31,
+    "sleepCount": 0,
+    "steps": [
+      {
+        "index": 0,
+        "date": "2025-12-22T18:30:00.000Z",
+        "dateFormatted": "12/23/2025",
+        "value": 250
+      },
+      {
+        "index": 1,
+        "date": "2025-12-21T18:30:00.000Z",
+        "dateFormatted": "12/22/2025",
+        "value": 19696
+      },
+      {
+        "index": 2,
+        "date": "2025-12-20T18:30:00.000Z",
+        "dateFormatted": "12/21/2025",
+        "value": 11006
+      },
+      {
+        "index": 3,
+        "date": "2025-12-19T18:30:00.000Z",
+        "dateFormatted": "12/20/2025",
+        "value": 9975
+      },
+      {
+        "index": 4,
+        "date": "2025-12-18T18:30:00.000Z",
+        "dateFormatted": "12/19/2025",
+        "value": 11603
+      },
+      {
+        "index": 5,
+        "date": "2025-12-17T18:30:00.000Z",
+        "dateFormatted": "12/18/2025",
+        "value": 14590
+      },
+      {
+        "index": 6,
+        "date": "2025-12-16T18:30:00.000Z",
+        "dateFormatted": "12/17/2025",
+        "value": 12608
+      },
+      {
+        "index": 7,
+        "date": "2025-12-15T18:30:00.000Z",
+        "dateFormatted": "12/16/2025",
+        "value": 13342
+      },
+      {
+        "index": 8,
+        "date": "2025-12-14T18:30:00.000Z",
+        "dateFormatted": "12/15/2025",
+        "value": 16837
+      },
+      {
+        "index": 9,
+        "date": "2025-12-13T18:30:00.000Z",
+        "dateFormatted": "12/14/2025",
+        "value": 6319
+      },
+      {
+        "index": 10,
+        "date": "2025-12-12T18:30:00.000Z",
+        "dateFormatted": "12/13/2025",
+        "value": 12212
+      },
+      {
+        "index": 11,
+        "date": "2025-12-11T18:30:00.000Z",
+        "dateFormatted": "12/12/2025",
+        "value": 14744
+      },
+      {
+        "index": 12,
+        "date": "2025-12-10T18:30:00.000Z",
+        "dateFormatted": "12/11/2025",
+        "value": 12818
+      },
+      {
+        "index": 13,
+        "date": "2025-12-09T18:30:00.000Z",
+        "dateFormatted": "12/10/2025",
+        "value": 8008
+      },
+      {
+        "index": 14,
+        "date": "2025-12-08T18:30:00.000Z",
+        "dateFormatted": "12/9/2025",
+        "value": 6982
+      },
+      {
+        "index": 15,
+        "date": "2025-12-07T18:30:00.000Z",
+        "dateFormatted": "12/8/2025",
+        "value": 10666
+      },
+      {
+        "index": 16,
+        "date": "2025-12-06T18:30:00.000Z",
+        "dateFormatted": "12/7/2025",
+        "value": 910
+      },
+      {
+        "index": 17,
+        "date": "2025-12-05T18:30:00.000Z",
+        "dateFormatted": "12/6/2025",
+        "value": 5726
+      },
+      {
+        "index": 18,
+        "date": "2025-12-04T18:30:00.000Z",
+        "dateFormatted": "12/5/2025",
+        "value": 6356
+      },
+      {
+        "index": 19,
+        "date": "2025-12-03T18:30:00.000Z",
+        "dateFormatted": "12/4/2025",
+        "value": 5248
+      },
+      {
+        "index": 20,
+        "date": "2025-12-02T18:30:00.000Z",
+        "dateFormatted": "12/3/2025",
+        "value": 3681
+      },
+      {
+        "index": 21,
+        "date": "2025-12-01T18:30:00.000Z",
+        "dateFormatted": "12/2/2025",
+        "value": 4700
+      },
+      {
+        "index": 22,
+        "date": "2025-11-30T18:30:00.000Z",
+        "dateFormatted": "12/1/2025",
+        "value": 1746
+      },
+      {
+        "index": 23,
+        "date": "2025-11-29T18:30:00.000Z",
+        "dateFormatted": "11/30/2025",
+        "value": 5139
+      },
+      {
+        "index": 24,
+        "date": "2025-11-28T18:30:00.000Z",
+        "dateFormatted": "11/29/2025",
+        "value": 8388
+      },
+      {
+        "index": 25,
+        "date": "2025-11-27T18:30:00.000Z",
+        "dateFormatted": "11/28/2025",
+        "value": 5566
+      },
+      {
+        "index": 26,
+        "date": "2025-11-26T18:30:00.000Z",
+        "dateFormatted": "11/27/2025",
+        "value": 2264
+      },
+      {
+        "index": 27,
+        "date": "2025-11-25T18:30:00.000Z",
+        "dateFormatted": "11/26/2025",
+        "value": 7295
+      },
+      {
+        "index": 28,
+        "date": "2025-11-24T18:30:00.000Z",
+        "dateFormatted": "11/25/2025",
+        "value": 8328
+      },
+      {
+        "index": 29,
+        "date": "2025-11-23T18:30:00.000Z",
+        "dateFormatted": "11/24/2025",
+        "value": 4812
+      },
+      {
+        "index": 30,
+        "date": "2025-11-22T18:30:00.000Z",
+        "dateFormatted": "11/23/2025",
+        "value": 1261
+      }
+    ],
+    "summary": {
+      "steps": {
+        "total": 253076,
+        "average": 8164,
+        "min": 250,
+        "max": 19696
+      },
+      "sleep": null
+    }
+  },
+  {
+    "timestamp": "2025-12-22T19:49:56.732Z",
+    "userId": "68646dfc9e507d389f5ce1ac",
+    "platform": "ios",
+    "stepsCount": 31,
+    "sleepCount": 0,
+    "steps": [
+      {
+        "index": 0,
+        "date": "2025-12-22T18:30:00.000Z",
+        "dateFormatted": "12/23/2025",
+        "value": 250
+      },
+      {
+        "index": 1,
+        "date": "2025-12-21T18:30:00.000Z",
+        "dateFormatted": "12/22/2025",
+        "value": 19696
+      },
+      {
+        "index": 2,
+        "date": "2025-12-20T18:30:00.000Z",
+        "dateFormatted": "12/21/2025",
+        "value": 11006
+      },
+      {
+        "index": 3,
+        "date": "2025-12-19T18:30:00.000Z",
+        "dateFormatted": "12/20/2025",
+        "value": 9975
+      },
+      {
+        "index": 4,
+        "date": "2025-12-18T18:30:00.000Z",
+        "dateFormatted": "12/19/2025",
+        "value": 11603
+      },
+      {
+        "index": 5,
+        "date": "2025-12-17T18:30:00.000Z",
+        "dateFormatted": "12/18/2025",
+        "value": 14590
+      },
+      {
+        "index": 6,
+        "date": "2025-12-16T18:30:00.000Z",
+        "dateFormatted": "12/17/2025",
+        "value": 12608
+      },
+      {
+        "index": 7,
+        "date": "2025-12-15T18:30:00.000Z",
+        "dateFormatted": "12/16/2025",
+        "value": 13342
+      },
+      {
+        "index": 8,
+        "date": "2025-12-14T18:30:00.000Z",
+        "dateFormatted": "12/15/2025",
+        "value": 16837
+      },
+      {
+        "index": 9,
+        "date": "2025-12-13T18:30:00.000Z",
+        "dateFormatted": "12/14/2025",
+        "value": 6319
+      },
+      {
+        "index": 10,
+        "date": "2025-12-12T18:30:00.000Z",
+        "dateFormatted": "12/13/2025",
+        "value": 12212
+      },
+      {
+        "index": 11,
+        "date": "2025-12-11T18:30:00.000Z",
+        "dateFormatted": "12/12/2025",
+        "value": 14744
+      },
+      {
+        "index": 12,
+        "date": "2025-12-10T18:30:00.000Z",
+        "dateFormatted": "12/11/2025",
+        "value": 12818
+      },
+      {
+        "index": 13,
+        "date": "2025-12-09T18:30:00.000Z",
+        "dateFormatted": "12/10/2025",
+        "value": 8008
+      },
+      {
+        "index": 14,
+        "date": "2025-12-08T18:30:00.000Z",
+        "dateFormatted": "12/9/2025",
+        "value": 6982
+      },
+      {
+        "index": 15,
+        "date": "2025-12-07T18:30:00.000Z",
+        "dateFormatted": "12/8/2025",
+        "value": 10666
+      },
+      {
+        "index": 16,
+        "date": "2025-12-06T18:30:00.000Z",
+        "dateFormatted": "12/7/2025",
+        "value": 910
+      },
+      {
+        "index": 17,
+        "date": "2025-12-05T18:30:00.000Z",
+        "dateFormatted": "12/6/2025",
+        "value": 5726
+      },
+      {
+        "index": 18,
+        "date": "2025-12-04T18:30:00.000Z",
+        "dateFormatted": "12/5/2025",
+        "value": 6356
+      },
+      {
+        "index": 19,
+        "date": "2025-12-03T18:30:00.000Z",
+        "dateFormatted": "12/4/2025",
+        "value": 5248
+      },
+      {
+        "index": 20,
+        "date": "2025-12-02T18:30:00.000Z",
+        "dateFormatted": "12/3/2025",
+        "value": 3681
+      },
+      {
+        "index": 21,
+        "date": "2025-12-01T18:30:00.000Z",
+        "dateFormatted": "12/2/2025",
+        "value": 4700
+      },
+      {
+        "index": 22,
+        "date": "2025-11-30T18:30:00.000Z",
+        "dateFormatted": "12/1/2025",
+        "value": 1746
+      },
+      {
+        "index": 23,
+        "date": "2025-11-29T18:30:00.000Z",
+        "dateFormatted": "11/30/2025",
+        "value": 5139
+      },
+      {
+        "index": 24,
+        "date": "2025-11-28T18:30:00.000Z",
+        "dateFormatted": "11/29/2025",
+        "value": 8388
+      },
+      {
+        "index": 25,
+        "date": "2025-11-27T18:30:00.000Z",
+        "dateFormatted": "11/28/2025",
+        "value": 5566
+      },
+      {
+        "index": 26,
+        "date": "2025-11-26T18:30:00.000Z",
+        "dateFormatted": "11/27/2025",
+        "value": 2264
+      },
+      {
+        "index": 27,
+        "date": "2025-11-25T18:30:00.000Z",
+        "dateFormatted": "11/26/2025",
+        "value": 7295
+      },
+      {
+        "index": 28,
+        "date": "2025-11-24T18:30:00.000Z",
+        "dateFormatted": "11/25/2025",
+        "value": 8328
+      },
+      {
+        "index": 29,
+        "date": "2025-11-23T18:30:00.000Z",
+        "dateFormatted": "11/24/2025",
+        "value": 4812
+      },
+      {
+        "index": 30,
+        "date": "2025-11-22T18:30:00.000Z",
+        "dateFormatted": "11/23/2025",
+        "value": 1261
+      }
+    ],
+    "summary": {
+      "steps": {
+        "total": 253076,
+        "average": 8164,
+        "min": 250,
+        "max": 19696
+      },
+      "sleep": null
+    }
+  },
+  {
     "timestamp": "2025-12-21T20:56:45.396Z",
     "userId": "68646dfc9e507d389f5ce1ac",
     "platform": "ios",
@@ -2633,2886 +5345,6 @@
       "steps": {
         "total": 240397,
         "average": 8013,
-        "min": 910,
-        "max": 16837
-      },
-      "sleep": null
-    }
-  },
-  {
-    "timestamp": "2025-12-21T18:29:23.175Z",
-    "userId": "68646dfc9e507d389f5ce1ac",
-    "platform": "ios",
-    "stepsCount": 31,
-    "sleepCount": 0,
-    "steps": [
-      {
-        "index": 0,
-        "date": "2025-12-20T18:30:00.000Z",
-        "dateFormatted": "12/21/2025",
-        "value": 11006
-      },
-      {
-        "index": 1,
-        "date": "2025-12-19T18:30:00.000Z",
-        "dateFormatted": "12/20/2025",
-        "value": 9975
-      },
-      {
-        "index": 2,
-        "date": "2025-12-18T18:30:00.000Z",
-        "dateFormatted": "12/19/2025",
-        "value": 11603
-      },
-      {
-        "index": 3,
-        "date": "2025-12-17T18:30:00.000Z",
-        "dateFormatted": "12/18/2025",
-        "value": 14590
-      },
-      {
-        "index": 4,
-        "date": "2025-12-16T18:30:00.000Z",
-        "dateFormatted": "12/17/2025",
-        "value": 12608
-      },
-      {
-        "index": 5,
-        "date": "2025-12-15T18:30:00.000Z",
-        "dateFormatted": "12/16/2025",
-        "value": 13342
-      },
-      {
-        "index": 6,
-        "date": "2025-12-14T18:30:00.000Z",
-        "dateFormatted": "12/15/2025",
-        "value": 16837
-      },
-      {
-        "index": 7,
-        "date": "2025-12-13T18:30:00.000Z",
-        "dateFormatted": "12/14/2025",
-        "value": 6319
-      },
-      {
-        "index": 8,
-        "date": "2025-12-12T18:30:00.000Z",
-        "dateFormatted": "12/13/2025",
-        "value": 12212
-      },
-      {
-        "index": 9,
-        "date": "2025-12-11T18:30:00.000Z",
-        "dateFormatted": "12/12/2025",
-        "value": 14744
-      },
-      {
-        "index": 10,
-        "date": "2025-12-10T18:30:00.000Z",
-        "dateFormatted": "12/11/2025",
-        "value": 12818
-      },
-      {
-        "index": 11,
-        "date": "2025-12-09T18:30:00.000Z",
-        "dateFormatted": "12/10/2025",
-        "value": 8008
-      },
-      {
-        "index": 12,
-        "date": "2025-12-08T18:30:00.000Z",
-        "dateFormatted": "12/9/2025",
-        "value": 6982
-      },
-      {
-        "index": 13,
-        "date": "2025-12-07T18:30:00.000Z",
-        "dateFormatted": "12/8/2025",
-        "value": 10666
-      },
-      {
-        "index": 14,
-        "date": "2025-12-06T18:30:00.000Z",
-        "dateFormatted": "12/7/2025",
-        "value": 910
-      },
-      {
-        "index": 15,
-        "date": "2025-12-05T18:30:00.000Z",
-        "dateFormatted": "12/6/2025",
-        "value": 5726
-      },
-      {
-        "index": 16,
-        "date": "2025-12-04T18:30:00.000Z",
-        "dateFormatted": "12/5/2025",
-        "value": 6356
-      },
-      {
-        "index": 17,
-        "date": "2025-12-03T18:30:00.000Z",
-        "dateFormatted": "12/4/2025",
-        "value": 5248
-      },
-      {
-        "index": 18,
-        "date": "2025-12-02T18:30:00.000Z",
-        "dateFormatted": "12/3/2025",
-        "value": 3681
-      },
-      {
-        "index": 19,
-        "date": "2025-12-01T18:30:00.000Z",
-        "dateFormatted": "12/2/2025",
-        "value": 4700
-      },
-      {
-        "index": 20,
-        "date": "2025-11-30T18:30:00.000Z",
-        "dateFormatted": "12/1/2025",
-        "value": 1746
-      },
-      {
-        "index": 21,
-        "date": "2025-11-29T18:30:00.000Z",
-        "dateFormatted": "11/30/2025",
-        "value": 5139
-      },
-      {
-        "index": 22,
-        "date": "2025-11-28T18:30:00.000Z",
-        "dateFormatted": "11/29/2025",
-        "value": 8388
-      },
-      {
-        "index": 23,
-        "date": "2025-11-27T18:30:00.000Z",
-        "dateFormatted": "11/28/2025",
-        "value": 5566
-      },
-      {
-        "index": 24,
-        "date": "2025-11-26T18:30:00.000Z",
-        "dateFormatted": "11/27/2025",
-        "value": 2264
-      },
-      {
-        "index": 25,
-        "date": "2025-11-25T18:30:00.000Z",
-        "dateFormatted": "11/26/2025",
-        "value": 7295
-      },
-      {
-        "index": 26,
-        "date": "2025-11-24T18:30:00.000Z",
-        "dateFormatted": "11/25/2025",
-        "value": 8328
-      },
-      {
-        "index": 27,
-        "date": "2025-11-23T18:30:00.000Z",
-        "dateFormatted": "11/24/2025",
-        "value": 4812
-      },
-      {
-        "index": 28,
-        "date": "2025-11-22T18:30:00.000Z",
-        "dateFormatted": "11/23/2025",
-        "value": 1261
-      },
-      {
-        "index": 29,
-        "date": "2025-11-21T18:30:00.000Z",
-        "dateFormatted": "11/22/2025",
-        "value": 7267
-      },
-      {
-        "index": 30,
-        "date": "2025-11-20T18:30:00.000Z",
-        "dateFormatted": "11/21/2025",
-        "value": 7092
-      }
-    ],
-    "summary": {
-      "steps": {
-        "total": 247489,
-        "average": 7984,
-        "min": 910,
-        "max": 16837
-      },
-      "sleep": null
-    }
-  },
-  {
-    "timestamp": "2025-12-21T18:21:28.273Z",
-    "userId": "68646dfc9e507d389f5ce1ac",
-    "platform": "ios",
-    "stepsCount": 31,
-    "sleepCount": 0,
-    "steps": [
-      {
-        "index": 0,
-        "date": "2025-12-20T18:30:00.000Z",
-        "dateFormatted": "12/21/2025",
-        "value": 11006
-      },
-      {
-        "index": 1,
-        "date": "2025-12-19T18:30:00.000Z",
-        "dateFormatted": "12/20/2025",
-        "value": 9975
-      },
-      {
-        "index": 2,
-        "date": "2025-12-18T18:30:00.000Z",
-        "dateFormatted": "12/19/2025",
-        "value": 11603
-      },
-      {
-        "index": 3,
-        "date": "2025-12-17T18:30:00.000Z",
-        "dateFormatted": "12/18/2025",
-        "value": 14590
-      },
-      {
-        "index": 4,
-        "date": "2025-12-16T18:30:00.000Z",
-        "dateFormatted": "12/17/2025",
-        "value": 12608
-      },
-      {
-        "index": 5,
-        "date": "2025-12-15T18:30:00.000Z",
-        "dateFormatted": "12/16/2025",
-        "value": 13342
-      },
-      {
-        "index": 6,
-        "date": "2025-12-14T18:30:00.000Z",
-        "dateFormatted": "12/15/2025",
-        "value": 16837
-      },
-      {
-        "index": 7,
-        "date": "2025-12-13T18:30:00.000Z",
-        "dateFormatted": "12/14/2025",
-        "value": 6319
-      },
-      {
-        "index": 8,
-        "date": "2025-12-12T18:30:00.000Z",
-        "dateFormatted": "12/13/2025",
-        "value": 12212
-      },
-      {
-        "index": 9,
-        "date": "2025-12-11T18:30:00.000Z",
-        "dateFormatted": "12/12/2025",
-        "value": 14744
-      },
-      {
-        "index": 10,
-        "date": "2025-12-10T18:30:00.000Z",
-        "dateFormatted": "12/11/2025",
-        "value": 12818
-      },
-      {
-        "index": 11,
-        "date": "2025-12-09T18:30:00.000Z",
-        "dateFormatted": "12/10/2025",
-        "value": 8008
-      },
-      {
-        "index": 12,
-        "date": "2025-12-08T18:30:00.000Z",
-        "dateFormatted": "12/9/2025",
-        "value": 6982
-      },
-      {
-        "index": 13,
-        "date": "2025-12-07T18:30:00.000Z",
-        "dateFormatted": "12/8/2025",
-        "value": 10666
-      },
-      {
-        "index": 14,
-        "date": "2025-12-06T18:30:00.000Z",
-        "dateFormatted": "12/7/2025",
-        "value": 910
-      },
-      {
-        "index": 15,
-        "date": "2025-12-05T18:30:00.000Z",
-        "dateFormatted": "12/6/2025",
-        "value": 5726
-      },
-      {
-        "index": 16,
-        "date": "2025-12-04T18:30:00.000Z",
-        "dateFormatted": "12/5/2025",
-        "value": 6356
-      },
-      {
-        "index": 17,
-        "date": "2025-12-03T18:30:00.000Z",
-        "dateFormatted": "12/4/2025",
-        "value": 5248
-      },
-      {
-        "index": 18,
-        "date": "2025-12-02T18:30:00.000Z",
-        "dateFormatted": "12/3/2025",
-        "value": 3681
-      },
-      {
-        "index": 19,
-        "date": "2025-12-01T18:30:00.000Z",
-        "dateFormatted": "12/2/2025",
-        "value": 4700
-      },
-      {
-        "index": 20,
-        "date": "2025-11-30T18:30:00.000Z",
-        "dateFormatted": "12/1/2025",
-        "value": 1746
-      },
-      {
-        "index": 21,
-        "date": "2025-11-29T18:30:00.000Z",
-        "dateFormatted": "11/30/2025",
-        "value": 5139
-      },
-      {
-        "index": 22,
-        "date": "2025-11-28T18:30:00.000Z",
-        "dateFormatted": "11/29/2025",
-        "value": 8388
-      },
-      {
-        "index": 23,
-        "date": "2025-11-27T18:30:00.000Z",
-        "dateFormatted": "11/28/2025",
-        "value": 5566
-      },
-      {
-        "index": 24,
-        "date": "2025-11-26T18:30:00.000Z",
-        "dateFormatted": "11/27/2025",
-        "value": 2264
-      },
-      {
-        "index": 25,
-        "date": "2025-11-25T18:30:00.000Z",
-        "dateFormatted": "11/26/2025",
-        "value": 7295
-      },
-      {
-        "index": 26,
-        "date": "2025-11-24T18:30:00.000Z",
-        "dateFormatted": "11/25/2025",
-        "value": 8328
-      },
-      {
-        "index": 27,
-        "date": "2025-11-23T18:30:00.000Z",
-        "dateFormatted": "11/24/2025",
-        "value": 4812
-      },
-      {
-        "index": 28,
-        "date": "2025-11-22T18:30:00.000Z",
-        "dateFormatted": "11/23/2025",
-        "value": 1261
-      },
-      {
-        "index": 29,
-        "date": "2025-11-21T18:30:00.000Z",
-        "dateFormatted": "11/22/2025",
-        "value": 7267
-      },
-      {
-        "index": 30,
-        "date": "2025-11-20T18:30:00.000Z",
-        "dateFormatted": "11/21/2025",
-        "value": 7092
-      }
-    ],
-    "summary": {
-      "steps": {
-        "total": 247489,
-        "average": 7984,
-        "min": 910,
-        "max": 16837
-      },
-      "sleep": null
-    }
-  },
-  {
-    "timestamp": "2025-12-21T18:16:19.645Z",
-    "userId": "68646dfc9e507d389f5ce1ac",
-    "platform": "ios",
-    "stepsCount": 31,
-    "sleepCount": 0,
-    "steps": [
-      {
-        "index": 0,
-        "date": "2025-12-20T18:30:00.000Z",
-        "dateFormatted": "12/21/2025",
-        "value": 11006
-      },
-      {
-        "index": 1,
-        "date": "2025-12-19T18:30:00.000Z",
-        "dateFormatted": "12/20/2025",
-        "value": 9975
-      },
-      {
-        "index": 2,
-        "date": "2025-12-18T18:30:00.000Z",
-        "dateFormatted": "12/19/2025",
-        "value": 11603
-      },
-      {
-        "index": 3,
-        "date": "2025-12-17T18:30:00.000Z",
-        "dateFormatted": "12/18/2025",
-        "value": 14590
-      },
-      {
-        "index": 4,
-        "date": "2025-12-16T18:30:00.000Z",
-        "dateFormatted": "12/17/2025",
-        "value": 12608
-      },
-      {
-        "index": 5,
-        "date": "2025-12-15T18:30:00.000Z",
-        "dateFormatted": "12/16/2025",
-        "value": 13342
-      },
-      {
-        "index": 6,
-        "date": "2025-12-14T18:30:00.000Z",
-        "dateFormatted": "12/15/2025",
-        "value": 16837
-      },
-      {
-        "index": 7,
-        "date": "2025-12-13T18:30:00.000Z",
-        "dateFormatted": "12/14/2025",
-        "value": 6319
-      },
-      {
-        "index": 8,
-        "date": "2025-12-12T18:30:00.000Z",
-        "dateFormatted": "12/13/2025",
-        "value": 12212
-      },
-      {
-        "index": 9,
-        "date": "2025-12-11T18:30:00.000Z",
-        "dateFormatted": "12/12/2025",
-        "value": 14744
-      },
-      {
-        "index": 10,
-        "date": "2025-12-10T18:30:00.000Z",
-        "dateFormatted": "12/11/2025",
-        "value": 12818
-      },
-      {
-        "index": 11,
-        "date": "2025-12-09T18:30:00.000Z",
-        "dateFormatted": "12/10/2025",
-        "value": 8008
-      },
-      {
-        "index": 12,
-        "date": "2025-12-08T18:30:00.000Z",
-        "dateFormatted": "12/9/2025",
-        "value": 6982
-      },
-      {
-        "index": 13,
-        "date": "2025-12-07T18:30:00.000Z",
-        "dateFormatted": "12/8/2025",
-        "value": 10666
-      },
-      {
-        "index": 14,
-        "date": "2025-12-06T18:30:00.000Z",
-        "dateFormatted": "12/7/2025",
-        "value": 910
-      },
-      {
-        "index": 15,
-        "date": "2025-12-05T18:30:00.000Z",
-        "dateFormatted": "12/6/2025",
-        "value": 5726
-      },
-      {
-        "index": 16,
-        "date": "2025-12-04T18:30:00.000Z",
-        "dateFormatted": "12/5/2025",
-        "value": 6356
-      },
-      {
-        "index": 17,
-        "date": "2025-12-03T18:30:00.000Z",
-        "dateFormatted": "12/4/2025",
-        "value": 5248
-      },
-      {
-        "index": 18,
-        "date": "2025-12-02T18:30:00.000Z",
-        "dateFormatted": "12/3/2025",
-        "value": 3681
-      },
-      {
-        "index": 19,
-        "date": "2025-12-01T18:30:00.000Z",
-        "dateFormatted": "12/2/2025",
-        "value": 4700
-      },
-      {
-        "index": 20,
-        "date": "2025-11-30T18:30:00.000Z",
-        "dateFormatted": "12/1/2025",
-        "value": 1746
-      },
-      {
-        "index": 21,
-        "date": "2025-11-29T18:30:00.000Z",
-        "dateFormatted": "11/30/2025",
-        "value": 5139
-      },
-      {
-        "index": 22,
-        "date": "2025-11-28T18:30:00.000Z",
-        "dateFormatted": "11/29/2025",
-        "value": 8388
-      },
-      {
-        "index": 23,
-        "date": "2025-11-27T18:30:00.000Z",
-        "dateFormatted": "11/28/2025",
-        "value": 5566
-      },
-      {
-        "index": 24,
-        "date": "2025-11-26T18:30:00.000Z",
-        "dateFormatted": "11/27/2025",
-        "value": 2264
-      },
-      {
-        "index": 25,
-        "date": "2025-11-25T18:30:00.000Z",
-        "dateFormatted": "11/26/2025",
-        "value": 7295
-      },
-      {
-        "index": 26,
-        "date": "2025-11-24T18:30:00.000Z",
-        "dateFormatted": "11/25/2025",
-        "value": 8328
-      },
-      {
-        "index": 27,
-        "date": "2025-11-23T18:30:00.000Z",
-        "dateFormatted": "11/24/2025",
-        "value": 4812
-      },
-      {
-        "index": 28,
-        "date": "2025-11-22T18:30:00.000Z",
-        "dateFormatted": "11/23/2025",
-        "value": 1261
-      },
-      {
-        "index": 29,
-        "date": "2025-11-21T18:30:00.000Z",
-        "dateFormatted": "11/22/2025",
-        "value": 7267
-      },
-      {
-        "index": 30,
-        "date": "2025-11-20T18:30:00.000Z",
-        "dateFormatted": "11/21/2025",
-        "value": 7092
-      }
-    ],
-    "summary": {
-      "steps": {
-        "total": 247489,
-        "average": 7984,
-        "min": 910,
-        "max": 16837
-      },
-      "sleep": null
-    }
-  },
-  {
-    "timestamp": "2025-12-21T17:42:19.770Z",
-    "userId": "68646dfc9e507d389f5ce1ac",
-    "platform": "ios",
-    "stepsCount": 31,
-    "sleepCount": 0,
-    "steps": [
-      {
-        "index": 0,
-        "date": "2025-12-20T18:30:00.000Z",
-        "dateFormatted": "12/21/2025",
-        "value": 11006
-      },
-      {
-        "index": 1,
-        "date": "2025-12-19T18:30:00.000Z",
-        "dateFormatted": "12/20/2025",
-        "value": 9975
-      },
-      {
-        "index": 2,
-        "date": "2025-12-18T18:30:00.000Z",
-        "dateFormatted": "12/19/2025",
-        "value": 11603
-      },
-      {
-        "index": 3,
-        "date": "2025-12-17T18:30:00.000Z",
-        "dateFormatted": "12/18/2025",
-        "value": 14590
-      },
-      {
-        "index": 4,
-        "date": "2025-12-16T18:30:00.000Z",
-        "dateFormatted": "12/17/2025",
-        "value": 12608
-      },
-      {
-        "index": 5,
-        "date": "2025-12-15T18:30:00.000Z",
-        "dateFormatted": "12/16/2025",
-        "value": 13342
-      },
-      {
-        "index": 6,
-        "date": "2025-12-14T18:30:00.000Z",
-        "dateFormatted": "12/15/2025",
-        "value": 16837
-      },
-      {
-        "index": 7,
-        "date": "2025-12-13T18:30:00.000Z",
-        "dateFormatted": "12/14/2025",
-        "value": 6319
-      },
-      {
-        "index": 8,
-        "date": "2025-12-12T18:30:00.000Z",
-        "dateFormatted": "12/13/2025",
-        "value": 12212
-      },
-      {
-        "index": 9,
-        "date": "2025-12-11T18:30:00.000Z",
-        "dateFormatted": "12/12/2025",
-        "value": 14744
-      },
-      {
-        "index": 10,
-        "date": "2025-12-10T18:30:00.000Z",
-        "dateFormatted": "12/11/2025",
-        "value": 12818
-      },
-      {
-        "index": 11,
-        "date": "2025-12-09T18:30:00.000Z",
-        "dateFormatted": "12/10/2025",
-        "value": 8008
-      },
-      {
-        "index": 12,
-        "date": "2025-12-08T18:30:00.000Z",
-        "dateFormatted": "12/9/2025",
-        "value": 6982
-      },
-      {
-        "index": 13,
-        "date": "2025-12-07T18:30:00.000Z",
-        "dateFormatted": "12/8/2025",
-        "value": 10666
-      },
-      {
-        "index": 14,
-        "date": "2025-12-06T18:30:00.000Z",
-        "dateFormatted": "12/7/2025",
-        "value": 910
-      },
-      {
-        "index": 15,
-        "date": "2025-12-05T18:30:00.000Z",
-        "dateFormatted": "12/6/2025",
-        "value": 5726
-      },
-      {
-        "index": 16,
-        "date": "2025-12-04T18:30:00.000Z",
-        "dateFormatted": "12/5/2025",
-        "value": 6356
-      },
-      {
-        "index": 17,
-        "date": "2025-12-03T18:30:00.000Z",
-        "dateFormatted": "12/4/2025",
-        "value": 5248
-      },
-      {
-        "index": 18,
-        "date": "2025-12-02T18:30:00.000Z",
-        "dateFormatted": "12/3/2025",
-        "value": 3681
-      },
-      {
-        "index": 19,
-        "date": "2025-12-01T18:30:00.000Z",
-        "dateFormatted": "12/2/2025",
-        "value": 4700
-      },
-      {
-        "index": 20,
-        "date": "2025-11-30T18:30:00.000Z",
-        "dateFormatted": "12/1/2025",
-        "value": 1746
-      },
-      {
-        "index": 21,
-        "date": "2025-11-29T18:30:00.000Z",
-        "dateFormatted": "11/30/2025",
-        "value": 5139
-      },
-      {
-        "index": 22,
-        "date": "2025-11-28T18:30:00.000Z",
-        "dateFormatted": "11/29/2025",
-        "value": 8388
-      },
-      {
-        "index": 23,
-        "date": "2025-11-27T18:30:00.000Z",
-        "dateFormatted": "11/28/2025",
-        "value": 5566
-      },
-      {
-        "index": 24,
-        "date": "2025-11-26T18:30:00.000Z",
-        "dateFormatted": "11/27/2025",
-        "value": 2264
-      },
-      {
-        "index": 25,
-        "date": "2025-11-25T18:30:00.000Z",
-        "dateFormatted": "11/26/2025",
-        "value": 7295
-      },
-      {
-        "index": 26,
-        "date": "2025-11-24T18:30:00.000Z",
-        "dateFormatted": "11/25/2025",
-        "value": 8328
-      },
-      {
-        "index": 27,
-        "date": "2025-11-23T18:30:00.000Z",
-        "dateFormatted": "11/24/2025",
-        "value": 4812
-      },
-      {
-        "index": 28,
-        "date": "2025-11-22T18:30:00.000Z",
-        "dateFormatted": "11/23/2025",
-        "value": 1261
-      },
-      {
-        "index": 29,
-        "date": "2025-11-21T18:30:00.000Z",
-        "dateFormatted": "11/22/2025",
-        "value": 7267
-      },
-      {
-        "index": 30,
-        "date": "2025-11-20T18:30:00.000Z",
-        "dateFormatted": "11/21/2025",
-        "value": 7092
-      }
-    ],
-    "summary": {
-      "steps": {
-        "total": 247489,
-        "average": 7984,
-        "min": 910,
-        "max": 16837
-      },
-      "sleep": null
-    }
-  },
-  {
-    "timestamp": "2025-12-21T17:38:26.094Z",
-    "userId": "68646dfc9e507d389f5ce1ac",
-    "platform": "ios",
-    "stepsCount": 31,
-    "sleepCount": 0,
-    "steps": [
-      {
-        "index": 0,
-        "date": "2025-12-20T18:30:00.000Z",
-        "dateFormatted": "12/21/2025",
-        "value": 11006
-      },
-      {
-        "index": 1,
-        "date": "2025-12-19T18:30:00.000Z",
-        "dateFormatted": "12/20/2025",
-        "value": 9975
-      },
-      {
-        "index": 2,
-        "date": "2025-12-18T18:30:00.000Z",
-        "dateFormatted": "12/19/2025",
-        "value": 11603
-      },
-      {
-        "index": 3,
-        "date": "2025-12-17T18:30:00.000Z",
-        "dateFormatted": "12/18/2025",
-        "value": 14590
-      },
-      {
-        "index": 4,
-        "date": "2025-12-16T18:30:00.000Z",
-        "dateFormatted": "12/17/2025",
-        "value": 12608
-      },
-      {
-        "index": 5,
-        "date": "2025-12-15T18:30:00.000Z",
-        "dateFormatted": "12/16/2025",
-        "value": 13342
-      },
-      {
-        "index": 6,
-        "date": "2025-12-14T18:30:00.000Z",
-        "dateFormatted": "12/15/2025",
-        "value": 16837
-      },
-      {
-        "index": 7,
-        "date": "2025-12-13T18:30:00.000Z",
-        "dateFormatted": "12/14/2025",
-        "value": 6319
-      },
-      {
-        "index": 8,
-        "date": "2025-12-12T18:30:00.000Z",
-        "dateFormatted": "12/13/2025",
-        "value": 12212
-      },
-      {
-        "index": 9,
-        "date": "2025-12-11T18:30:00.000Z",
-        "dateFormatted": "12/12/2025",
-        "value": 14744
-      },
-      {
-        "index": 10,
-        "date": "2025-12-10T18:30:00.000Z",
-        "dateFormatted": "12/11/2025",
-        "value": 12818
-      },
-      {
-        "index": 11,
-        "date": "2025-12-09T18:30:00.000Z",
-        "dateFormatted": "12/10/2025",
-        "value": 8008
-      },
-      {
-        "index": 12,
-        "date": "2025-12-08T18:30:00.000Z",
-        "dateFormatted": "12/9/2025",
-        "value": 6982
-      },
-      {
-        "index": 13,
-        "date": "2025-12-07T18:30:00.000Z",
-        "dateFormatted": "12/8/2025",
-        "value": 10666
-      },
-      {
-        "index": 14,
-        "date": "2025-12-06T18:30:00.000Z",
-        "dateFormatted": "12/7/2025",
-        "value": 910
-      },
-      {
-        "index": 15,
-        "date": "2025-12-05T18:30:00.000Z",
-        "dateFormatted": "12/6/2025",
-        "value": 5726
-      },
-      {
-        "index": 16,
-        "date": "2025-12-04T18:30:00.000Z",
-        "dateFormatted": "12/5/2025",
-        "value": 6356
-      },
-      {
-        "index": 17,
-        "date": "2025-12-03T18:30:00.000Z",
-        "dateFormatted": "12/4/2025",
-        "value": 5248
-      },
-      {
-        "index": 18,
-        "date": "2025-12-02T18:30:00.000Z",
-        "dateFormatted": "12/3/2025",
-        "value": 3681
-      },
-      {
-        "index": 19,
-        "date": "2025-12-01T18:30:00.000Z",
-        "dateFormatted": "12/2/2025",
-        "value": 4700
-      },
-      {
-        "index": 20,
-        "date": "2025-11-30T18:30:00.000Z",
-        "dateFormatted": "12/1/2025",
-        "value": 1746
-      },
-      {
-        "index": 21,
-        "date": "2025-11-29T18:30:00.000Z",
-        "dateFormatted": "11/30/2025",
-        "value": 5139
-      },
-      {
-        "index": 22,
-        "date": "2025-11-28T18:30:00.000Z",
-        "dateFormatted": "11/29/2025",
-        "value": 8388
-      },
-      {
-        "index": 23,
-        "date": "2025-11-27T18:30:00.000Z",
-        "dateFormatted": "11/28/2025",
-        "value": 5566
-      },
-      {
-        "index": 24,
-        "date": "2025-11-26T18:30:00.000Z",
-        "dateFormatted": "11/27/2025",
-        "value": 2264
-      },
-      {
-        "index": 25,
-        "date": "2025-11-25T18:30:00.000Z",
-        "dateFormatted": "11/26/2025",
-        "value": 7295
-      },
-      {
-        "index": 26,
-        "date": "2025-11-24T18:30:00.000Z",
-        "dateFormatted": "11/25/2025",
-        "value": 8328
-      },
-      {
-        "index": 27,
-        "date": "2025-11-23T18:30:00.000Z",
-        "dateFormatted": "11/24/2025",
-        "value": 4812
-      },
-      {
-        "index": 28,
-        "date": "2025-11-22T18:30:00.000Z",
-        "dateFormatted": "11/23/2025",
-        "value": 1261
-      },
-      {
-        "index": 29,
-        "date": "2025-11-21T18:30:00.000Z",
-        "dateFormatted": "11/22/2025",
-        "value": 7267
-      },
-      {
-        "index": 30,
-        "date": "2025-11-20T18:30:00.000Z",
-        "dateFormatted": "11/21/2025",
-        "value": 7092
-      }
-    ],
-    "summary": {
-      "steps": {
-        "total": 247489,
-        "average": 7984,
-        "min": 910,
-        "max": 16837
-      },
-      "sleep": null
-    }
-  },
-  {
-    "timestamp": "2025-12-21T17:19:09.938Z",
-    "userId": "68646dfc9e507d389f5ce1ac",
-    "platform": "ios",
-    "stepsCount": 31,
-    "sleepCount": 0,
-    "steps": [
-      {
-        "index": 0,
-        "date": "2025-12-20T18:30:00.000Z",
-        "dateFormatted": "12/21/2025",
-        "value": 11006
-      },
-      {
-        "index": 1,
-        "date": "2025-12-19T18:30:00.000Z",
-        "dateFormatted": "12/20/2025",
-        "value": 9975
-      },
-      {
-        "index": 2,
-        "date": "2025-12-18T18:30:00.000Z",
-        "dateFormatted": "12/19/2025",
-        "value": 11603
-      },
-      {
-        "index": 3,
-        "date": "2025-12-17T18:30:00.000Z",
-        "dateFormatted": "12/18/2025",
-        "value": 14590
-      },
-      {
-        "index": 4,
-        "date": "2025-12-16T18:30:00.000Z",
-        "dateFormatted": "12/17/2025",
-        "value": 12608
-      },
-      {
-        "index": 5,
-        "date": "2025-12-15T18:30:00.000Z",
-        "dateFormatted": "12/16/2025",
-        "value": 13342
-      },
-      {
-        "index": 6,
-        "date": "2025-12-14T18:30:00.000Z",
-        "dateFormatted": "12/15/2025",
-        "value": 16837
-      },
-      {
-        "index": 7,
-        "date": "2025-12-13T18:30:00.000Z",
-        "dateFormatted": "12/14/2025",
-        "value": 6319
-      },
-      {
-        "index": 8,
-        "date": "2025-12-12T18:30:00.000Z",
-        "dateFormatted": "12/13/2025",
-        "value": 12212
-      },
-      {
-        "index": 9,
-        "date": "2025-12-11T18:30:00.000Z",
-        "dateFormatted": "12/12/2025",
-        "value": 14744
-      },
-      {
-        "index": 10,
-        "date": "2025-12-10T18:30:00.000Z",
-        "dateFormatted": "12/11/2025",
-        "value": 12818
-      },
-      {
-        "index": 11,
-        "date": "2025-12-09T18:30:00.000Z",
-        "dateFormatted": "12/10/2025",
-        "value": 8008
-      },
-      {
-        "index": 12,
-        "date": "2025-12-08T18:30:00.000Z",
-        "dateFormatted": "12/9/2025",
-        "value": 6982
-      },
-      {
-        "index": 13,
-        "date": "2025-12-07T18:30:00.000Z",
-        "dateFormatted": "12/8/2025",
-        "value": 10666
-      },
-      {
-        "index": 14,
-        "date": "2025-12-06T18:30:00.000Z",
-        "dateFormatted": "12/7/2025",
-        "value": 910
-      },
-      {
-        "index": 15,
-        "date": "2025-12-05T18:30:00.000Z",
-        "dateFormatted": "12/6/2025",
-        "value": 5726
-      },
-      {
-        "index": 16,
-        "date": "2025-12-04T18:30:00.000Z",
-        "dateFormatted": "12/5/2025",
-        "value": 6356
-      },
-      {
-        "index": 17,
-        "date": "2025-12-03T18:30:00.000Z",
-        "dateFormatted": "12/4/2025",
-        "value": 5248
-      },
-      {
-        "index": 18,
-        "date": "2025-12-02T18:30:00.000Z",
-        "dateFormatted": "12/3/2025",
-        "value": 3681
-      },
-      {
-        "index": 19,
-        "date": "2025-12-01T18:30:00.000Z",
-        "dateFormatted": "12/2/2025",
-        "value": 4700
-      },
-      {
-        "index": 20,
-        "date": "2025-11-30T18:30:00.000Z",
-        "dateFormatted": "12/1/2025",
-        "value": 1746
-      },
-      {
-        "index": 21,
-        "date": "2025-11-29T18:30:00.000Z",
-        "dateFormatted": "11/30/2025",
-        "value": 5139
-      },
-      {
-        "index": 22,
-        "date": "2025-11-28T18:30:00.000Z",
-        "dateFormatted": "11/29/2025",
-        "value": 8388
-      },
-      {
-        "index": 23,
-        "date": "2025-11-27T18:30:00.000Z",
-        "dateFormatted": "11/28/2025",
-        "value": 5566
-      },
-      {
-        "index": 24,
-        "date": "2025-11-26T18:30:00.000Z",
-        "dateFormatted": "11/27/2025",
-        "value": 2264
-      },
-      {
-        "index": 25,
-        "date": "2025-11-25T18:30:00.000Z",
-        "dateFormatted": "11/26/2025",
-        "value": 7295
-      },
-      {
-        "index": 26,
-        "date": "2025-11-24T18:30:00.000Z",
-        "dateFormatted": "11/25/2025",
-        "value": 8328
-      },
-      {
-        "index": 27,
-        "date": "2025-11-23T18:30:00.000Z",
-        "dateFormatted": "11/24/2025",
-        "value": 4812
-      },
-      {
-        "index": 28,
-        "date": "2025-11-22T18:30:00.000Z",
-        "dateFormatted": "11/23/2025",
-        "value": 1261
-      },
-      {
-        "index": 29,
-        "date": "2025-11-21T18:30:00.000Z",
-        "dateFormatted": "11/22/2025",
-        "value": 7267
-      },
-      {
-        "index": 30,
-        "date": "2025-11-20T18:30:00.000Z",
-        "dateFormatted": "11/21/2025",
-        "value": 7092
-      }
-    ],
-    "summary": {
-      "steps": {
-        "total": 247489,
-        "average": 7984,
-        "min": 910,
-        "max": 16837
-      },
-      "sleep": null
-    }
-  },
-  {
-    "timestamp": "2025-12-21T17:12:53.138Z",
-    "userId": "68646dfc9e507d389f5ce1ac",
-    "platform": "ios",
-    "stepsCount": 31,
-    "sleepCount": 0,
-    "steps": [
-      {
-        "index": 0,
-        "date": "2025-12-20T18:30:00.000Z",
-        "dateFormatted": "12/21/2025",
-        "value": 11006
-      },
-      {
-        "index": 1,
-        "date": "2025-12-19T18:30:00.000Z",
-        "dateFormatted": "12/20/2025",
-        "value": 9975
-      },
-      {
-        "index": 2,
-        "date": "2025-12-18T18:30:00.000Z",
-        "dateFormatted": "12/19/2025",
-        "value": 11603
-      },
-      {
-        "index": 3,
-        "date": "2025-12-17T18:30:00.000Z",
-        "dateFormatted": "12/18/2025",
-        "value": 14590
-      },
-      {
-        "index": 4,
-        "date": "2025-12-16T18:30:00.000Z",
-        "dateFormatted": "12/17/2025",
-        "value": 12608
-      },
-      {
-        "index": 5,
-        "date": "2025-12-15T18:30:00.000Z",
-        "dateFormatted": "12/16/2025",
-        "value": 13342
-      },
-      {
-        "index": 6,
-        "date": "2025-12-14T18:30:00.000Z",
-        "dateFormatted": "12/15/2025",
-        "value": 16837
-      },
-      {
-        "index": 7,
-        "date": "2025-12-13T18:30:00.000Z",
-        "dateFormatted": "12/14/2025",
-        "value": 6319
-      },
-      {
-        "index": 8,
-        "date": "2025-12-12T18:30:00.000Z",
-        "dateFormatted": "12/13/2025",
-        "value": 12212
-      },
-      {
-        "index": 9,
-        "date": "2025-12-11T18:30:00.000Z",
-        "dateFormatted": "12/12/2025",
-        "value": 14744
-      },
-      {
-        "index": 10,
-        "date": "2025-12-10T18:30:00.000Z",
-        "dateFormatted": "12/11/2025",
-        "value": 12818
-      },
-      {
-        "index": 11,
-        "date": "2025-12-09T18:30:00.000Z",
-        "dateFormatted": "12/10/2025",
-        "value": 8008
-      },
-      {
-        "index": 12,
-        "date": "2025-12-08T18:30:00.000Z",
-        "dateFormatted": "12/9/2025",
-        "value": 6982
-      },
-      {
-        "index": 13,
-        "date": "2025-12-07T18:30:00.000Z",
-        "dateFormatted": "12/8/2025",
-        "value": 10666
-      },
-      {
-        "index": 14,
-        "date": "2025-12-06T18:30:00.000Z",
-        "dateFormatted": "12/7/2025",
-        "value": 910
-      },
-      {
-        "index": 15,
-        "date": "2025-12-05T18:30:00.000Z",
-        "dateFormatted": "12/6/2025",
-        "value": 5726
-      },
-      {
-        "index": 16,
-        "date": "2025-12-04T18:30:00.000Z",
-        "dateFormatted": "12/5/2025",
-        "value": 6356
-      },
-      {
-        "index": 17,
-        "date": "2025-12-03T18:30:00.000Z",
-        "dateFormatted": "12/4/2025",
-        "value": 5248
-      },
-      {
-        "index": 18,
-        "date": "2025-12-02T18:30:00.000Z",
-        "dateFormatted": "12/3/2025",
-        "value": 3681
-      },
-      {
-        "index": 19,
-        "date": "2025-12-01T18:30:00.000Z",
-        "dateFormatted": "12/2/2025",
-        "value": 4700
-      },
-      {
-        "index": 20,
-        "date": "2025-11-30T18:30:00.000Z",
-        "dateFormatted": "12/1/2025",
-        "value": 1746
-      },
-      {
-        "index": 21,
-        "date": "2025-11-29T18:30:00.000Z",
-        "dateFormatted": "11/30/2025",
-        "value": 5139
-      },
-      {
-        "index": 22,
-        "date": "2025-11-28T18:30:00.000Z",
-        "dateFormatted": "11/29/2025",
-        "value": 8388
-      },
-      {
-        "index": 23,
-        "date": "2025-11-27T18:30:00.000Z",
-        "dateFormatted": "11/28/2025",
-        "value": 5566
-      },
-      {
-        "index": 24,
-        "date": "2025-11-26T18:30:00.000Z",
-        "dateFormatted": "11/27/2025",
-        "value": 2264
-      },
-      {
-        "index": 25,
-        "date": "2025-11-25T18:30:00.000Z",
-        "dateFormatted": "11/26/2025",
-        "value": 7295
-      },
-      {
-        "index": 26,
-        "date": "2025-11-24T18:30:00.000Z",
-        "dateFormatted": "11/25/2025",
-        "value": 8328
-      },
-      {
-        "index": 27,
-        "date": "2025-11-23T18:30:00.000Z",
-        "dateFormatted": "11/24/2025",
-        "value": 4812
-      },
-      {
-        "index": 28,
-        "date": "2025-11-22T18:30:00.000Z",
-        "dateFormatted": "11/23/2025",
-        "value": 1261
-      },
-      {
-        "index": 29,
-        "date": "2025-11-21T18:30:00.000Z",
-        "dateFormatted": "11/22/2025",
-        "value": 7267
-      },
-      {
-        "index": 30,
-        "date": "2025-11-20T18:30:00.000Z",
-        "dateFormatted": "11/21/2025",
-        "value": 7092
-      }
-    ],
-    "summary": {
-      "steps": {
-        "total": 247489,
-        "average": 7984,
-        "min": 910,
-        "max": 16837
-      },
-      "sleep": null
-    }
-  },
-  {
-    "timestamp": "2025-12-21T15:56:48.834Z",
-    "userId": "68646dfc9e507d389f5ce1ac",
-    "platform": "ios",
-    "stepsCount": 1,
-    "sleepCount": 0,
-    "steps": [
-      {
-        "index": 0,
-        "date": "2025-12-20T18:30:00.000Z",
-        "dateFormatted": "12/21/2025",
-        "value": 250
-      }
-    ],
-    "summary": {
-      "steps": {
-        "total": 250,
-        "average": 250,
-        "min": 250,
-        "max": 250
-      },
-      "sleep": null
-    }
-  },
-  {
-    "timestamp": "2025-12-21T15:51:23.712Z",
-    "userId": "68646dfc9e507d389f5ce1ac",
-    "platform": "ios",
-    "stepsCount": 31,
-    "sleepCount": 0,
-    "steps": [
-      {
-        "index": 0,
-        "date": "2025-12-20T18:30:00.000Z",
-        "dateFormatted": "12/21/2025",
-        "value": 4815
-      },
-      {
-        "index": 1,
-        "date": "2025-12-19T18:30:00.000Z",
-        "dateFormatted": "12/20/2025",
-        "value": 9975
-      },
-      {
-        "index": 2,
-        "date": "2025-12-18T18:30:00.000Z",
-        "dateFormatted": "12/19/2025",
-        "value": 11603
-      },
-      {
-        "index": 3,
-        "date": "2025-12-17T18:30:00.000Z",
-        "dateFormatted": "12/18/2025",
-        "value": 14590
-      },
-      {
-        "index": 4,
-        "date": "2025-12-16T18:30:00.000Z",
-        "dateFormatted": "12/17/2025",
-        "value": 12608
-      },
-      {
-        "index": 5,
-        "date": "2025-12-15T18:30:00.000Z",
-        "dateFormatted": "12/16/2025",
-        "value": 13342
-      },
-      {
-        "index": 6,
-        "date": "2025-12-14T18:30:00.000Z",
-        "dateFormatted": "12/15/2025",
-        "value": 16837
-      },
-      {
-        "index": 7,
-        "date": "2025-12-13T18:30:00.000Z",
-        "dateFormatted": "12/14/2025",
-        "value": 6319
-      },
-      {
-        "index": 8,
-        "date": "2025-12-12T18:30:00.000Z",
-        "dateFormatted": "12/13/2025",
-        "value": 12212
-      },
-      {
-        "index": 9,
-        "date": "2025-12-11T18:30:00.000Z",
-        "dateFormatted": "12/12/2025",
-        "value": 14744
-      },
-      {
-        "index": 10,
-        "date": "2025-12-10T18:30:00.000Z",
-        "dateFormatted": "12/11/2025",
-        "value": 12818
-      },
-      {
-        "index": 11,
-        "date": "2025-12-09T18:30:00.000Z",
-        "dateFormatted": "12/10/2025",
-        "value": 8008
-      },
-      {
-        "index": 12,
-        "date": "2025-12-08T18:30:00.000Z",
-        "dateFormatted": "12/9/2025",
-        "value": 6982
-      },
-      {
-        "index": 13,
-        "date": "2025-12-07T18:30:00.000Z",
-        "dateFormatted": "12/8/2025",
-        "value": 10666
-      },
-      {
-        "index": 14,
-        "date": "2025-12-06T18:30:00.000Z",
-        "dateFormatted": "12/7/2025",
-        "value": 910
-      },
-      {
-        "index": 15,
-        "date": "2025-12-05T18:30:00.000Z",
-        "dateFormatted": "12/6/2025",
-        "value": 5726
-      },
-      {
-        "index": 16,
-        "date": "2025-12-04T18:30:00.000Z",
-        "dateFormatted": "12/5/2025",
-        "value": 6356
-      },
-      {
-        "index": 17,
-        "date": "2025-12-03T18:30:00.000Z",
-        "dateFormatted": "12/4/2025",
-        "value": 5248
-      },
-      {
-        "index": 18,
-        "date": "2025-12-02T18:30:00.000Z",
-        "dateFormatted": "12/3/2025",
-        "value": 3681
-      },
-      {
-        "index": 19,
-        "date": "2025-12-01T18:30:00.000Z",
-        "dateFormatted": "12/2/2025",
-        "value": 4700
-      },
-      {
-        "index": 20,
-        "date": "2025-11-30T18:30:00.000Z",
-        "dateFormatted": "12/1/2025",
-        "value": 1746
-      },
-      {
-        "index": 21,
-        "date": "2025-11-29T18:30:00.000Z",
-        "dateFormatted": "11/30/2025",
-        "value": 5139
-      },
-      {
-        "index": 22,
-        "date": "2025-11-28T18:30:00.000Z",
-        "dateFormatted": "11/29/2025",
-        "value": 8388
-      },
-      {
-        "index": 23,
-        "date": "2025-11-27T18:30:00.000Z",
-        "dateFormatted": "11/28/2025",
-        "value": 5566
-      },
-      {
-        "index": 24,
-        "date": "2025-11-26T18:30:00.000Z",
-        "dateFormatted": "11/27/2025",
-        "value": 2264
-      },
-      {
-        "index": 25,
-        "date": "2025-11-25T18:30:00.000Z",
-        "dateFormatted": "11/26/2025",
-        "value": 7295
-      },
-      {
-        "index": 26,
-        "date": "2025-11-24T18:30:00.000Z",
-        "dateFormatted": "11/25/2025",
-        "value": 8328
-      },
-      {
-        "index": 27,
-        "date": "2025-11-23T18:30:00.000Z",
-        "dateFormatted": "11/24/2025",
-        "value": 4812
-      },
-      {
-        "index": 28,
-        "date": "2025-11-22T18:30:00.000Z",
-        "dateFormatted": "11/23/2025",
-        "value": 1261
-      },
-      {
-        "index": 29,
-        "date": "2025-11-21T18:30:00.000Z",
-        "dateFormatted": "11/22/2025",
-        "value": 7267
-      },
-      {
-        "index": 30,
-        "date": "2025-11-20T18:30:00.000Z",
-        "dateFormatted": "11/21/2025",
-        "value": 7092
-      }
-    ],
-    "summary": {
-      "steps": {
-        "total": 241298,
-        "average": 7784,
-        "min": 910,
-        "max": 16837
-      },
-      "sleep": null
-    }
-  },
-  {
-    "timestamp": "2025-12-21T15:44:32.533Z",
-    "userId": "68646dfc9e507d389f5ce1ac",
-    "platform": "ios",
-    "stepsCount": 31,
-    "sleepCount": 0,
-    "steps": [
-      {
-        "index": 0,
-        "date": "2025-12-20T18:30:00.000Z",
-        "dateFormatted": "12/21/2025",
-        "value": 4815
-      },
-      {
-        "index": 1,
-        "date": "2025-12-19T18:30:00.000Z",
-        "dateFormatted": "12/20/2025",
-        "value": 9975
-      },
-      {
-        "index": 2,
-        "date": "2025-12-18T18:30:00.000Z",
-        "dateFormatted": "12/19/2025",
-        "value": 11603
-      },
-      {
-        "index": 3,
-        "date": "2025-12-17T18:30:00.000Z",
-        "dateFormatted": "12/18/2025",
-        "value": 14590
-      },
-      {
-        "index": 4,
-        "date": "2025-12-16T18:30:00.000Z",
-        "dateFormatted": "12/17/2025",
-        "value": 12608
-      },
-      {
-        "index": 5,
-        "date": "2025-12-15T18:30:00.000Z",
-        "dateFormatted": "12/16/2025",
-        "value": 13342
-      },
-      {
-        "index": 6,
-        "date": "2025-12-14T18:30:00.000Z",
-        "dateFormatted": "12/15/2025",
-        "value": 16837
-      },
-      {
-        "index": 7,
-        "date": "2025-12-13T18:30:00.000Z",
-        "dateFormatted": "12/14/2025",
-        "value": 6319
-      },
-      {
-        "index": 8,
-        "date": "2025-12-12T18:30:00.000Z",
-        "dateFormatted": "12/13/2025",
-        "value": 12212
-      },
-      {
-        "index": 9,
-        "date": "2025-12-11T18:30:00.000Z",
-        "dateFormatted": "12/12/2025",
-        "value": 14744
-      },
-      {
-        "index": 10,
-        "date": "2025-12-10T18:30:00.000Z",
-        "dateFormatted": "12/11/2025",
-        "value": 12818
-      },
-      {
-        "index": 11,
-        "date": "2025-12-09T18:30:00.000Z",
-        "dateFormatted": "12/10/2025",
-        "value": 8008
-      },
-      {
-        "index": 12,
-        "date": "2025-12-08T18:30:00.000Z",
-        "dateFormatted": "12/9/2025",
-        "value": 6982
-      },
-      {
-        "index": 13,
-        "date": "2025-12-07T18:30:00.000Z",
-        "dateFormatted": "12/8/2025",
-        "value": 10666
-      },
-      {
-        "index": 14,
-        "date": "2025-12-06T18:30:00.000Z",
-        "dateFormatted": "12/7/2025",
-        "value": 910
-      },
-      {
-        "index": 15,
-        "date": "2025-12-05T18:30:00.000Z",
-        "dateFormatted": "12/6/2025",
-        "value": 5726
-      },
-      {
-        "index": 16,
-        "date": "2025-12-04T18:30:00.000Z",
-        "dateFormatted": "12/5/2025",
-        "value": 6356
-      },
-      {
-        "index": 17,
-        "date": "2025-12-03T18:30:00.000Z",
-        "dateFormatted": "12/4/2025",
-        "value": 5248
-      },
-      {
-        "index": 18,
-        "date": "2025-12-02T18:30:00.000Z",
-        "dateFormatted": "12/3/2025",
-        "value": 3681
-      },
-      {
-        "index": 19,
-        "date": "2025-12-01T18:30:00.000Z",
-        "dateFormatted": "12/2/2025",
-        "value": 4700
-      },
-      {
-        "index": 20,
-        "date": "2025-11-30T18:30:00.000Z",
-        "dateFormatted": "12/1/2025",
-        "value": 1746
-      },
-      {
-        "index": 21,
-        "date": "2025-11-29T18:30:00.000Z",
-        "dateFormatted": "11/30/2025",
-        "value": 5139
-      },
-      {
-        "index": 22,
-        "date": "2025-11-28T18:30:00.000Z",
-        "dateFormatted": "11/29/2025",
-        "value": 8388
-      },
-      {
-        "index": 23,
-        "date": "2025-11-27T18:30:00.000Z",
-        "dateFormatted": "11/28/2025",
-        "value": 5566
-      },
-      {
-        "index": 24,
-        "date": "2025-11-26T18:30:00.000Z",
-        "dateFormatted": "11/27/2025",
-        "value": 2264
-      },
-      {
-        "index": 25,
-        "date": "2025-11-25T18:30:00.000Z",
-        "dateFormatted": "11/26/2025",
-        "value": 7295
-      },
-      {
-        "index": 26,
-        "date": "2025-11-24T18:30:00.000Z",
-        "dateFormatted": "11/25/2025",
-        "value": 8328
-      },
-      {
-        "index": 27,
-        "date": "2025-11-23T18:30:00.000Z",
-        "dateFormatted": "11/24/2025",
-        "value": 4812
-      },
-      {
-        "index": 28,
-        "date": "2025-11-22T18:30:00.000Z",
-        "dateFormatted": "11/23/2025",
-        "value": 1261
-      },
-      {
-        "index": 29,
-        "date": "2025-11-21T18:30:00.000Z",
-        "dateFormatted": "11/22/2025",
-        "value": 7267
-      },
-      {
-        "index": 30,
-        "date": "2025-11-20T18:30:00.000Z",
-        "dateFormatted": "11/21/2025",
-        "value": 7092
-      }
-    ],
-    "summary": {
-      "steps": {
-        "total": 241298,
-        "average": 7784,
-        "min": 910,
-        "max": 16837
-      },
-      "sleep": null
-    }
-  },
-  {
-    "timestamp": "2025-12-21T15:44:06.306Z",
-    "userId": "68646dfc9e507d389f5ce1ac",
-    "platform": "ios",
-    "stepsCount": 31,
-    "sleepCount": 0,
-    "steps": [
-      {
-        "index": 0,
-        "date": "2025-12-20T18:30:00.000Z",
-        "dateFormatted": "12/21/2025",
-        "value": 4815
-      },
-      {
-        "index": 1,
-        "date": "2025-12-19T18:30:00.000Z",
-        "dateFormatted": "12/20/2025",
-        "value": 9975
-      },
-      {
-        "index": 2,
-        "date": "2025-12-18T18:30:00.000Z",
-        "dateFormatted": "12/19/2025",
-        "value": 11603
-      },
-      {
-        "index": 3,
-        "date": "2025-12-17T18:30:00.000Z",
-        "dateFormatted": "12/18/2025",
-        "value": 14590
-      },
-      {
-        "index": 4,
-        "date": "2025-12-16T18:30:00.000Z",
-        "dateFormatted": "12/17/2025",
-        "value": 12608
-      },
-      {
-        "index": 5,
-        "date": "2025-12-15T18:30:00.000Z",
-        "dateFormatted": "12/16/2025",
-        "value": 13342
-      },
-      {
-        "index": 6,
-        "date": "2025-12-14T18:30:00.000Z",
-        "dateFormatted": "12/15/2025",
-        "value": 16837
-      },
-      {
-        "index": 7,
-        "date": "2025-12-13T18:30:00.000Z",
-        "dateFormatted": "12/14/2025",
-        "value": 6319
-      },
-      {
-        "index": 8,
-        "date": "2025-12-12T18:30:00.000Z",
-        "dateFormatted": "12/13/2025",
-        "value": 12212
-      },
-      {
-        "index": 9,
-        "date": "2025-12-11T18:30:00.000Z",
-        "dateFormatted": "12/12/2025",
-        "value": 14744
-      },
-      {
-        "index": 10,
-        "date": "2025-12-10T18:30:00.000Z",
-        "dateFormatted": "12/11/2025",
-        "value": 12818
-      },
-      {
-        "index": 11,
-        "date": "2025-12-09T18:30:00.000Z",
-        "dateFormatted": "12/10/2025",
-        "value": 8008
-      },
-      {
-        "index": 12,
-        "date": "2025-12-08T18:30:00.000Z",
-        "dateFormatted": "12/9/2025",
-        "value": 6982
-      },
-      {
-        "index": 13,
-        "date": "2025-12-07T18:30:00.000Z",
-        "dateFormatted": "12/8/2025",
-        "value": 10666
-      },
-      {
-        "index": 14,
-        "date": "2025-12-06T18:30:00.000Z",
-        "dateFormatted": "12/7/2025",
-        "value": 910
-      },
-      {
-        "index": 15,
-        "date": "2025-12-05T18:30:00.000Z",
-        "dateFormatted": "12/6/2025",
-        "value": 5726
-      },
-      {
-        "index": 16,
-        "date": "2025-12-04T18:30:00.000Z",
-        "dateFormatted": "12/5/2025",
-        "value": 6356
-      },
-      {
-        "index": 17,
-        "date": "2025-12-03T18:30:00.000Z",
-        "dateFormatted": "12/4/2025",
-        "value": 5248
-      },
-      {
-        "index": 18,
-        "date": "2025-12-02T18:30:00.000Z",
-        "dateFormatted": "12/3/2025",
-        "value": 3681
-      },
-      {
-        "index": 19,
-        "date": "2025-12-01T18:30:00.000Z",
-        "dateFormatted": "12/2/2025",
-        "value": 4700
-      },
-      {
-        "index": 20,
-        "date": "2025-11-30T18:30:00.000Z",
-        "dateFormatted": "12/1/2025",
-        "value": 1746
-      },
-      {
-        "index": 21,
-        "date": "2025-11-29T18:30:00.000Z",
-        "dateFormatted": "11/30/2025",
-        "value": 5139
-      },
-      {
-        "index": 22,
-        "date": "2025-11-28T18:30:00.000Z",
-        "dateFormatted": "11/29/2025",
-        "value": 8388
-      },
-      {
-        "index": 23,
-        "date": "2025-11-27T18:30:00.000Z",
-        "dateFormatted": "11/28/2025",
-        "value": 5566
-      },
-      {
-        "index": 24,
-        "date": "2025-11-26T18:30:00.000Z",
-        "dateFormatted": "11/27/2025",
-        "value": 2264
-      },
-      {
-        "index": 25,
-        "date": "2025-11-25T18:30:00.000Z",
-        "dateFormatted": "11/26/2025",
-        "value": 7295
-      },
-      {
-        "index": 26,
-        "date": "2025-11-24T18:30:00.000Z",
-        "dateFormatted": "11/25/2025",
-        "value": 8328
-      },
-      {
-        "index": 27,
-        "date": "2025-11-23T18:30:00.000Z",
-        "dateFormatted": "11/24/2025",
-        "value": 4812
-      },
-      {
-        "index": 28,
-        "date": "2025-11-22T18:30:00.000Z",
-        "dateFormatted": "11/23/2025",
-        "value": 1261
-      },
-      {
-        "index": 29,
-        "date": "2025-11-21T18:30:00.000Z",
-        "dateFormatted": "11/22/2025",
-        "value": 7267
-      },
-      {
-        "index": 30,
-        "date": "2025-11-20T18:30:00.000Z",
-        "dateFormatted": "11/21/2025",
-        "value": 7092
-      }
-    ],
-    "summary": {
-      "steps": {
-        "total": 241298,
-        "average": 7784,
-        "min": 910,
-        "max": 16837
-      },
-      "sleep": null
-    }
-  },
-  {
-    "timestamp": "2025-12-21T15:40:32.683Z",
-    "userId": "68646dfc9e507d389f5ce1ac",
-    "platform": "ios",
-    "stepsCount": 31,
-    "sleepCount": 0,
-    "steps": [
-      {
-        "index": 0,
-        "date": "2025-12-20T18:30:00.000Z",
-        "dateFormatted": "12/21/2025",
-        "value": 4815
-      },
-      {
-        "index": 1,
-        "date": "2025-12-19T18:30:00.000Z",
-        "dateFormatted": "12/20/2025",
-        "value": 9975
-      },
-      {
-        "index": 2,
-        "date": "2025-12-18T18:30:00.000Z",
-        "dateFormatted": "12/19/2025",
-        "value": 11603
-      },
-      {
-        "index": 3,
-        "date": "2025-12-17T18:30:00.000Z",
-        "dateFormatted": "12/18/2025",
-        "value": 14590
-      },
-      {
-        "index": 4,
-        "date": "2025-12-16T18:30:00.000Z",
-        "dateFormatted": "12/17/2025",
-        "value": 12608
-      },
-      {
-        "index": 5,
-        "date": "2025-12-15T18:30:00.000Z",
-        "dateFormatted": "12/16/2025",
-        "value": 13342
-      },
-      {
-        "index": 6,
-        "date": "2025-12-14T18:30:00.000Z",
-        "dateFormatted": "12/15/2025",
-        "value": 16837
-      },
-      {
-        "index": 7,
-        "date": "2025-12-13T18:30:00.000Z",
-        "dateFormatted": "12/14/2025",
-        "value": 6319
-      },
-      {
-        "index": 8,
-        "date": "2025-12-12T18:30:00.000Z",
-        "dateFormatted": "12/13/2025",
-        "value": 12212
-      },
-      {
-        "index": 9,
-        "date": "2025-12-11T18:30:00.000Z",
-        "dateFormatted": "12/12/2025",
-        "value": 14744
-      },
-      {
-        "index": 10,
-        "date": "2025-12-10T18:30:00.000Z",
-        "dateFormatted": "12/11/2025",
-        "value": 12818
-      },
-      {
-        "index": 11,
-        "date": "2025-12-09T18:30:00.000Z",
-        "dateFormatted": "12/10/2025",
-        "value": 8008
-      },
-      {
-        "index": 12,
-        "date": "2025-12-08T18:30:00.000Z",
-        "dateFormatted": "12/9/2025",
-        "value": 6982
-      },
-      {
-        "index": 13,
-        "date": "2025-12-07T18:30:00.000Z",
-        "dateFormatted": "12/8/2025",
-        "value": 10666
-      },
-      {
-        "index": 14,
-        "date": "2025-12-06T18:30:00.000Z",
-        "dateFormatted": "12/7/2025",
-        "value": 910
-      },
-      {
-        "index": 15,
-        "date": "2025-12-05T18:30:00.000Z",
-        "dateFormatted": "12/6/2025",
-        "value": 5726
-      },
-      {
-        "index": 16,
-        "date": "2025-12-04T18:30:00.000Z",
-        "dateFormatted": "12/5/2025",
-        "value": 6356
-      },
-      {
-        "index": 17,
-        "date": "2025-12-03T18:30:00.000Z",
-        "dateFormatted": "12/4/2025",
-        "value": 5248
-      },
-      {
-        "index": 18,
-        "date": "2025-12-02T18:30:00.000Z",
-        "dateFormatted": "12/3/2025",
-        "value": 3681
-      },
-      {
-        "index": 19,
-        "date": "2025-12-01T18:30:00.000Z",
-        "dateFormatted": "12/2/2025",
-        "value": 4700
-      },
-      {
-        "index": 20,
-        "date": "2025-11-30T18:30:00.000Z",
-        "dateFormatted": "12/1/2025",
-        "value": 1746
-      },
-      {
-        "index": 21,
-        "date": "2025-11-29T18:30:00.000Z",
-        "dateFormatted": "11/30/2025",
-        "value": 5139
-      },
-      {
-        "index": 22,
-        "date": "2025-11-28T18:30:00.000Z",
-        "dateFormatted": "11/29/2025",
-        "value": 8388
-      },
-      {
-        "index": 23,
-        "date": "2025-11-27T18:30:00.000Z",
-        "dateFormatted": "11/28/2025",
-        "value": 5566
-      },
-      {
-        "index": 24,
-        "date": "2025-11-26T18:30:00.000Z",
-        "dateFormatted": "11/27/2025",
-        "value": 2264
-      },
-      {
-        "index": 25,
-        "date": "2025-11-25T18:30:00.000Z",
-        "dateFormatted": "11/26/2025",
-        "value": 7295
-      },
-      {
-        "index": 26,
-        "date": "2025-11-24T18:30:00.000Z",
-        "dateFormatted": "11/25/2025",
-        "value": 8328
-      },
-      {
-        "index": 27,
-        "date": "2025-11-23T18:30:00.000Z",
-        "dateFormatted": "11/24/2025",
-        "value": 4812
-      },
-      {
-        "index": 28,
-        "date": "2025-11-22T18:30:00.000Z",
-        "dateFormatted": "11/23/2025",
-        "value": 1261
-      },
-      {
-        "index": 29,
-        "date": "2025-11-21T18:30:00.000Z",
-        "dateFormatted": "11/22/2025",
-        "value": 7267
-      },
-      {
-        "index": 30,
-        "date": "2025-11-20T18:30:00.000Z",
-        "dateFormatted": "11/21/2025",
-        "value": 7092
-      }
-    ],
-    "summary": {
-      "steps": {
-        "total": 241298,
-        "average": 7784,
-        "min": 910,
-        "max": 16837
-      },
-      "sleep": null
-    }
-  },
-  {
-    "timestamp": "2025-12-21T15:40:05.815Z",
-    "userId": "68646dfc9e507d389f5ce1ac",
-    "platform": "ios",
-    "stepsCount": 31,
-    "sleepCount": 0,
-    "steps": [
-      {
-        "index": 0,
-        "date": "2025-12-20T18:30:00.000Z",
-        "dateFormatted": "12/21/2025",
-        "value": 4815
-      },
-      {
-        "index": 1,
-        "date": "2025-12-19T18:30:00.000Z",
-        "dateFormatted": "12/20/2025",
-        "value": 9975
-      },
-      {
-        "index": 2,
-        "date": "2025-12-18T18:30:00.000Z",
-        "dateFormatted": "12/19/2025",
-        "value": 11603
-      },
-      {
-        "index": 3,
-        "date": "2025-12-17T18:30:00.000Z",
-        "dateFormatted": "12/18/2025",
-        "value": 14590
-      },
-      {
-        "index": 4,
-        "date": "2025-12-16T18:30:00.000Z",
-        "dateFormatted": "12/17/2025",
-        "value": 12608
-      },
-      {
-        "index": 5,
-        "date": "2025-12-15T18:30:00.000Z",
-        "dateFormatted": "12/16/2025",
-        "value": 13342
-      },
-      {
-        "index": 6,
-        "date": "2025-12-14T18:30:00.000Z",
-        "dateFormatted": "12/15/2025",
-        "value": 16837
-      },
-      {
-        "index": 7,
-        "date": "2025-12-13T18:30:00.000Z",
-        "dateFormatted": "12/14/2025",
-        "value": 6319
-      },
-      {
-        "index": 8,
-        "date": "2025-12-12T18:30:00.000Z",
-        "dateFormatted": "12/13/2025",
-        "value": 12212
-      },
-      {
-        "index": 9,
-        "date": "2025-12-11T18:30:00.000Z",
-        "dateFormatted": "12/12/2025",
-        "value": 14744
-      },
-      {
-        "index": 10,
-        "date": "2025-12-10T18:30:00.000Z",
-        "dateFormatted": "12/11/2025",
-        "value": 12818
-      },
-      {
-        "index": 11,
-        "date": "2025-12-09T18:30:00.000Z",
-        "dateFormatted": "12/10/2025",
-        "value": 8008
-      },
-      {
-        "index": 12,
-        "date": "2025-12-08T18:30:00.000Z",
-        "dateFormatted": "12/9/2025",
-        "value": 6982
-      },
-      {
-        "index": 13,
-        "date": "2025-12-07T18:30:00.000Z",
-        "dateFormatted": "12/8/2025",
-        "value": 10666
-      },
-      {
-        "index": 14,
-        "date": "2025-12-06T18:30:00.000Z",
-        "dateFormatted": "12/7/2025",
-        "value": 910
-      },
-      {
-        "index": 15,
-        "date": "2025-12-05T18:30:00.000Z",
-        "dateFormatted": "12/6/2025",
-        "value": 5726
-      },
-      {
-        "index": 16,
-        "date": "2025-12-04T18:30:00.000Z",
-        "dateFormatted": "12/5/2025",
-        "value": 6356
-      },
-      {
-        "index": 17,
-        "date": "2025-12-03T18:30:00.000Z",
-        "dateFormatted": "12/4/2025",
-        "value": 5248
-      },
-      {
-        "index": 18,
-        "date": "2025-12-02T18:30:00.000Z",
-        "dateFormatted": "12/3/2025",
-        "value": 3681
-      },
-      {
-        "index": 19,
-        "date": "2025-12-01T18:30:00.000Z",
-        "dateFormatted": "12/2/2025",
-        "value": 4700
-      },
-      {
-        "index": 20,
-        "date": "2025-11-30T18:30:00.000Z",
-        "dateFormatted": "12/1/2025",
-        "value": 1746
-      },
-      {
-        "index": 21,
-        "date": "2025-11-29T18:30:00.000Z",
-        "dateFormatted": "11/30/2025",
-        "value": 5139
-      },
-      {
-        "index": 22,
-        "date": "2025-11-28T18:30:00.000Z",
-        "dateFormatted": "11/29/2025",
-        "value": 8388
-      },
-      {
-        "index": 23,
-        "date": "2025-11-27T18:30:00.000Z",
-        "dateFormatted": "11/28/2025",
-        "value": 5566
-      },
-      {
-        "index": 24,
-        "date": "2025-11-26T18:30:00.000Z",
-        "dateFormatted": "11/27/2025",
-        "value": 2264
-      },
-      {
-        "index": 25,
-        "date": "2025-11-25T18:30:00.000Z",
-        "dateFormatted": "11/26/2025",
-        "value": 7295
-      },
-      {
-        "index": 26,
-        "date": "2025-11-24T18:30:00.000Z",
-        "dateFormatted": "11/25/2025",
-        "value": 8328
-      },
-      {
-        "index": 27,
-        "date": "2025-11-23T18:30:00.000Z",
-        "dateFormatted": "11/24/2025",
-        "value": 4812
-      },
-      {
-        "index": 28,
-        "date": "2025-11-22T18:30:00.000Z",
-        "dateFormatted": "11/23/2025",
-        "value": 1261
-      },
-      {
-        "index": 29,
-        "date": "2025-11-21T18:30:00.000Z",
-        "dateFormatted": "11/22/2025",
-        "value": 7267
-      },
-      {
-        "index": 30,
-        "date": "2025-11-20T18:30:00.000Z",
-        "dateFormatted": "11/21/2025",
-        "value": 7092
-      }
-    ],
-    "summary": {
-      "steps": {
-        "total": 241298,
-        "average": 7784,
-        "min": 910,
-        "max": 16837
-      },
-      "sleep": null
-    }
-  },
-  {
-    "timestamp": "2025-12-21T15:32:04.237Z",
-    "userId": "68646dfc9e507d389f5ce1ac",
-    "platform": "ios",
-    "stepsCount": 31,
-    "sleepCount": 0,
-    "steps": [
-      {
-        "index": 0,
-        "date": "2025-12-20T18:30:00.000Z",
-        "dateFormatted": "12/21/2025",
-        "value": 4815
-      },
-      {
-        "index": 1,
-        "date": "2025-12-19T18:30:00.000Z",
-        "dateFormatted": "12/20/2025",
-        "value": 9975
-      },
-      {
-        "index": 2,
-        "date": "2025-12-18T18:30:00.000Z",
-        "dateFormatted": "12/19/2025",
-        "value": 11603
-      },
-      {
-        "index": 3,
-        "date": "2025-12-17T18:30:00.000Z",
-        "dateFormatted": "12/18/2025",
-        "value": 14590
-      },
-      {
-        "index": 4,
-        "date": "2025-12-16T18:30:00.000Z",
-        "dateFormatted": "12/17/2025",
-        "value": 12608
-      },
-      {
-        "index": 5,
-        "date": "2025-12-15T18:30:00.000Z",
-        "dateFormatted": "12/16/2025",
-        "value": 13342
-      },
-      {
-        "index": 6,
-        "date": "2025-12-14T18:30:00.000Z",
-        "dateFormatted": "12/15/2025",
-        "value": 16837
-      },
-      {
-        "index": 7,
-        "date": "2025-12-13T18:30:00.000Z",
-        "dateFormatted": "12/14/2025",
-        "value": 6319
-      },
-      {
-        "index": 8,
-        "date": "2025-12-12T18:30:00.000Z",
-        "dateFormatted": "12/13/2025",
-        "value": 12212
-      },
-      {
-        "index": 9,
-        "date": "2025-12-11T18:30:00.000Z",
-        "dateFormatted": "12/12/2025",
-        "value": 14744
-      },
-      {
-        "index": 10,
-        "date": "2025-12-10T18:30:00.000Z",
-        "dateFormatted": "12/11/2025",
-        "value": 12818
-      },
-      {
-        "index": 11,
-        "date": "2025-12-09T18:30:00.000Z",
-        "dateFormatted": "12/10/2025",
-        "value": 8008
-      },
-      {
-        "index": 12,
-        "date": "2025-12-08T18:30:00.000Z",
-        "dateFormatted": "12/9/2025",
-        "value": 6982
-      },
-      {
-        "index": 13,
-        "date": "2025-12-07T18:30:00.000Z",
-        "dateFormatted": "12/8/2025",
-        "value": 10666
-      },
-      {
-        "index": 14,
-        "date": "2025-12-06T18:30:00.000Z",
-        "dateFormatted": "12/7/2025",
-        "value": 910
-      },
-      {
-        "index": 15,
-        "date": "2025-12-05T18:30:00.000Z",
-        "dateFormatted": "12/6/2025",
-        "value": 5726
-      },
-      {
-        "index": 16,
-        "date": "2025-12-04T18:30:00.000Z",
-        "dateFormatted": "12/5/2025",
-        "value": 6356
-      },
-      {
-        "index": 17,
-        "date": "2025-12-03T18:30:00.000Z",
-        "dateFormatted": "12/4/2025",
-        "value": 5248
-      },
-      {
-        "index": 18,
-        "date": "2025-12-02T18:30:00.000Z",
-        "dateFormatted": "12/3/2025",
-        "value": 3681
-      },
-      {
-        "index": 19,
-        "date": "2025-12-01T18:30:00.000Z",
-        "dateFormatted": "12/2/2025",
-        "value": 4700
-      },
-      {
-        "index": 20,
-        "date": "2025-11-30T18:30:00.000Z",
-        "dateFormatted": "12/1/2025",
-        "value": 1746
-      },
-      {
-        "index": 21,
-        "date": "2025-11-29T18:30:00.000Z",
-        "dateFormatted": "11/30/2025",
-        "value": 5139
-      },
-      {
-        "index": 22,
-        "date": "2025-11-28T18:30:00.000Z",
-        "dateFormatted": "11/29/2025",
-        "value": 8388
-      },
-      {
-        "index": 23,
-        "date": "2025-11-27T18:30:00.000Z",
-        "dateFormatted": "11/28/2025",
-        "value": 5566
-      },
-      {
-        "index": 24,
-        "date": "2025-11-26T18:30:00.000Z",
-        "dateFormatted": "11/27/2025",
-        "value": 2264
-      },
-      {
-        "index": 25,
-        "date": "2025-11-25T18:30:00.000Z",
-        "dateFormatted": "11/26/2025",
-        "value": 7295
-      },
-      {
-        "index": 26,
-        "date": "2025-11-24T18:30:00.000Z",
-        "dateFormatted": "11/25/2025",
-        "value": 8328
-      },
-      {
-        "index": 27,
-        "date": "2025-11-23T18:30:00.000Z",
-        "dateFormatted": "11/24/2025",
-        "value": 4812
-      },
-      {
-        "index": 28,
-        "date": "2025-11-22T18:30:00.000Z",
-        "dateFormatted": "11/23/2025",
-        "value": 1261
-      },
-      {
-        "index": 29,
-        "date": "2025-11-21T18:30:00.000Z",
-        "dateFormatted": "11/22/2025",
-        "value": 7267
-      },
-      {
-        "index": 30,
-        "date": "2025-11-20T18:30:00.000Z",
-        "dateFormatted": "11/21/2025",
-        "value": 7092
-      }
-    ],
-    "summary": {
-      "steps": {
-        "total": 241298,
-        "average": 7784,
-        "min": 910,
-        "max": 16837
-      },
-      "sleep": null
-    }
-  },
-  {
-    "timestamp": "2025-12-21T14:22:22.547Z",
-    "userId": "68646dfc9e507d389f5ce1ac",
-    "platform": "ios",
-    "stepsCount": 31,
-    "sleepCount": 0,
-    "steps": [
-      {
-        "index": 0,
-        "date": "2025-12-20T18:30:00.000Z",
-        "dateFormatted": "12/21/2025",
-        "value": 4285
-      },
-      {
-        "index": 1,
-        "date": "2025-12-19T18:30:00.000Z",
-        "dateFormatted": "12/20/2025",
-        "value": 9975
-      },
-      {
-        "index": 2,
-        "date": "2025-12-18T18:30:00.000Z",
-        "dateFormatted": "12/19/2025",
-        "value": 11603
-      },
-      {
-        "index": 3,
-        "date": "2025-12-17T18:30:00.000Z",
-        "dateFormatted": "12/18/2025",
-        "value": 14590
-      },
-      {
-        "index": 4,
-        "date": "2025-12-16T18:30:00.000Z",
-        "dateFormatted": "12/17/2025",
-        "value": 12608
-      },
-      {
-        "index": 5,
-        "date": "2025-12-15T18:30:00.000Z",
-        "dateFormatted": "12/16/2025",
-        "value": 13342
-      },
-      {
-        "index": 6,
-        "date": "2025-12-14T18:30:00.000Z",
-        "dateFormatted": "12/15/2025",
-        "value": 16837
-      },
-      {
-        "index": 7,
-        "date": "2025-12-13T18:30:00.000Z",
-        "dateFormatted": "12/14/2025",
-        "value": 6319
-      },
-      {
-        "index": 8,
-        "date": "2025-12-12T18:30:00.000Z",
-        "dateFormatted": "12/13/2025",
-        "value": 12212
-      },
-      {
-        "index": 9,
-        "date": "2025-12-11T18:30:00.000Z",
-        "dateFormatted": "12/12/2025",
-        "value": 14744
-      },
-      {
-        "index": 10,
-        "date": "2025-12-10T18:30:00.000Z",
-        "dateFormatted": "12/11/2025",
-        "value": 12818
-      },
-      {
-        "index": 11,
-        "date": "2025-12-09T18:30:00.000Z",
-        "dateFormatted": "12/10/2025",
-        "value": 8008
-      },
-      {
-        "index": 12,
-        "date": "2025-12-08T18:30:00.000Z",
-        "dateFormatted": "12/9/2025",
-        "value": 6982
-      },
-      {
-        "index": 13,
-        "date": "2025-12-07T18:30:00.000Z",
-        "dateFormatted": "12/8/2025",
-        "value": 10666
-      },
-      {
-        "index": 14,
-        "date": "2025-12-06T18:30:00.000Z",
-        "dateFormatted": "12/7/2025",
-        "value": 910
-      },
-      {
-        "index": 15,
-        "date": "2025-12-05T18:30:00.000Z",
-        "dateFormatted": "12/6/2025",
-        "value": 5726
-      },
-      {
-        "index": 16,
-        "date": "2025-12-04T18:30:00.000Z",
-        "dateFormatted": "12/5/2025",
-        "value": 6356
-      },
-      {
-        "index": 17,
-        "date": "2025-12-03T18:30:00.000Z",
-        "dateFormatted": "12/4/2025",
-        "value": 5248
-      },
-      {
-        "index": 18,
-        "date": "2025-12-02T18:30:00.000Z",
-        "dateFormatted": "12/3/2025",
-        "value": 3681
-      },
-      {
-        "index": 19,
-        "date": "2025-12-01T18:30:00.000Z",
-        "dateFormatted": "12/2/2025",
-        "value": 4700
-      },
-      {
-        "index": 20,
-        "date": "2025-11-30T18:30:00.000Z",
-        "dateFormatted": "12/1/2025",
-        "value": 1746
-      },
-      {
-        "index": 21,
-        "date": "2025-11-29T18:30:00.000Z",
-        "dateFormatted": "11/30/2025",
-        "value": 5139
-      },
-      {
-        "index": 22,
-        "date": "2025-11-28T18:30:00.000Z",
-        "dateFormatted": "11/29/2025",
-        "value": 8388
-      },
-      {
-        "index": 23,
-        "date": "2025-11-27T18:30:00.000Z",
-        "dateFormatted": "11/28/2025",
-        "value": 5566
-      },
-      {
-        "index": 24,
-        "date": "2025-11-26T18:30:00.000Z",
-        "dateFormatted": "11/27/2025",
-        "value": 2264
-      },
-      {
-        "index": 25,
-        "date": "2025-11-25T18:30:00.000Z",
-        "dateFormatted": "11/26/2025",
-        "value": 7295
-      },
-      {
-        "index": 26,
-        "date": "2025-11-24T18:30:00.000Z",
-        "dateFormatted": "11/25/2025",
-        "value": 8328
-      },
-      {
-        "index": 27,
-        "date": "2025-11-23T18:30:00.000Z",
-        "dateFormatted": "11/24/2025",
-        "value": 4812
-      },
-      {
-        "index": 28,
-        "date": "2025-11-22T18:30:00.000Z",
-        "dateFormatted": "11/23/2025",
-        "value": 1261
-      },
-      {
-        "index": 29,
-        "date": "2025-11-21T18:30:00.000Z",
-        "dateFormatted": "11/22/2025",
-        "value": 7267
-      },
-      {
-        "index": 30,
-        "date": "2025-11-20T18:30:00.000Z",
-        "dateFormatted": "11/21/2025",
-        "value": 7092
-      }
-    ],
-    "summary": {
-      "steps": {
-        "total": 240768,
-        "average": 7767,
         "min": 910,
         "max": 16837
       },

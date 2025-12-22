@@ -31,7 +31,7 @@ const httpTrigger: AzureFunction = async function (
 
     await init(context);
     
-    const { action, data, platform } = req.body;
+    const { action, data, platform, timezoneOffset } = req.body;
 
     // Validate platform
     const validPlatforms = ["ios", "android"];
@@ -61,7 +61,7 @@ const httpTrigger: AzureFunction = async function (
         return;
       }
 
-      const response = await syncHealthData(userId, data, platformType);
+      const response = await syncHealthData(userId, data, platformType, timezoneOffset);
 
       if (response.success) {
         context.res = {

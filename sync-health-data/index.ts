@@ -75,8 +75,8 @@ const httpTrigger: AzureFunction = async function (
         };
       }
     } else if (action === "status") {
-      // Get sync status
-      const response = await getHealthSyncStatus(userId);
+      // Get sync status - pass platform to get correct field (androidHealth or healthSync)
+      const response = await getHealthSyncStatus(userId, platformType);
       console.log("it is response sync", response);
       if (response.success) {
         context.res = {
@@ -90,7 +90,7 @@ const httpTrigger: AzureFunction = async function (
         };
       }
     } else if (action === "disable") {
-      // Disable sync for a specific type
+      // Disable sync for a specific type - pass platform to update correct field
       const { type } = req.body;
       
       if (!type || (type !== "steps" && type !== "sleep")) {
@@ -104,7 +104,7 @@ const httpTrigger: AzureFunction = async function (
         return;
       }
 
-      const response = await disableHealthSync(userId, type);
+      const response = await disableHealthSync(userId, type, platformType);
       
       if (response.success) {
         context.res = {

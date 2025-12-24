@@ -120,6 +120,15 @@ export interface UserDetails extends Document {
     lastSyncedSleepValue?: number; // Last HealthKit sleep value synced (for today)
     lastSyncedSleepDate?: Date; // Date when lastSyncedSleepValue was recorded (also indicates last sleep sync time)
   };
+  androidHealth: {
+    stepSync: boolean;
+    syncModalShown: boolean;
+    sleepSync: boolean;
+    lastSyncedStepsValue?: number; // Last Health Connect steps value synced (for today)
+    lastSyncedStepsDate?: Date; // Date when lastSyncedStepsValue was recorded (also indicates last steps sync time)
+    lastSyncedSleepValue?: number; // Last Health Connect sleep value synced (for today)
+    lastSyncedSleepDate?: Date; // Date when lastSyncedSleepValue was recorded (also indicates last sleep sync time)
+  };
   versionModalClicked?: string;
 }
 const userDetailsSchema: Schema<UserDetails> = new Schema<UserDetails>({
@@ -134,7 +143,7 @@ const userDetailsSchema: Schema<UserDetails> = new Schema<UserDetails>({
       ref: "coupons", // Make sure your Coupon model is named "coupons"
     },
   ],
-  // Health sync field (supports iOS and Android)
+  // Health sync field for iOS (Apple Health)
   healthSync: {
     stepSync: {
       type: Boolean,
@@ -171,7 +180,44 @@ const userDetailsSchema: Schema<UserDetails> = new Schema<UserDetails>({
       default: null,
       required: false,
     },
-    
+  },
+  // Android Health Connect sync field (separate from iOS)
+  androidHealth: {
+    stepSync: {
+      type: Boolean,
+      default: false,
+      required: false,
+    },
+    syncModalShown: {
+      type: Boolean,
+      default: false,
+      required: false,
+    },
+    sleepSync: {
+      type: Boolean,
+      default: false,
+      required: false,
+    },
+    lastSyncedStepsValue: {
+      type: Number,
+      default: null,
+      required: false,
+    },
+    lastSyncedStepsDate: {
+      type: Date,
+      default: null,
+      required: false,
+    },
+    lastSyncedSleepValue: {
+      type: Number,
+      default: null,
+      required: false,
+    },
+    lastSyncedSleepDate: {
+      type: Date,
+      default: null,
+      required: false,
+    },
   },
   versionModalClicked: {
     type: String,

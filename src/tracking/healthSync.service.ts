@@ -307,12 +307,13 @@ async function updateUserSyncStatus(
   const today = new Date(now);
   today.setHours(0, 0, 0, 0);
 
-  // Build update object
+  // Build update object - use platform-specific field
   const updateFields: Record<string, any> = {};
+  const syncFieldPrefix = platform === "android" ? "androidHealth" : "healthSync";
 
   if (data.steps?.length) {
-    updateFields["healthSync.stepSync"] = true;
-    updateFields["healthSync.syncModalShown"] = true; // Mark modal as shown when sync is enabled
+    updateFields[`${syncFieldPrefix}.stepSync`] = true;
+    updateFields[`${syncFieldPrefix}.syncModalShown`] = true; // Mark modal as shown when sync is enabled
     
     // Find today's steps entry and store the total HealthKit value
     const todaySteps = data.steps.find(entry => {
@@ -362,15 +363,15 @@ async function updateUserSyncStatus(
           console.log(`${LOG_PREFIX} Steps sync - Incremental: ${incrementalValue}, Existing: ${existingLastSyncedValue}, New Total: ${newTotal}, Last synced today: ${isLastSyncedToday}`);
         }
         
-        updateFields["healthSync.lastSyncedStepsValue"] = newTotal;
-        updateFields["healthSync.lastSyncedStepsDate"] = now;
+        updateFields[`${syncFieldPrefix}.lastSyncedStepsValue`] = newTotal;
+        updateFields[`${syncFieldPrefix}.lastSyncedStepsDate`] = now;
       }
     }
   }
 
   if (data.sleep?.length) {
-    updateFields["healthSync.sleepSync"] = true;
-    updateFields["healthSync.syncModalShown"] = true; // Mark modal as shown when sync is enabled
+    updateFields[`${syncFieldPrefix}.sleepSync`] = true;
+    updateFields[`${syncFieldPrefix}.syncModalShown`] = true; // Mark modal as shown when sync is enabled
     
     // Find today's sleep entry and store the total HealthKit value
     const todaySleep = data.sleep.find(entry => {
@@ -420,8 +421,8 @@ async function updateUserSyncStatus(
           console.log(`${LOG_PREFIX} Sleep sync - Incremental: ${incrementalValue}, Existing: ${existingLastSyncedValue}, New Total: ${newTotal}, Last synced today: ${isLastSyncedToday}`);
         }
         
-        updateFields["healthSync.lastSyncedSleepValue"] = newTotal;
-        updateFields["healthSync.lastSyncedSleepDate"] = now;
+        updateFields[`${syncFieldPrefix}.lastSyncedSleepValue`] = newTotal;
+        updateFields[`${syncFieldPrefix}.lastSyncedSleepDate`] = now;
       }
     }
   }
@@ -440,7 +441,7 @@ async function updateUserSyncStatus(
         { new: true }
       );
     } else {
-      // Create new with healthSync field
+      // Create new with platform-specific health sync field
       const newHealthSync: any = {
         stepSync: !!data.steps?.length,
         sleepSync: !!data.sleep?.length,
@@ -485,10 +486,18 @@ async function updateUserSyncStatus(
         }
       }
       
-      await UserDetailsModel.create({
+      const createData: any = {
         userId: userObjectId,
-        healthSync: newHealthSync,
-      });
+      };
+      
+      // Set platform-specific field
+      if (platform === "android") {
+        createData.androidHealth = newHealthSync;
+      } else {
+        createData.healthSync = newHealthSync;
+      }
+      
+      await UserDetailsModel.create(createData);
     }
 
     console.log(`${LOG_PREFIX} Updated sync status for user ${userId}`);
@@ -505,7 +514,7 @@ async function updateUserSyncStatus(
 /**
  * Get user's health sync status
  */
-export async function getHealthSyncStatus(userId: string): Promise<{
+export async function getHealthSyncStatus(userId: string, platform?: Platform): Promise<{
   success: boolean;
   data?: SyncStatus & {
     lastSyncedStepsValue?: number;
@@ -521,14 +530,24 @@ export async function getHealthSyncStatus(userId: string): Promise<{
       userId: new mongoose.Types.ObjectId(userId),
     });
 
-    // Default status for users without healthSync field
+    // Default status for users without health sync field
     const defaultStatus: SyncStatus = {
       syncModalShown: false,
       stepSync: false,
       sleepSync: false,
     };
 
-    const syncData = userDetails?.healthSync;
+    // Get platform-specific sync data
+    // If platform is specified, use that; otherwise check both (for backward compatibility)
+    let syncData;
+    if (platform === "android") {
+      syncData = userDetails?.androidHealth;
+    } else if (platform === "ios") {
+      syncData = userDetails?.healthSync;
+    } else {
+      // Backward compatibility: prefer iOS healthSync, fallback to androidHealth
+      syncData = userDetails?.healthSync || userDetails?.androidHealth;
+    }
 
     if (!syncData) {
       return { success: true, data: defaultStatus };
@@ -560,27 +579,27 @@ export async function getHealthSyncStatus(userId: string): Promise<{
  */
 export async function disableHealthSync(
   userId: string,
-  type: "steps" | "sleep"
+  type: "steps" | "sleep",
+  platform?: Platform
 ): Promise<{ success: boolean; message: string }> {
   try {
-    console.log(`${LOG_PREFIX} Disabling ${type} sync for user ${userId}`);
+    console.log(`${LOG_PREFIX} Disabling ${type} sync for user ${userId}, platform: ${platform || "ios"}`);
     
     const userObjectId = new mongoose.Types.ObjectId(userId);
     
-    // Update healthSync field to disable the specific type
-    const updateField = type === "steps" ? "healthSync.stepSync" : "healthSync.sleepSync";
+    // Use platform-specific field
+    const syncFieldPrefix = platform === "android" ? "androidHealth" : "healthSync";
+    const updateField = type === "steps" ? `${syncFieldPrefix}.stepSync` : `${syncFieldPrefix}.sleepSync`;
     
     await UserDetailsModel.updateOne(
       { userId: userObjectId },
       { 
         $set: { [updateField]: false },
-        // Also update old field for backward compatibility
-        [`appleHealth.${type === "steps" ? "stepSync" : "sleepSync"}`]: false,
       },
       { upsert: false }
     );
 
-    console.log(`${LOG_PREFIX} ${type} sync disabled successfully`);
+    console.log(`${LOG_PREFIX} ${type} sync disabled successfully for ${platform || "ios"}`);
     return {
       success: true,
       message: `${type} sync disabled successfully`,

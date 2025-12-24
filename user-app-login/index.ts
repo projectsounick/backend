@@ -10,16 +10,46 @@ const httpTrigger: AzureFunction = async function (
 ): Promise<void> {
   try {
     /// Building connection with the cosmos database -----------------/
-    await init(context);
+    try {
+      await init(context);
+    } catch (dbError: any) {
+      // Database connection error - return it in response
+      context.log.error("Database connection error:", dbError);
+      context.res = {
+        status: 500,
+        body: {
+          message: `Database connection failed: ${dbError?.message || dbError}`,
+          success: false,
+          error: "DATABASE_CONNECTION_ERROR",
+          details: dbError?.message || "Unable to connect to database",
+        },
+      };
+      return;
+    }
 
     /// replace this query _id with jsonwebtoken _id later on
-    console.log(req.body);
+    context.log("Request body:", req.body);
+    
+    // Validate request body
+    if (!req.body || !req.body.email) {
+      context.res = {
+        status: 400,
+        body: {
+          message: "Email is required",
+          success: false,
+          error: "VALIDATION_ERROR",
+        },
+      };
+      return;
+    }
+
     /// Calling the service function ----------------------/
     const response: {
       message: string;
       success: boolean;
       data: User;
     } = await loginUserAppNew(req.body.email);
+    
     if (response.success) {
       context.res = {
         status: 200,
@@ -31,12 +61,18 @@ const httpTrigger: AzureFunction = async function (
         body: response,
       };
     }
-  } catch (error) {
+  } catch (error: any) {
+    // Catch any other errors
+    context.log.error("Error in user-app-login:", error);
+    context.log.error("Error stack:", error?.stack);
+    
     context.res = {
       status: 500,
       body: {
-        message: `${error.message}`,
+        message: error?.message || "Internal server error",
         success: false,
+        error: "INTERNAL_ERROR",
+        details: error?.message || "An unexpected error occurred",
       },
     };
   }
